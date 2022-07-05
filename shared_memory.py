@@ -197,6 +197,13 @@ class SHMStruct(ctypes.Structure):
         ('discLifeFR', ctypes.c_float),
         ('discLifeRL', ctypes.c_float),
         ('discLifeRR', ctypes.c_float),
+        ('ignitionOn', ctypes.c_int),
+        ('starterEngineOn', ctypes.c_int),
+        ('isEngineRunning', ctypes.c_int),
+        ('kerbVibration', ctypes.c_float),
+        ('slipVibrations', ctypes.c_float),
+        ('gVibrations', ctypes.c_float),
+        ('absVibrations', ctypes.c_float),
     ]
 
 
@@ -214,11 +221,6 @@ class AssettoCorsaData:
         self._physics_memory_map.seek(0)
         raw_data = self._physics_memory_map.read(ctypes.sizeof(SHMStruct))
         shared_memory = SHMStruct.from_buffer_copy(raw_data)
-        print(shared_memory.throttle)
-        print(shared_memory.brake)
-        print(shared_memory.drs)
-        print(shared_memory.velocity1)
-        print(shared_memory.rpm)
 
 
 def main():

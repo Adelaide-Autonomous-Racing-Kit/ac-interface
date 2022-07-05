@@ -18,7 +18,7 @@ def main():
     image = capture_frame()
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     cv2.imshow('image',image)
-    cv2.waitKey(0)
+    cv2.waitKey(0) 
 
 if __name__=='__main__':
     main()
