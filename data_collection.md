@@ -13,8 +13,7 @@ Out of the box Assetto Corsa also provides [UPD network telemetry](https://www.a
 Although many vehicle types of telemetry data are forwarded to clients some aspects are not disclosed and these details are provided in bulk, indiscriminately.
 For these reasons I will be using the final method Assetto Corsa provides, which is [accessing the games shared memory directly](https://www.assettocorsa.net/forum/index.php?threads/acc-shared-memory-documentation.59965/).
 This exposes every aspect of the vehicle's current state used by the game's vehicle dynamics model.
-Even though this will require the development of a socket server to publish state it will provide the most flexibility to the interface.
-Instead of building this server from scratch we will use ROS2 to handle message passing of vehicle telemetry, camera feeds and control inputs.
+Instead of building a socket server from scratch to aggregate and broadcast game state, we will use ROS2 to handle message passing of vehicle telemetry, camera feeds and control inputs.
 For these control inputs to be applied to the game environment a virtual controller will be emulated using the [vgamepad](https://pypi.org/project/vgamepad/) python package.
 To gather segmentation and depth data from Assetto Corsa we will follow two previous works that use DirectX rendering data to automatically create these labels. ([Work 1](https://download.visinf.tu-darmstadt.de/data/from_games/), [Work 2](https://openaccess.thecvf.com/content_cvpr_2018/papers/Krahenbuhl_Free_Supervision_From_CVPR_2018_paper.pdf))
 

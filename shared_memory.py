@@ -1,6 +1,7 @@
 import ctypes
 import mmap
-import struct
+import time
+from threading import Thread
 
 class SHMStruct(ctypes.Structure):
     _fields_ = [
@@ -216,17 +217,34 @@ class AssettoCorsaData:
             "Local\\acpmf_physics",
             access=mmap.ACCESS_READ
         )
+        self.update_thread = Thread(target=self._run, daemon=True)
+        self.update_thread.start()
+        self.initial_packetId = self.shared_memory.packetId
+        self._has_AC_started = False
     
-    def update(self):
+    def _run(self):
+        while True:
+            self._update()
+    
+    def _update(self):
         self._physics_memory_map.seek(0)
         raw_data = self._physics_memory_map.read(ctypes.sizeof(SHMStruct))
         shared_memory = SHMStruct.from_buffer_copy(raw_data)
+        self.shared_memory = shared_memory
+    
+    def has_AC_started(self):
+        if self.shared_memory.packetId != self.initial_packetId:
+            self._has_AC_started = True
+        return self._has_AC_started
+
 
 
 def main():
     acd = AssettoCorsaData()
     while True:
         acd.update()
+        if acd.has_AC_started():
+            print("Simulation is running")
 
 
 if __name__=='__main__':
