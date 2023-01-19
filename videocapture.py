@@ -71,7 +71,7 @@ if __name__ == '__main__':
         while streamer.capture.isOpened():
             frame = streamer.grab_frame()
             if frame is not None:
-                cv2.imshow("Context", frame)
+                cv2.imshow("OpenCV capture", frame)
             cv2.waitKey(1) 
             
     else:

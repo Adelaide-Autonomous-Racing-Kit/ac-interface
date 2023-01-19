@@ -130,3 +130,5 @@ dmypy.json
 
 # conda env
 envs
+.obsidian
+.DS_Store
