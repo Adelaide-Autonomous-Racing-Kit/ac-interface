@@ -51,15 +51,15 @@ $ sudo nice -n -20 ffmpeg \
     -tune zerolatency \
     -f flv "rtmp://127.0.0.1/live/test"
 ```
-`sudo nice -n -20`: Changes the priority of the ffmpeg process, this will increase how much CPU time it receives. -20 is the highest priority. 
-`-f avfoundation`: This option tells FFmpeg to use the avfoundation input device, which allows capturing the screen on a Mac.
-`-framerate 30`: This option sets the frame rate of the captured video to 30 frames per second.
-`-i "2"`: This option specifies the input device to use, in this case, the zeroth screen.
-`-c:v libx264`: This option tells FFmpeg to use the H.264 codec for the video stream.
-`-preset ultrafast`: This option tells FFmpeg to use the "ultrafast" preset for the H.264 encoder, which prioritizes speed over quality.
-`-tune zerolatency`: This option tells FFmpeg to optimize the video stream for low latency.
-`-f flv`: This option tells FFmpeg to use the FLV format for the video stream.
-`rtmp://your-rtmp-server-url/optional-rtmp-key`: This is the URL of the RTMP server where the video stream will be sent to. The key lets you have one machine hosting a unique output stream.
+- `sudo nice -n -20`: Changes the priority of the ffmpeg process, this will increase how much CPU time it receives. -20 is the highest priority. 
+- `-f avfoundation`: This option tells FFmpeg to use the avfoundation input device, which allows capturing the screen on a Mac.
+- `-framerate 30`: This option sets the frame rate of the captured video to 30 frames per second.
+- `-i "2"`: This option specifies the input device to use, in this case, the zeroth screen.
+- `-c:v libx264`: This option tells FFmpeg to use the H.264 codec for the video stream.
+- `-preset ultrafast`: This option tells FFmpeg to use the "ultrafast" preset for the H.264 encoder, which prioritizes speed over quality.
+- `-tune zerolatency`: This option tells FFmpeg to optimize the video stream for low latency.
+- `-f flv`: This option tells FFmpeg to use the FLV format for the video stream.
+- `rtmp://your-rtmp-server-url/optional-rtmp-key`: This is the URL of the RTMP server where the video stream will be sent to. The key lets you have one machine hosting a unique output stream.
 
 We need streams to be as realtime as possible, so when using ffmpeg you should see a `speed=1x`
 ```bash
@@ -80,14 +80,14 @@ $ ffmpeg \
 	-tune zerolatency \
 	-f flv "rtmp://127.0.0.1/live/test"
 ```
-`-f x11grab`: This option tells FFmpeg to use the X11 screen capture input device. This option allows FFmpeg to capture the entire screen or a specific window.
-`-framerate 30`: This option sets the frame rate of the captured video to 30 frames per second.
-`-i "1"`: This option specifies the input device to use, in this case, it is the X11 display number.
-`-c:v libx264`: This option tells FFmpeg to use the H.264 codec for the video stream.
-`-preset ultrafast`: This option tells FFmpeg to use the "ultrafast" preset for the H.264 encoder, which prioritizes speed over quality.
-`-tune zerolatency`: This option tells FFmpeg to optimize the video stream for low latency.
-`-f flv` : This option tells FFmpeg to use the FLV format for the video stream.    
-`rtmp://127.0.0.1/live/test`: This is the URL of the RTMP server where the video stream will be sent to.
+- `-f x11grab`: This option tells FFmpeg to use the X11 screen capture input device. This option allows FFmpeg to capture the entire screen or a specific window.
+- `-framerate 30`: This option sets the frame rate of the captured video to 30 frames per second.
+- `-i "1"`: This option specifies the input device to use, in this case, it is the X11 display number.
+- `-c:v libx264`: This option tells FFmpeg to use the H.264 codec for the video stream.
+- `-preset ultrafast`: This option tells FFmpeg to use the "ultrafast" preset for the H.264 encoder, which prioritizes speed over quality.
+- `-tune zerolatency`: This option tells FFmpeg to optimize the video stream for low latency.
+- `-f flv` : This option tells FFmpeg to use the FLV format for the video stream.    
+- `rtmp://127.0.0.1/live/test`: This is the URL of the RTMP server where the video stream will be sent to.
 
 - [ ] Test that these settings actually work on James' PC
 
