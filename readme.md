@@ -80,7 +80,7 @@ $ ffmpeg \
 	-tune zerolatency \
 	-f flv "rtmp://127.0.0.1/live/test"
 ```
-- `-f x11grab`: This option tells FFmpeg to use the X11 screen capture input device. This option allows FFmpeg to capture the entire screen or a specific window.
+- `-f x11grab`: This option tells FFmpeg to use the X11 screen capture input device.
 - `-framerate 30`: This option sets the frame rate of the captured video to 30 frames per second.
 - `-i "1"`: This option specifies the input device to use, in this case, it is the X11 display number.
 - `-c:v libx264`: This option tells FFmpeg to use the H.264 codec for the video stream.
@@ -89,7 +89,7 @@ $ ffmpeg \
 - `-f flv` : This option tells FFmpeg to use the FLV format for the video stream.    
 - `rtmp://127.0.0.1/live/test`: This is the URL of the RTMP server where the video stream will be sent to.
 
-- [ ] Test that these settings actually work on James' PC
+
 
 ### Open Broadcast Software
 If FFMPEG doesn't work, then this is a backup, as it seems to have a ~0.3-0.7ms overhead (at least on my M1 Mac).
@@ -99,12 +99,20 @@ Side note, [OBS websockets](https://github.com/obsproject/obs-websocket#client-s
 1. Get the thing https://obsproject.com/download
 2. Start the Assetto Corsa game, setting it to window mode is optional.
 3. Open OBS and add a new "Window Capture" source under the "Depricated" menu for the Assetto Corsa game window.
-![[selecting_a_source.png]]
-5. In the OBS settings, go to the "Stream" tab and set the "Streaming Service" to "Custom" and the "Server" to "rtmp://your-rtmp-server-url".
+
+![](imgs/selecting_a_source.png)
+
+4. In the OBS settings, go to the "Stream" tab and set the "Streaming Service" to "Custom" and the "Server" to "rtmp://your-rtmp-server-url".
+
 ![](imgs/obs_settings_stream.png)
-7. Optionally, you can finetune some settings in OBS. Note the separate Streaming vs Recording settings, I haven't really bothered with recording yet so this will likely change!
-![[settings_output_simple.png]]
-9. Click "Start Streaming" to start the streaming under the "Controls Tab".
-![[controls_tab.png]]
+
+5. Optionally, you can finetune some settings in OBS. Note the separate Streaming vs Recording settings, I haven't really bothered with recording yet so this will likely change!
+
+![](imgs/settings_output_simple.png)
+
+6. Click "Start Streaming" to start the streaming under the "Controls Tab".
+
+![](imgs/controls_tab.png)
+
 
 
