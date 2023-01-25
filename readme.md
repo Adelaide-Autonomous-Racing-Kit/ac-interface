@@ -20,7 +20,10 @@
 
 ### Reading the video stream and processing the live frames
 
-**Real-Time Messaging Protocol (RTMP)** is a protocol for streaming audio, video, and data over the internet. In this tutorial, we will be using an RTMP server to receive the video stream from FFmpeg or OBS and make it available for python to consume.
+#### Real-Time Messaging Protocol (RTMP)
+RTMP is a protocol for streaming audio, video, and data over the internet. In this tutorial, we will be using an RTMP server to receive the video stream from FFmpeg or OBS and make it available for python to consume.
+
+For screen capture you will need to host a (ideally local) RTMP server. Unfortunately, the rtmp 
 
 **Python** is used to read and process the video stream from the RTMP server. We will be using the opencv-python library to connect to the RTMP server and display the video stream in real-time.
 

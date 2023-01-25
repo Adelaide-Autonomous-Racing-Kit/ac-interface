@@ -1,17 +1,18 @@
 import cv2
 from threading import Thread
 
+
 class ThreadedCamera(object):
-    def __init__(self, source = 0):
+    def __init__(self, source=0):
 
         self.capture = cv2.VideoCapture(source)
 
-        self.thread = Thread(target = self.update, args = ())
+        self.thread = Thread(target=self.update, args=())
         self.thread.daemon = True
         self.thread.start()
 
         self.status = False
-        self.frame  = None
+        self.frame = None
 
     def update(self):
         while True:
@@ -21,11 +22,10 @@ class ThreadedCamera(object):
     def grab_frame(self):
         if self.status:
             return self.frame
-        return None  
+        return None
 
-if __name__ == '__main__':
-    stream_link = "rtmp://127.0.0.1/live/test"
-    
+
+if __name__ == "__main__":
     """
     https://gist.github.com/jeasonstudio/914981b346746309828ae31ecda9264c
     
@@ -62,19 +62,14 @@ if __name__ == '__main__':
     $ sudo nice -n -20 ffmpeg -fflags nobuffer -threads 1 -f avfoundation -thread_queue_size 512 -i "1" -framerate 60 -b:a 256K -c:a aac_at -f flv "rtmp://127.0.0.1/live/test"
     frame= 6654 fps= 30 q=31.0 Lsize=  193437kB time=00:03:42.03 bitrate=7136.9kbits/s speed=   1x
     """
-    
-    
-    threaded_streamer = True
-    if threaded_streamer:
-        streamer = ThreadedCamera(stream_link)
 
-        while streamer.capture.isOpened():
-            frame = streamer.grab_frame()
-            if frame is not None:
-                cv2.imshow("OpenCV capture", frame)
-            cv2.waitKey(1) 
-            
-    else:
-        capture = cv2.VideoCapture(stream_link, cv2.CAP_DSHOW)
-        
-        capture.cap
+    stream_link = "rtmp://127.0.0.1/live/test"
+
+    threaded_streamer = True
+    streamer = ThreadedCamera(stream_link)
+
+    while streamer.capture.isOpened():
+        frame = streamer.grab_frame()
+        if frame is not None:
+            cv2.imshow("OpenCV capture", frame)
+        cv2.waitKey(1)
