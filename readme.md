@@ -5,7 +5,7 @@
 
 Hopefully we get this working with docker compose (so that we launch all necessary containers at the same time).
 
-[Here's how you install Docker](https://docs.docker.com/engine/install/ubuntu/).
+[Here's how you install Docker](https://docs.docker.com/engine/install/ubuntu/) and then the [Nvidia container addon](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#setting-up-nvidia-container-toolkit).
 
 
 
