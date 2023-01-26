@@ -1,4 +1,4 @@
-framerate: 30
-c:v: libx264
-preset: ultrafast
-tune: zerolatency
+framerate: "30"
+c:v: "copy"
+preset: "ultrafast"
+tune: "zerolatency"

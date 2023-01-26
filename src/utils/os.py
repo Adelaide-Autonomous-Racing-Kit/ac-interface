@@ -1,5 +1,8 @@
-from src.game_capture.get_window import get_ACC_window_location_linux
 from typing import Tuple
+
+from src.game_capture.get_window import get_window_location_linux
+from src.config.constants import GAME_NAME_TO_WINDOW_NAME
+
 
 def sanitise_os_name(name: str) -> str:
     if name is None or name.strip() == "":
@@ -27,7 +30,10 @@ def get_file_format(os_name: str) -> str:
     else:
         raise NotImplementedError("Unsupported operating system")
 
-def get_display_input(os_name: str, game_resolution: str) -> Tuple[str, str]:
+
+def get_display_input(
+    os_name: str, game_name: str, game_resolution: str
+) -> Tuple[str, str]:
     """
     Get the appropriate file input and video size for the given operating system.
 
@@ -44,10 +50,9 @@ def get_display_input(os_name: str, game_resolution: str) -> Tuple[str, str]:
     elif os_name == "darwin":
         raise NotImplementedError
     elif os_name == "linux":
-
-        window_location = get_ACC_window_location_linux(game_resolution)
-
-        file_input = f":0.0+{window_location[0]},{window_location[1]}"
+        window_name = GAME_NAME_TO_WINDOW_NAME[game_name]
+        window_location = get_window_location_linux(window_name, game_resolution)
+        file_input = f":0.0+{window_location.x},{window_location.y}"
         video_size = "x".join(map(str, game_resolution))
     else:
         raise NotImplementedError("Unsupported operating system")

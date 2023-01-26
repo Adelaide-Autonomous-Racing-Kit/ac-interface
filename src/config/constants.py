@@ -1,0 +1,1 @@
+GAME_NAME_TO_WINDOW_NAME = {"ACC": "steam_app_805550"}
