@@ -8,7 +8,7 @@ ifneq ($(wildcard $(CONDA_ENV_PATH)),)
 		conda env remove -p $(CONDA_ENV_PATH); \
 	fi
 endif
-	conda create -y -p $(CONDA_ENV_PATH) opencv numpy pytest -c conda-forge 
+	conda create -y -p $(CONDA_ENV_PATH) opencv numpy pytest av -c conda-forge 
 
 run:
 	echo $(CONDA_ENV_PATH)
