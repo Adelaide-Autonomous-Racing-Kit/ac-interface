@@ -1,3 +1,4 @@
+from concurrent.futures import ProcessPoolExecutor
 from typing import Literal
 import av
 import cv2
@@ -6,6 +7,47 @@ import platform
 import yaml
 
 from src.utils.os import sanitise_os_name, get_file_format, get_display_input
+from src.utils.system_monitor import track_runtime, System_Monitor
+
+
+def save_frame(frame, i):
+    np.save(f"./test/{i}", frame)
+
+
+@track_runtime
+def decode_packet(packet):
+    return packet.decode()[0]
+
+
+@track_runtime
+def convert_to_rgb(frame):
+    return frame.to_rgb()
+
+
+@track_runtime
+def convert_to_ndarray(frame):
+    return frame.to_ndarray()
+
+
+@track_runtime
+def convert_from_brg(frame):
+    return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+
+@track_runtime
+def display(frame):
+    cv2.imshow("OpenCV capture", frame)
+    cv2.waitKey(1)
+
+
+@track_runtime
+def get_frame(packet):
+    frame = decode_packet(packet)
+    frame = convert_to_rgb(frame)
+    frame = convert_to_ndarray(frame)
+    frame = convert_from_brg(frame)
+    executor.submit(save_frame, frame, i)
+    return frame
 
 
 if __name__ == "__main__":
@@ -31,8 +73,14 @@ if __name__ == "__main__":
     ffmpeg_config["video_size"] = video_size
     capture = av.open(file=file_input, format=file_format, options=ffmpeg_config)
     generator = capture.demux(capture.streams.video[0])
+    executor = ProcessPoolExecutor(max_workers=2)
+
+    i = 0
     for packet in generator:
-        frame = np.asarray(packet.decode()[0].to_image())
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        cv2.imshow("OpenCV capture", frame)
-        cv2.waitKey(1)
+        frame = get_frame(packet)
+        display(frame)
+        i += 1
+        if i == 200:
+            break
+
+    System_Monitor.log_function_runtimes_times()
