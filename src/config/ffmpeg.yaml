@@ -1,0 +1,4 @@
+framerate: 30
+c:v: libx264
+preset: ultrafast
+tune: zerolatency
