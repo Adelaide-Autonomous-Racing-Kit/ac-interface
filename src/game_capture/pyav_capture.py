@@ -37,6 +37,11 @@ def get_frame(packet: av.Packet) -> np.array:
     return from_buffer.reshape(plane.height, plane.width, 4)[:, :, :3]
 
 
+def track_packet_creation_time(packet: av.Packet):
+    creation_time = (time.time() - float(packet.pts * packet.time_base)) * 10e3
+    System_Monitor.add_function_runtime("ffmpeg_capture", creation_time)
+
+
 if __name__ == "__main__":
     with open("./src/config/game_capture.yaml") as file:
         game_capture_config = yaml.load(file, Loader=yaml.FullLoader)
@@ -61,9 +66,11 @@ if __name__ == "__main__":
     capture = av.open(file=file_input, format=file_format, options=ffmpeg_config)
     generator = capture.demux(capture.streams.video[0])
     executor = ProcessPoolExecutor(max_workers=2)
+    import time
 
     i = 0
     for packet in generator:
+        # track_packet_creation_time(packet)
         frame = get_frame(packet)
         display(frame)
         i += 1
