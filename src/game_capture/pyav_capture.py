@@ -37,7 +37,15 @@ def get_frame(packet: av.Packet) -> np.array:
     return from_buffer.reshape(plane.height, plane.width, 4)[:, :, :3]
 
 
-def track_packet_creation_time(packet: av.Packet):
+def track_ffmpeg_capture_time(packet: av.Packet):
+    """
+    Adds an entry to system monitor for tracking the frame time of ffmpeg capture
+        Make sure "use_wallclock_as_timestamps" is set to "1" in ffmpeg config
+        before taking measurements, otherwise they may use a logical frame clock
+
+    :packer: Stream packet to interpret.
+    :type packet: av.Packet
+    """
     creation_time = (time.time() - float(packet.pts * packet.time_base)) * 10e3
     System_Monitor.add_function_runtime("ffmpeg_capture", creation_time)
 
@@ -70,7 +78,7 @@ if __name__ == "__main__":
 
     i = 0
     for packet in generator:
-        # track_packet_creation_time(packet)
+        # track_ffmpeg_capture_time(packet)
         frame = get_frame(packet)
         display(frame)
         i += 1
