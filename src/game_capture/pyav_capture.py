@@ -15,39 +15,26 @@ def save_frame(frame, i):
 
 
 @track_runtime
-def decode_packet(packet):
-    return packet.decode()[0]
-
-
-@track_runtime
-def convert_to_rgb(frame):
-    return frame.to_rgb()
-
-
-@track_runtime
-def convert_to_ndarray(frame):
-    return frame.to_ndarray()
-
-
-@track_runtime
-def convert_from_brg(frame):
-    return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-
-@track_runtime
 def display(frame):
     cv2.imshow("OpenCV capture", frame)
     cv2.waitKey(1)
 
 
 @track_runtime
-def get_frame(packet):
-    frame = decode_packet(packet)
-    frame = convert_to_rgb(frame)
-    frame = convert_to_ndarray(frame)
-    frame = convert_from_brg(frame)
-    executor.submit(save_frame, frame, i)
-    return frame
+def get_frame(packet: av.Packet) -> np.array:
+    """
+    Extract a video frame from a stream packet as a numpy array
+        Packet is a 24-bit 3 component BGR post-padded to 32-bits
+
+    :packer: Stream packet to interpret.
+    :type packet: av.Packet
+    :return: Frame as np.array in [h x w x c] in BGR channel order.
+    :rtype: np.array
+    """
+    plane = packet.decode()[0].planes[0]
+    from_buffer = np.frombuffer(plane, dtype=np.uint8)
+    # Reshape to height x width  x 4 and slice off padded zeros in 4th channel
+    return from_buffer.reshape(plane.height, plane.width, 4)[:, :, :3]
 
 
 if __name__ == "__main__":
