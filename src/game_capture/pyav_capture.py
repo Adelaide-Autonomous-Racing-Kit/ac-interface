@@ -3,11 +3,11 @@ from typing import Literal
 import av
 import cv2
 import numpy as np
-import platform
 import yaml
 
-from src.utils.os import sanitise_os_name, get_file_format, get_display_input
+from src.utils.os import get_sanitised_os_name, get_file_format, get_display_input
 from src.utils.system_monitor import track_runtime, System_Monitor
+from src.utils.load import load_yaml
 
 
 def save_frame(frame, i):
@@ -50,34 +50,44 @@ def track_ffmpeg_capture_time(packet: av.Packet):
     System_Monitor.add_function_runtime("ffmpeg_capture", creation_time)
 
 
+class FrameCapture:
+    def __init__(self) -> None:
+        self._load_configurations()
+        self._setup_capture_stream()
+        self._setup_frame_generator()
+
+    def _load_configurations(self):
+        self._game_capture_config = load_yaml("./src/config/game_capture.yaml")
+        self._ffmpeg_config = load_yaml("./src/config/ffmpeg.yaml")
+        self._add_dynamic_configuration_options()
+
+    def _add_dynamic_configuration_options(self):
+        os_name = get_sanitised_os_name()
+        self._file_format = get_file_format(os_name)
+        self._file_input, video_size = get_display_input(
+            os_name,
+            game_name=self._game_capture_config.get("game_window_name"),
+            game_resolution=self._game_capture_config.get("game_resolution"),
+        )
+        self._ffmpeg_config["video_size"] = video_size
+
+    def _setup_capture_stream(self):
+        self._capture_stream = av.open(
+            file=self._file_input,
+            format=self._file_format,
+            options=self._ffmpeg_config,
+        )
+
+    def _setup_frame_generator(self):
+        capture_stream = self._capture_stream
+        self._frame_generator = capture_stream.demux(capture_stream.streams.video[0])
+
+
 if __name__ == "__main__":
-    with open("./src/config/game_capture.yaml") as file:
-        game_capture_config = yaml.load(file, Loader=yaml.FullLoader)
-
-    with open("./src/config/ffmpeg.yaml") as file:
-        ffmpeg_config = yaml.load(file, Loader=yaml.FullLoader)
-
-    os_name: Literal["windows", "darwin", "linux"] = sanitise_os_name(
-        name=platform.system()
-    )
-
-    file_format: Literal["dshow", "avfoundation", "x11grab"] = get_file_format(
-        os_name=os_name
-    )
-
-    file_input, video_size = get_display_input(
-        os_name=os_name,
-        game_name=game_capture_config.get("game_window_name"),
-        game_resolution=game_capture_config.get("game_resolution"),
-    )
-    ffmpeg_config["video_size"] = video_size
-    capture = av.open(file=file_input, format=file_format, options=ffmpeg_config)
-    generator = capture.demux(capture.streams.video[0])
-    executor = ProcessPoolExecutor(max_workers=2)
-    import time
+    frame_capture = FrameCapture()
 
     i = 0
-    for packet in generator:
+    for packet in frame_capture._frame_generator:
         # track_ffmpeg_capture_time(packet)
         frame = get_frame(packet)
         display(frame)
