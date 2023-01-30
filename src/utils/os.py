@@ -1,10 +1,12 @@
+import platform
 from typing import Tuple
 
 from src.game_capture.get_window import get_window_location_linux
 from src.config.constants import GAME_NAME_TO_WINDOW_NAME
 
 
-def sanitise_os_name(name: str) -> str:
+def get_sanitised_os_name() -> str:
+    name = platform.system()
     if name is None or name.strip() == "":
         raise ValueError("os_name cannot be None or an empty string")
     name = name.lower()
