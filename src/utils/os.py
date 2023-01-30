@@ -47,12 +47,12 @@ def get_display_input(
     :rtype: Tuple[str, str]
     :raises NotImplementedError: If the given operating system is not supported.
     """
+    window_name = GAME_NAME_TO_WINDOW_NAME[os_name][game_name]
     if os_name == "windows":
         raise NotImplementedError
     elif os_name == "darwin":
         raise NotImplementedError
     elif os_name == "linux":
-        window_name = GAME_NAME_TO_WINDOW_NAME[game_name]
         window_location = get_window_location_linux(window_name, game_resolution)
         file_input = f":0.0+{window_location.x},{window_location.y}"
         video_size = "x".join(map(str, game_resolution))
