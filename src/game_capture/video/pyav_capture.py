@@ -1,4 +1,4 @@
-import threading
+from threading import Thread
 import time
 import av
 import cv2
@@ -12,12 +12,28 @@ from src.utils.load import load_yaml
 class ImageStream:
     """
     Captures and converts video from an application to an stream.
-    Is a generator that yields images as numpy arrays.
+        Consumes frames from PyAV and converts them for use in inference
+        or data recording. It continuasly refreshes the current image
+        which can be access via the `latest_image` property
     """
 
     def __init__(self) -> None:
         self.__load_configurations()
         self.__setup_frame_generator()
+        self.__start_update_thread()
+        self._latest_image = None
+
+    @property
+    def latest_image(self) -> np.array:
+        self.wait_for_first_frame()
+        return self._latest_image
+
+    def wait_for_first_frame(self):
+        """
+        Blocking call that waits until first image from the game is recieved
+        """
+        while self._latest_image is None:
+            pass
 
     def __load_configurations(self):
         self._game_capture_config = load_yaml("./src/config/game_capture.yaml")
@@ -42,6 +58,24 @@ class ImageStream:
         )
         self._frame_generator = capture_stream.decode()
 
+    def __start_update_thread(self):
+        """
+        Starts a thread that consumes frames yieled by PyAV
+        """
+        self._is_running = True
+        self.update_thread = Thread(target=self._run, daemon=True)
+        self.update_thread.start()
+
+    def _run(self):
+        while self._is_running:
+            self._update()
+
+    def _update(self):
+        frame = next(self._frame_generator)
+        # track_ffmpeg_capture_time(frame)
+        image = self._get_image_from_frame(frame)
+        self._latest_image = image
+
     @track_runtime
     def _get_image_from_frame(self, frame: av.video.frame.VideoFrame) -> np.array:
         """
@@ -58,20 +92,6 @@ class ImageStream:
         # Reshape to height x width  x 4 and slice off padded zeros in 4th channel
         return from_buffer.reshape(plane.height, plane.width, 4)[:, :, :3]
 
-    def __iter__(self) -> np.array:
-        """
-        Generator definition that consumes from PyAVs frame stream and converts
-            frames into image in the form of np.arrays
-
-        :return: Images as np.array in [h x w x c] in BGR channel order.
-        :rtype: np.array
-        """
-        while True:
-            frame = next(self._frame_generator)
-            # track_ffmpeg_capture_time(frame)
-            image = self._get_image_from_frame(frame)
-            yield image
-
     def __repr__(self) -> str:
         resolution = self._game_capture_config["game_resolution"]
         framerate = self._ffmpeg_config["framerate"]
@@ -82,6 +102,17 @@ class ImageStream:
         to_print += f"Framerate: {framerate}fps \n"
         to_print += f"Encoder: {encoder}\n"
         return to_print
+
+
+# Small test loop to evaluate capture performance
+def main():
+    image_stream = ImageStream()
+
+    for _ in range(300):
+        image = image_stream.latest_image
+        display(image)
+
+    System_Monitor.log_function_runtimes_times()
 
 
 def display(image: np.array):
@@ -102,14 +133,5 @@ def track_ffmpeg_capture_time(frame: av.video.frame.VideoFrame):
     System_Monitor.add_function_runtime("ffmpeg_capture", creation_time)
 
 
-# Small test loop to evaluate capture performance
 if __name__ == "__main__":
-    image_stream = ImageStream()
-    i = 0
-    for image in image_stream:
-        display(image)
-        i += 1
-        if i == 300:
-            break
-
-    System_Monitor.log_function_runtimes_times()
+    main()

@@ -1,13 +1,21 @@
 from multiprocessing.connection import Listener
 from threading import Thread
 import ctypes
-from src.game_capture.state.shared_memory import AssettoCorsaData
+from src.game_capture.state.scraper import AssettoCorsaData
 
 ADDRESS = "localhost"
-PORT = 6001
+PORT = 6005
 
 
 class StateServer:
+    """
+    Socket server that sends game state updates to StateClients
+        The underlying `AssettoCorsaData` class continualy scrapes
+        the game state from memory and if an update step has occured
+        the new state is sent to all clients connected
+
+    """
+
     def __init__(self):
         self.assetto_corsa_data = AssettoCorsaData()
         self.listener = Listener((ADDRESS, PORT))
@@ -23,9 +31,16 @@ class StateServer:
 
     def send_game_state(self, connection):
         last_packet_id = -1
-        while True:
+        is_connected = True
+        while is_connected:
             if not last_packet_id == self.latest_packet_id:
-                connection.send(self.assetto_corsa_data.shared_memory)
+                try:
+                    connection.send(self.assetto_corsa_data.shared_memory)
+                    last_packet_id = self.assetto_corsa_data.shared_memory.packetId
+                except Exception as e:
+                    print(f"Connection Closed: {e}")
+                    connection.close()
+                    is_connected = False
 
     def run(self):
         while self.is_running:

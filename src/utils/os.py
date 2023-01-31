@@ -1,7 +1,7 @@
 import platform
 from typing import Tuple
 
-from src.game_capture.get_window import get_window_location_linux
+from src.game_capture.video.get_window import get_window_location_linux
 from src.config.constants import GAME_NAME_TO_WINDOW_NAME
 
 
