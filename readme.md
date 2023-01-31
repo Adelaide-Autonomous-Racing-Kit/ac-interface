@@ -13,6 +13,10 @@
 
 ## Game capture
 
+<details>
+	<summary>Linux</summary>
+
+### Video
 **FFmpeg** is a free and open-source command-line tool for processing multimedia files. It can be used to capture and stream video from a variety of sources.
 
 To capture the game window, we use the [PyAV library](https://github.com/PyAV-Org/PyAV) which provides a python wrapper for ffmpeg. 
@@ -22,4 +26,44 @@ To launch game capture, run the [pyav_capture.py](https://github.com/XDynames/as
 $ python src/game_capture/pyav_capture.py
 ```
 
+### State
+AC/C have to run in WINE which means we cannot directly access the game state via shared memory.
+To get around this we use a python script running inside the same WINE instance as the game to access the game state which it then makes available to the host OS via a socket.
+Crossover doesn't come with python so first we need to install that using the `Install an unlisted application` button in the `Install` tab.
+When installing python select to install it for all users.
+Once python is installed, go to your bottle with Python and AC in Crossover and click the `Run Command` button.
+To use python from the command line we need to add it to the bottle's path.
+In the command field type `regedit` and hit `Run`.
+Navigate to `HKEY_LOCAL_MACHINE` > `System` > `CurrentControlSet` > `Session Manager` > `Environment`.
+Then modify the data field of `PATH` by appending 
+```
+%SystemRoot%\users\crossover\AppData\Local\Programs\Python\Python311
+```
+*Note: you may need to modify the terminal folder name depending on the version of python you have installed, in this example we used 3.11.*
+Now we should be able to call python and its related packages from the bottle's command line.
+To access the command line inside the bottle run:
+```
+/opt/cxoffice/bin/wine --bottle Assetto_Corsa --cx-app cmd.exe
+```
+Navigate to the root directory of the package and run 
+```
+pip install -e .
+```
+To install it into the bottle.
+You can then run
+```
+python src/gamecapture/state/server.py
+```
+to start a listener that will send game state to those that connect.
+On your host machine you should now be able to run
+```
+python src/game_capture/state/client.py
+```
+to receieve game state from AC/C outside the bottle.
 
+
+</details>
+
+
+<details>
+	<summary>Windows</summary>
