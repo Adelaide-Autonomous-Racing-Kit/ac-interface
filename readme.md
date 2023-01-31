@@ -34,7 +34,7 @@ When installing python select to install it for all users.
 Once python is installed, go to your bottle with Python and AC in Crossover and click the `Run Command` button.
 To use python from the command line we need to add it to the bottle's path.
 In the command field type `regedit` and hit `Run`.
-Navigate to `HKEY_LOCAL_MACHINE` > `System` > `CurrentControlSet` > `Session Manager` > `Environment`.
+Navigate to `HKEY_LOCAL_MACHINE` > `System` > `CurrentControlSet` > `Control` > `Session Manager` > `Environment`.
 Then modify the data field of `PATH` by appending 
 ```
 %SystemRoot%\users\crossover\AppData\Local\Programs\Python\Python311
