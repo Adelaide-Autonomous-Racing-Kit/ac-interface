@@ -4,7 +4,7 @@ import ctypes
 from src.game_capture.state.scraper import AssettoCorsaData
 
 ADDRESS = "localhost"
-PORT = 6005
+PORT = 6002
 
 
 class StateServer:
@@ -27,7 +27,7 @@ class StateServer:
 
     @property
     def latest_packet_id(self) -> int:
-        return self.assetto_corsa_data.shared_memory.packetId
+        return self.assetto_corsa_data.shared_memory["packetId"]
 
     def send_game_state(self, connection):
         last_packet_id = -1
@@ -36,7 +36,7 @@ class StateServer:
             if not last_packet_id == self.latest_packet_id:
                 try:
                     connection.send(self.assetto_corsa_data.shared_memory)
-                    last_packet_id = self.assetto_corsa_data.shared_memory.packetId
+                    last_packet_id = self.assetto_corsa_data.shared_memory["packetId"]
                 except Exception as e:
                     print(f"Connection Closed: {e}")
                     connection.close()

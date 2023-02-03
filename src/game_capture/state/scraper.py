@@ -2,6 +2,7 @@ import ctypes
 import mmap
 import time
 from threading import Thread
+import numpy as np
 
 from src.game_capture.state.shared_memory import SHMStruct
 
@@ -20,7 +21,7 @@ class AssettoCorsaData:
         )
         self.update_thread = Thread(target=self._run, daemon=True)
         self.update_thread.start()
-        self.initial_packetId = self.shared_memory.packetId
+        self.initial_packetId = -1
         self._has_AC_started = False
 
     def _run(self):
@@ -30,11 +31,11 @@ class AssettoCorsaData:
     def _update(self):
         self._physics_memory_map.seek(0)
         raw_data = self._physics_memory_map.read(ctypes.sizeof(SHMStruct))
-        shared_memory = SHMStruct.from_buffer_copy(raw_data)
+        shared_memory = np.frombuffer(raw_data, SHMStruct._fields_)
         self.shared_memory = shared_memory
 
     def has_AC_started(self):
-        if self.shared_memory.packetId != self.initial_packetId:
+        if self.shared_memory["packetId"] != self.initial_packetId:
             self._has_AC_started = True
         return self._has_AC_started
 
