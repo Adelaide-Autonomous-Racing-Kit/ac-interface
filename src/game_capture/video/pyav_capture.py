@@ -3,6 +3,7 @@ import time
 import av
 import cv2
 import numpy as np
+from loguru import logger
 
 from src.utils.os import get_sanitised_os_name, get_file_format, get_display_input
 from src.utils.system_monitor import track_runtime, System_Monitor
@@ -13,7 +14,7 @@ class ImageStream:
     """
     Captures and converts video from an application to an stream.
         Consumes frames from PyAV and converts them for use in inference
-        or data recording. It continuasly refreshes the current image
+        or data recording. It continually refreshes the current image
         which can be access via the `latest_image` property
     """
 
@@ -21,19 +22,27 @@ class ImageStream:
         self.__load_configurations()
         self.__setup_frame_generator()
         self.__start_update_thread()
-        self._latest_image = None
+        self._latest_dts = -1
+        self._is_new_frame = False
 
     @property
     def latest_image(self) -> np.array:
-        self.wait_for_first_frame()
+        self.wait_for_new_frame()
+        # Slice off padded zeros to give BGR image
+        return self._latest_image[:, :, :3]
+
+    @property
+    def latest_bgr0_image(self) -> np.array:
+        self.wait_for_new_frame()
         return self._latest_image
 
-    def wait_for_first_frame(self):
+    def wait_for_new_frame(self):
         """
-        Blocking call that waits until first image from the game is recieved
+        Blocking call that waits until a new image from the game is received
         """
-        while self._latest_image is None:
+        while not self._is_new_frame:
             pass
+        self._is_new_frame = False
 
     def __load_configurations(self):
         self._game_capture_config = load_yaml("./src/config/game_capture.yaml")
@@ -68,18 +77,20 @@ class ImageStream:
 
     def _run(self):
         while self._is_running:
-            self._update()
+            frame = next(self._frame_generator)
+            if not self._is_duplicate_frame(frame):
+                # track_ffmpeg_capture_time(frame)
+                bgr0_image = self._get_BGR0_image_from_frame(frame)
+                self._latest_image = bgr0_image
+                self._latest_dts = frame.dts
+                self._is_new_frame = True
 
-    def _update(self):
-        frame = next(self._frame_generator)
-        # track_ffmpeg_capture_time(frame)
-        image = self._get_image_from_frame(frame)
-        self._latest_image = image
+    def _is_duplicate_frame(self, frame) -> bool:
+        return frame.dts == self._latest_dts
 
-    @track_runtime
-    def _get_image_from_frame(self, frame: av.video.frame.VideoFrame) -> np.array:
+    def _get_BGR0_image_from_frame(self, frame: av.video.frame.VideoFrame) -> np.array:
         """
-        Extract an image from a stream frame as a numpy array
+        Extract a BGR0 image from a stream frame as a numpy array
             Packet is a 24-bit 3 component BGR post-padded to 32-bits
 
         :packer: Stream frame to interpret.
@@ -89,8 +100,8 @@ class ImageStream:
         """
         plane = frame.planes[0]
         from_buffer = np.frombuffer(plane, dtype=np.uint8)
-        # Reshape to height x width  x 4 and slice off padded zeros in 4th channel
-        return from_buffer.reshape(plane.height, plane.width, 4)[:, :, :3]
+        # Reshape to height x width  x 4
+        return from_buffer.reshape(plane.height, plane.width, 4)
 
     def __repr__(self) -> str:
         resolution = self._game_capture_config["game_resolution"]
@@ -107,12 +118,16 @@ class ImageStream:
 # Small test loop to evaluate capture performance
 def main():
     image_stream = ImageStream()
+    display_sample_images(image_stream)
+    bench_fps(image_stream)
+    System_Monitor.log_function_runtimes_times()
 
+
+def display_sample_images(image_stream):
+    logger.info("Displaying sample images received")
     for _ in range(300):
         image = image_stream.latest_image
         display(image)
-
-    System_Monitor.log_function_runtimes_times()
 
 
 def display(image: np.array):
@@ -120,11 +135,26 @@ def display(image: np.array):
     cv2.waitKey(1)
 
 
+def bench_fps(image_stream):
+    logger.info("Benchmarking frames per second throughput")
+    start_time = time.time()
+    n_frames = 900
+    for _ in range(n_frames):
+        _ = image_stream.latest_image
+    elapsed_time = time.time() - start_time
+    logger.info(
+        f"Received {n_frames} frames in {elapsed_time}s {n_frames/elapsed_time}fps"
+    )
+
+
 def track_ffmpeg_capture_time(frame: av.video.frame.VideoFrame):
     """
     Adds an entry to system monitor for tracking the frame time of ffmpeg capture
         Make sure "use_wallclock_as_timestamps" is set to "1" in ffmpeg config
         before taking measurements, otherwise they may use a logical frame clock
+    Note: Not 100% sure this captures what we think it does as it reports 300ms
+        capture latency, but you are able to play the game in the opencv window,
+        usually above 100ms is human perceivable for these sorts of games
 
     :packer: Stream packet to interpret.
     :type packet: av.Packet
