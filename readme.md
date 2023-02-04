@@ -62,6 +62,9 @@ python src/game_capture/state/client.py
 ```
 to receieve game state from AC/C outside the bottle.
 
+### Recording
+To write out image files faster we need to make sure an additional package is installed by running `sudo apt-get install libturbojpeg` prior to running `make build`.
+
 
 </details>
 
