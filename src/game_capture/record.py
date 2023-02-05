@@ -18,9 +18,9 @@ class GameRecorder:
     """
 
     def __init__(self):
-        self.__load_configuration()
         self.image_stream = ImageStream()
         self.state_capture = StateClient()
+        self.__load_configuration()
         self.is_running = True
         self.frame_counter = 0
 

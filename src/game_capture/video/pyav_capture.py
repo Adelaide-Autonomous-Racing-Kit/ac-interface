@@ -19,11 +19,11 @@ class ImageStream:
     """
 
     def __init__(self) -> None:
+        self._latest_dts = -1
+        self._is_new_frame = False
         self.__load_configurations()
         self.__setup_frame_generator()
         self.__start_update_thread()
-        self._latest_dts = -1
-        self._is_new_frame = False
 
     @property
     def latest_image(self) -> np.array:
