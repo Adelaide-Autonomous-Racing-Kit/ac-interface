@@ -14,6 +14,7 @@ from src.utils.load import load_yaml
 class GameRecorder:
     """
     Bundles images and game state from Assetto Corsa and write them to disk
+        Configuration options can be found in src/config/record.yaml
     """
 
     def __init__(self):
@@ -28,7 +29,7 @@ class GameRecorder:
         self.root_dir = self._config["save_path"]
 
     def start(self):
-        thread = threading.Thread(target=self._run)
+        thread = threading.Thread(target=self._run, daemon=True)
         thread.start()
 
     def stop(self):
