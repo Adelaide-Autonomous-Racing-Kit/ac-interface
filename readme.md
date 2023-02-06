@@ -12,6 +12,24 @@ We will be using a compatability tool called [Crossover](https://www.codeweavers
 - If you do not have Assetto Corsa, then it is available via [Humble Bundle](https://www.humblebundle.com/store/assetto-corsa) or [Steam](https://store.steampowered.com/app/244210/Assetto_Corsa/).
 
 
+### How to run without steam
+Get into the bottle terminal and go here:
+```cd \.cxoffice\Assetto_corsa\drive_c\Program Files (x86)\Steam\steamapps\common\assettocorsa```
+
+Make sure there is a `steam_appid.txt` with simply "244210" in it. This allows AC to be launched without steam open.
+
+I think this is necessary to run the game...
+```start SteamStatisticsReader.exe``` 
+
+This should boot straight to the race and not open the launcher. If you want to open the launcher it is the AssettoCorsa.exe.
+```start acs.exe```
+
+
+The config files used are not the ones in the base game under steam apps. They are the config files in the users folder i.e.
+```cd /Documents/AssettoCorsa/cfg```
+
+If you change the race.ini file in cfg with track "monza" or "imola" or what ever and save then launch again it will be at a new track. 
+
 ## Game capture
 
 <details>
@@ -71,3 +89,5 @@ To write out image files faster we need to make sure an additional package is in
 
 <details>
 	<summary>Windows</summary>
+
+
