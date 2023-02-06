@@ -9,7 +9,8 @@ ifneq ($(wildcard $(CONDA_ENV_PATH)),)
 	fi
 endif
 	conda create -y -p $(CONDA_ENV_PATH) opencv numpy av pyyaml python-xlib \
-		black flake8-black flake8 isort loguru pytest pytest-benchmark pytest-parallel coverage -c conda-forge 
+		black flake8-black flake8 isort loguru pytest pytest-benchmark pytest-parallel coverage -c conda-forge
+	pip install -U python-uinput
 	pip install -U git+https://github.com/lilohuang/PyTurboJPEG.git
 	
 run:

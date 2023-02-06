@@ -47,7 +47,6 @@ class VirtualGamepad:
     def submit_action(self, action: np.array):
         action = self._un_normalise_action(action)
         for event, action in zip(self._action_events.values(), action):
-            print(int(action))
             self._device.emit(event, int(action))
 
     def _un_normalise_action(self, action: np.array) -> np.array:
