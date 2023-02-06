@@ -75,14 +75,15 @@ def main():
 
 
 def print_state_output(state_client):
-    for _ in range(10):
+    for _ in range(1000):
         print("=== Reading from AC ===")
         state = state_client.latest_state
-        for field in state.dtype.names:
-            if field == "P2PActivation":
-                break
-            print(f"{field}: {state[field]}")
-        time.sleep(0.5)
+        # for field in state.dtype.names:
+        #    if field == "P2PActivation":
+        #        break
+        #    print(f"{field}: {state[field]}")
+        logger.info(f"Throttle: {state['throttle']}, Brake: {state['brake']}")
+        time.sleep(0.25)
 
 
 def benchmark_polling_rate(state_client):
