@@ -4,7 +4,7 @@ import ctypes
 from src.game_capture.state.scraper import AssettoCorsaData
 
 ADDRESS = "localhost"
-PORT = 6002
+PORT = 6001
 
 
 class StateServer:

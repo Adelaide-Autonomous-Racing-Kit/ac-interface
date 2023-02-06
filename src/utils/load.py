@@ -20,5 +20,12 @@ def load_game_state(filepath: str) -> Dict:
         see src.game_capture.state.shared_memory for a list of keys
     """
     state = np.load(filepath)
-    game_state = {key[0]: value for key, value in zip(SHMStruct._fields_, state)}
-    return game_state
+    return state_array_to_dict(state)
+
+def state_array_to_dict(state_array: np.array) -> Dict:
+    """
+    Converts a game state np.arrays to a dictionary of observations
+        see src.game_capture.state.shared_memory for a list of keys
+    """
+    return {key[0]: value for key, value in zip(SHMStruct._fields_, state_array)}
+    
