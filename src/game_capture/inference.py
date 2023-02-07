@@ -127,7 +127,9 @@ class GameCapture(mp.Process):
         self.is_running = False
 
     def __setup_configuration(self):
-        width, height = load_yaml("./src/config/game_capture.yaml")["game_resolution"]
+        width, height = load_yaml("./src/config/capture/game_capture.yaml")[
+            "game_resolution"
+        ]
         self._image_shape = (height, width, 3)
 
     def __setup_processes_shared_memory(self):

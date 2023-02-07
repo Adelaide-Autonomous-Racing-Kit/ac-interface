@@ -66,10 +66,10 @@ class VirtualGamepad:
 def main():
     vgamepad = VirtualGamepad()
     actions = [
-        np.array([0.0, 0.0, 0.0]),  # Full lock left
-        np.array([0.5, 1.0, 0.0]),  # No Steer, Full brake
-        np.array([0.5, 0.0, 0.0]),  # No Input
-        np.array([0.5, 0.0, 1.0]),  # No Steer, Full throttle
+        np.array([-1.0, 0.0, 0.0]),  # Full lock left
+        np.array([0.0, 1.0, 0.0]),  # No Steer, Full brake
+        np.array([0.0, 0.0, 0.0]),  # No Input
+        np.array([0.0, 0.0, 1.0]),  # No Steer, Full throttle
         np.array([1.0, 0.0, 0.0]),  # Full lock right
     ]
     for action in actions:

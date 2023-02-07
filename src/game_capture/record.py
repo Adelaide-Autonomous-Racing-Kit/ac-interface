@@ -25,7 +25,7 @@ class GameRecorder:
         self.frame_counter = 0
 
     def __load_configuration(self):
-        self._config = load_yaml("./src/config/record.yaml")
+        self._config = load_yaml("./src/config/capture/record.yaml")
         self.root_dir = self._config["save_path"]
 
     def start(self):

@@ -46,8 +46,8 @@ class ImageStream:
         self._is_new_frame = False
 
     def __load_configurations(self):
-        self._game_capture_config = load_yaml("./src/config/game_capture.yaml")
-        self._ffmpeg_config = load_yaml("./src/config/ffmpeg.yaml")
+        self._game_capture_config = load_yaml("./src/config/capture/game_capture.yaml")
+        self._ffmpeg_config = load_yaml("./src/config/capture/ffmpeg.yaml")
         self.__add_dynamic_configuration_options()
 
     def __add_dynamic_configuration_options(self):
