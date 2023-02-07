@@ -8,8 +8,13 @@ We will be using a compatability tool called [Crossover](https://www.codeweavers
 
 ## Running the game
 
-- Once the application is installed, go to the "Install" tab and search for "Assetto Corsa", and essentially click yes to everything. It will build a 'container' (this is called a "[bottle](https://news.ycombinator.com/item?id=29613303#:~:text=software%20on%20...-,Bottles%20are%20isolated%20Wine%20environments%2C%20similar%20to%20containers%20or%20VMs,%2C%202021%20%7C%20next%20%5B%E2%80%93%5D)", see [Wine](https://www.winehq.org/) for details) with steam, which then will prompt you to login, then you can launch Assetto Corsa. 
+- Do not install Steam if you see it, installing Assetto Corsa will install steam in it's own bottle.
+- Once the application is installed, go to the "Install" tab and search for "Assetto Corsa". You should see the image below.
+	- Click yes to everything. .NET 2.0 does not install correctly so just skip this step when prompted. 
+	- It will build a 'container' (this is called a "[bottle](https://news.ycombinator.com/item?id=29613303#:~:text=software%20on%20...-,Bottles%20are%20isolated%20Wine%20environments%2C%20similar%20to%20containers%20or%20VMs,%2C%202021%20%7C%20next%20%5B%E2%80%93%5D)", see [Wine](https://www.winehq.org/) for details). - **IMPORTANT** when prompted to start steam during the install, click yes and sign in. Not doing this step will result in installation being broken. Once you have signed in it will prompt you to install AC.
 - If you do not have Assetto Corsa, then it is available via [Humble Bundle](https://www.humblebundle.com/store/assetto-corsa) or [Steam](https://store.steampowered.com/app/244210/Assetto_Corsa/).
+
+![Install Assetto Cora](imgs/crossover_assetto-corsa.png)
 
 
 ### How to run without steam
