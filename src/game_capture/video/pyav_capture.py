@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 from loguru import logger
 
+from src.utils import display
 from src.utils.os import get_sanitised_os_name, get_file_format, get_display_input
 from src.utils.system_monitor import track_runtime, System_Monitor
 from src.utils.load import load_yaml
@@ -93,8 +94,8 @@ class ImageStream:
         Extract a BGR0 image from a stream frame as a numpy array
             Packet is a 24-bit 3 component BGR post-padded to 32-bits
 
-        :packer: Stream frame to interpret.
-        :type packet: av.video.frame.VideoFrame
+        :frame: Stream frame to interpret.
+        :type frame: av.video.frame.VideoFrame
         :return: Image as np.array in [h x w x c] in BGR channel order.
         :rtype: np.array
         """
@@ -127,12 +128,7 @@ def display_sample_images(image_stream):
     logger.info("Displaying sample images received")
     for _ in range(300):
         image = image_stream.latest_image
-        display(image)
-
-
-def display(image: np.array):
-    cv2.imshow("OpenCV capture", image)
-    cv2.waitKey(1)
+        display.image(image)
 
 
 def bench_fps(image_stream):

@@ -1,4 +1,7 @@
+.ONESHELL:
+SHELL = /bin/zsh
 CONDA_ENV_PATH=./envs
+CONDA_ACTIVATE=source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
 
 build:
 ifneq ($(wildcard $(CONDA_ENV_PATH)),)
@@ -10,9 +13,11 @@ ifneq ($(wildcard $(CONDA_ENV_PATH)),)
 endif
 	conda create -y -p $(CONDA_ENV_PATH) opencv numpy av pyyaml python-xlib \
 		black flake8-black flake8 isort loguru pytest pytest-benchmark pytest-parallel coverage -c conda-forge
-	pip install -U python-uinput
-	pip install -U git+https://github.com/lilohuang/PyTurboJPEG.git
-	
+	$(CONDA_ACTIVATE) $(CONDA_ENV_PATH)
+	pip install -e .
+	pip install git+https://github.com/wyatthuckaby/python-uinput.git
+	pip install git+https://github.com/lilohuang/PyTurboJPEG.git
+
 run:
 	echo $(CONDA_ENV_PATH)
 	source activate $(CONDA_ENV_PATH)

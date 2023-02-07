@@ -1,7 +1,7 @@
+import ctypes
 import multiprocessing as mp
 import time
-import ctypes
-from typing import Dict, Tuple
+from typing import Dict
 
 import numpy as np
 from loguru import logger
@@ -37,16 +37,25 @@ class GameCapture(mp.Process):
         """
         image_mp_array, image_np_array = self._shared_image_buffer
         _, state_np_array = self._shared_state_buffer
-        while self.is_stale:
-            continue
+        self._wait_for_fresh_capture()
         with image_mp_array.get_lock():
             image = image_np_array.copy()
             state = state_np_array.copy()
         self.is_stale = True
         return {"image": image, "state": state_array_to_dict(state)}
 
+    def _wait_for_fresh_capture(self):
+        while self.is_stale:
+            continue
+
     @capture.setter
-    def capture(self, capture: Tuple[np.array]):
+    def capture(self, capture: Dict[str, np.array]):
+        """
+        Accepts a capture dictionary and copies them to the shared memory buffer
+
+        :capture: A Dictionary containing {"image": image, "state": state}
+        :type capture: Dict[str : np.array]
+        """
         image_mp_array, image_np_array = self._shared_image_buffer
         _, state_np_array = self._shared_state_buffer
         with image_mp_array.get_lock():
@@ -56,29 +65,53 @@ class GameCapture(mp.Process):
 
     @property
     def is_stale(self) -> bool:
+        """
+        Checks if the current capture has been read by any consumer
+
+        :return: True if the capture has been read, false if it has not
+        :rtype: bool
+        """
         with self._is_stale.get_lock():
             is_stale = self._is_stale.value
         return is_stale
 
     @is_stale.setter
     def is_stale(self, is_stale: bool):
+        """
+        Sets the flag indicating if the capture has been read previously
+
+        :is_stale: True if the capture has been read, false if it has not
+        :type is_stale: bool
+        """
         with self._is_stale.get_lock():
             self._is_stale.value = is_stale
 
     @property
     def is_running(self) -> bool:
+        """
+        Checks if the capture process is running
+
+        :return: True if the capture process is running, false if it is not
+        :rtype: bool
+        """
         with self._is_running.get_lock():
             is_running = self._is_running.value
         return is_running
 
     @is_running.setter
     def is_running(self, is_running: bool):
+        """
+        Sets if the capture process is running
+
+        :is_running: True if the capture process is running, false if it is not
+        :type is_running: bool
+        """
         with self._is_running.get_lock():
             self._is_running.value = is_running
 
     def run(self):
         """
-        Called on Proccess.start()
+        Called on GameCapture.start()
         """
         image_stream = ImageStream()
         state_capture = StateClient()
@@ -89,7 +122,7 @@ class GameCapture(mp.Process):
 
     def stop(self):
         """
-        Stops the capture process and its update thread
+        Stops the capture process
         """
         self.is_running = False
 
