@@ -11,6 +11,7 @@ from src.game_capture.state.client import StateClient
 from src.game_capture.video.pyav_capture import display
 from src.game_capture.state.shared_memory import SHMStruct
 from src.utils.load import load_yaml, state_array_to_dict
+from src.config.constants import GAME_CAPTURE_CONFIG_FILE
 
 
 class GameCapture(mp.Process):
@@ -127,9 +128,7 @@ class GameCapture(mp.Process):
         self.is_running = False
 
     def __setup_configuration(self):
-        width, height = load_yaml("./src/config/capture/game_capture.yaml")[
-            "game_resolution"
-        ]
+        width, height = load_yaml(GAME_CAPTURE_CONFIG_FILE)["game_resolution"]
         self._image_shape = (height, width, 3)
 
     def __setup_processes_shared_memory(self):

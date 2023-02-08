@@ -1,9 +1,11 @@
 import numpy as np
 from loguru import logger
+import pyautogui
 
 from src.game_capture.inference import GameCapture
 from src.input.controller import VirtualGamepad
 from src.utils import display
+from src.utils.os import get_application_window_coordinates
 
 
 def main():
@@ -21,7 +23,7 @@ def main():
         # Read the latest capture from the game
         capture = game_capture.capture
         # Display the frame recieved
-        display.image(capture["image"])
+        # display.image(capture["image"])
         # Log examples state field recieved
         logger.info(
             f"Steering: {capture['state']['steerAngle']}, Throttle: {capture['state']['throttle']}, Brake: {capture['state']['brake']} "

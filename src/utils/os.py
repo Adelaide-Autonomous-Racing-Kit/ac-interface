@@ -1,7 +1,7 @@
 import platform
 from typing import Tuple
 
-from src.game_capture.video.get_window import get_window_location_linux
+from src.game_capture.video.get_window import get_window_location_linux, Point
 from src.config.constants import GAME_NAME_TO_WINDOW_NAME
 
 
@@ -41,6 +41,8 @@ def get_display_input(
 
     :param os_name: Operating system name, one of 'windows', 'darwin' or 'linux'.
     :type os_name: str
+    :param game_name: Name of the game
+    :type game_name: str
     :param game_resolution: A string containing width and height of the game we're trying to look for and capture i.e. 1920x1080
     :type game_resolution: str
     :returns: Tuple containing file input and video size
@@ -60,3 +62,19 @@ def get_display_input(
         raise NotImplementedError("Unsupported operating system")
 
     return file_input, video_size
+
+def get_application_window_coordinates(game_name:str, game_resolution:str)-> Point:
+    """
+    Get the coordinates of the top-left corner of the application's window
+
+    :param game_name: Name of the game
+    :type game_name: str
+    :param game_resolution: A string containing width and height of the game we're trying to look for and capture i.e. 1920x1080
+    :type game_resolution: str
+    :returns: Point object containing the x,y location of the top-left of the application's window
+    :rtype: Point
+    """
+    os_name = get_sanitised_os_name()
+    window_name = GAME_NAME_TO_WINDOW_NAME[os_name][game_name]
+    return get_window_location_linux(window_name, game_resolution)
+        

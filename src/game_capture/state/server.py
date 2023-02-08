@@ -1,10 +1,14 @@
+import ctypes
+import socket
 from multiprocessing.connection import Listener
 from threading import Thread
-import ctypes
+
+from loguru import logger
+
 from src.game_capture.state.scraper import AssettoCorsaData
 
 ADDRESS = "localhost"
-PORT = 6001
+PORT = 6000
 
 
 class StateServer:
@@ -19,7 +23,9 @@ class StateServer:
     def __init__(self):
         self.assetto_corsa_data = AssettoCorsaData()
         self.listener = Listener((ADDRESS, PORT))
+        self.__set_socket_options()
         self.is_running = True
+        logger.info(f"State server created, listing on {ADDRESS}:{PORT}")
 
     @property
     def game_state(self) -> ctypes.Structure:
@@ -48,7 +54,15 @@ class StateServer:
             worker = Thread(target=self.send_game_state, args=[connection], daemon=True)
             worker.start()
 
+    def __set_socket_options(self):
+        self.listener._listener._socket.setsockopt(
+            socket.SOL_SOCKET, socket.SO_REUSEADDR, 1
+        )
+
 
 if __name__ == "__main__":
-    state_server = StateServer()
-    state_server.run()
+    try:
+        state_server = StateServer()
+        state_server.run()
+    except Exception as e:
+        logger.info(e)

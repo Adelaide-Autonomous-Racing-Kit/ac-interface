@@ -12,7 +12,8 @@ ifneq ($(wildcard $(CONDA_ENV_PATH)),)
 	fi
 endif
 	conda create -y -p $(CONDA_ENV_PATH) opencv numpy av pyyaml python-xlib \
-		black flake8-black flake8 isort loguru pytest pytest-benchmark pytest-parallel coverage -c conda-forge
+		black flake8-black flake8 isort loguru pytest pytest-benchmark pytest-parallel \
+		coverage pyautogui -c conda-forge
 	$(CONDA_ACTIVATE) $(CONDA_ENV_PATH)
 	pip install -e .
 	pip install git+https://github.com/wyatthuckaby/python-uinput.git

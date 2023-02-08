@@ -9,6 +9,7 @@ from src.game_capture.video.pyav_capture import ImageStream
 from src.utils.system_monitor import System_Monitor, track_runtime
 from src.utils.save import save_bgr0_as_jpeg, save_state
 from src.utils.load import load_yaml
+from src.config.constants import RECORD_CONFIG_FILE
 
 
 class GameRecorder:
@@ -25,7 +26,7 @@ class GameRecorder:
         self.frame_counter = 0
 
     def __load_configuration(self):
-        self._config = load_yaml("./src/config/capture/record.yaml")
+        self._config = load_yaml(RECORD_CONFIG_FILE)
         self.root_dir = self._config["save_path"]
 
     def start(self):

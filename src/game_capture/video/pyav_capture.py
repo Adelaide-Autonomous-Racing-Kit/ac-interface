@@ -1,7 +1,6 @@
 from threading import Thread
 import time
 import av
-import cv2
 import numpy as np
 from loguru import logger
 
@@ -9,6 +8,7 @@ from src.utils import display
 from src.utils.os import get_sanitised_os_name, get_file_format, get_display_input
 from src.utils.system_monitor import track_runtime, System_Monitor
 from src.utils.load import load_yaml
+from src.config.constants import GAME_CAPTURE_CONFIG_FILE, FFMPEG_CONFIG_FILE
 
 
 class ImageStream:
@@ -46,8 +46,8 @@ class ImageStream:
         self._is_new_frame = False
 
     def __load_configurations(self):
-        self._game_capture_config = load_yaml("./src/config/capture/game_capture.yaml")
-        self._ffmpeg_config = load_yaml("./src/config/capture/ffmpeg.yaml")
+        self._game_capture_config = load_yaml(GAME_CAPTURE_CONFIG_FILE)
+        self._ffmpeg_config = load_yaml(FFMPEG_CONFIG_FILE)
         self.__add_dynamic_configuration_options()
 
     def __add_dynamic_configuration_options(self):
