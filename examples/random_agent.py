@@ -24,7 +24,7 @@ def main():
         # display.image(capture["image"])
         # Log examples state field received
         logger.info(
-            f"Steering: {capture['state']['steerAngle']}, Throttle: {capture['state']['throttle']}, Brake: {capture['state']['brake']} "
+            f"Steering: {capture['state']['steering_angle']}, Throttle: {capture['state']['throttle']}, Brake: {capture['state']['brake']} "
         )
         # Randomly generate an action [steering_angle, brake, throttle]
         action = np.random.rand(3)
