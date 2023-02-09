@@ -11,7 +11,7 @@ ifneq ($(wildcard $(CONDA_ENV_PATH)),)
 		conda env remove -p $(CONDA_ENV_PATH); \
 	fi
 endif
-	conda create -y -p $(CONDA_ENV_PATH) opencv numpy av pyyaml python-xlib \
+	conda create -y -p $(CONDA_ENV_PATH) opencv numpy av pyyaml python-xlib matplotlib \
 		black flake8-black flake8 isort loguru pytest pytest-benchmark pytest-parallel \
 		coverage pyautogui -c conda-forge
 	$(CONDA_ACTIVATE) $(CONDA_ENV_PATH)
