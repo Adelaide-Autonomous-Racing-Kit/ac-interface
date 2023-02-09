@@ -9,8 +9,8 @@ from src.game_capture.state.server import ADDRESS, PORT
 
 class StateClient:
     """
-    Socket client that recievs game state updates from a StateServer
-        It continuasly refreshes the current game state which can be
+    Socket client that receives game state updates from a StateServer
+        It continually refreshes the current game state which can be
         access via the `latest_state` property
     """
 

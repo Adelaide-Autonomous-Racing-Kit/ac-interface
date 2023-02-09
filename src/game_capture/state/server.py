@@ -14,8 +14,8 @@ PORT = 6000
 class StateServer:
     """
     Socket server that sends game state updates to StateClients
-        The underlying `AssettoCorsaData` class continualy scrapes
-        the game state from memory and if an update step has occured
+        The underlying `AssettoCorsaData` class continually scrapes
+        the game state from memory and if an update step has occurred
         the new state is sent to all clients connected
 
     """

@@ -15,7 +15,7 @@ from src.input.constants import (
 
 class VirtualGamepad:
     """
-    Presents as an Xbox 360 controller to the OS acting as an inferface
+    Presents as an Xbox 360 controller to the OS acting as an interface
         for control algorithms with the simulator. Translates the agent
         action space from {0., 1.} for throttle and brake and {-1., 1.}
         for steering angle to the controller analog range of {ABS_MIN, ABS_MAX}.

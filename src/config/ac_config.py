@@ -41,7 +41,7 @@ def combine_configurations(default_path: Path, override_path: Path):
 
 def override_launch_configurations():
     """
-    An example of combining thr steam deafult race.ini with a yaml and writting
+    An example of combining thr steam default race.ini with a yaml and writing
         it so AC launches with the set options
     """
     logger.info("Overriding launch configurations with package defaults...")

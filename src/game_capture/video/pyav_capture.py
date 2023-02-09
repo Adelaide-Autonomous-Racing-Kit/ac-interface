@@ -70,7 +70,7 @@ class ImageStream:
 
     def __start_update_thread(self):
         """
-        Starts a thread that consumes frames yieled by PyAV
+        Starts a thread that consumes frames from by PyAV
         """
         self._is_running = True
         self.update_thread = Thread(target=self._run, daemon=True)

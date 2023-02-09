@@ -1,16 +1,14 @@
 import numpy as np
 from loguru import logger
-import pyautogui
 
 from src.game_capture.inference import GameCapture
 from src.input.controller import VirtualGamepad
 from src.utils import display
-from src.utils.os import get_application_window_coordinates
 
 
 def main():
     """
-    Example of how to recieve captures from the simulation and submit actions
+    Example of how to receive captures from the simulation and submit actions
         This example "agent" randomly samples actions
     """
     n_steps = 900
@@ -22,9 +20,9 @@ def main():
     for _ in range(n_steps):
         # Read the latest capture from the game
         capture = game_capture.capture
-        # Display the frame recieved
+        # Display the frame received
         # display.image(capture["image"])
-        # Log examples state field recieved
+        # Log examples state field received
         logger.info(
             f"Steering: {capture['state']['steerAngle']}, Throttle: {capture['state']['throttle']}, Brake: {capture['state']['brake']} "
         )
