@@ -1,6 +1,6 @@
 vertices = []
 
-with open("tracks/monza.obj", "r") as file:
+with open("tracks/monza/outside_line.obj", "r") as file:
     for line in file:
         if line.startswith("v "):
             vertex = line.split()
@@ -20,10 +20,11 @@ ys = [vertex[1] for vertex in vertices[::5]]
 zs = [vertex[2] for vertex in vertices[::5]]
 
 # Because X, Y, Z and we want to maintain Z to be "up"
-ax.scatter(xs, ys, zs)
+ax.scatter(xs, zs, ys)
 
 ax.set_xlabel("X")
 ax.set_ylabel("Z")
 ax.set_zlabel("Y")
+ax.set_aspect("equal")
 
 plt.show()
