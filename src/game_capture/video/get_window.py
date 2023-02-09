@@ -1,4 +1,4 @@
-from typing import List, Self, Union
+from typing import List, Union
 from dataclasses import dataclass
 
 from Xlib.display import Display
@@ -13,7 +13,7 @@ class Point:
     x: int
     y: int
 
-    def __add__(self, point: Self) -> Self:
+    def __add__(self, point):
         x = self.x + point.x
         y = self.y + point.y
         return Point(x, y)
