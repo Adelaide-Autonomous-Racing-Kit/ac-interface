@@ -1,11 +1,12 @@
-from collections import OrderedDict, defaultdict
-import glob
+import os
+import re
 import pathlib
+from abc import ABC, abstractmethod
 
 TRACK_DATA = {"monza": "tracks/monza/2.obj"}
 
 
-class Track:
+class Track(ABC):
     """Base class representing a track."""
 
     def __init__(self, obj_filename: pathlib.Path) -> None:
@@ -26,18 +27,23 @@ class Track:
         Returns:
             set: A set of all group names found in the .obj file.
         """
-        raw_group_names = set()
+        pattern = re.compile(r"g (.*)")
         with open(self.obj_filename, "r") as obj_file:
-            for line in obj_file:
-                if line.startswith("g "):
-                    group_name = line.strip().split(" ")[1]
-                    raw_group_names.add(group_name)
-        return raw_group_names
+            return {
+                match.group(1)
+                for match in (pattern.match(line) for line in obj_file)
+                if match
+            }
 
     def _preprocess_obj_groupnames(self, group_names) -> dict:
-        pass
+        result = {}
+        for group_name in group_names:
+            key = self._process_group_name(group_name)
+            result[key] = result.get(key, set()).union({group_name})
+        return result
 
     @property
+    @abstractmethod
     def get_walls(self):
         """Abstract method that returns a set of walls for the given track."""
         pass
@@ -55,33 +61,26 @@ class Monza(Track):
             obj_filename (pathlib.Path): Path to the .obj file containing Monza track data.
         """
         super().__init__(obj_filename)
+        self.wall_group_names = self.group_name_to_obj_group.get("wall", {})
+        self.walls = self._parse_walls()
 
-    def _preprocess_obj_groupnames(self, group_names) -> dict:
-        my_dict = defaultdict(set)
-
-        for group_name in group_names:
-            value = group_name
-            s = group_name
-            s = s.replace("MONZA-", "")
-            s = "".join(filter(str.isalpha, s))
-            key = s.lower()
-
-            my_dict[key].add(value)
-
-        return my_dict
+    @staticmethod
+    def _process_group_name(s: str) -> str:
+        s = s.replace("MONZA-", "")
+        s = "".join(filter(str.isalpha, s))
+        return s.lower()
 
     @property
-    def group_names(self):
-        return sorted(self.group_name_to_obj_group.keys())
+    def group_names(self) -> set:
+        return set(self.group_name_to_obj_group.keys())
 
+    def _parse_walls(self):
+        walls = []
+        with open(self.obj_filename, "r") as obj_file:
+            # Implement a way to parse walls
+            pass
+        return walls
 
-if __name__ == "__main__":
-    """
-    Can you recommend any improvements to the clarity, efficiency, modularity and overall quality of the code?
-    """
-    track_names = map(pathlib.Path, glob.glob("tracks/*"))
-    track_names = (track_name for track_name in track_names if track_name.is_dir())
-
-    track_data = Monza()
-
-    print(track_data.group_names)
+    @property
+    def get_walls(self):
+        return self.walls
