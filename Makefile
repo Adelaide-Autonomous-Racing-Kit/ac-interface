@@ -12,7 +12,7 @@ ifneq ($(wildcard $(CONDA_ENV_PATH)),)
 	fi
 endif
 	conda create -y -p $(CONDA_ENV_PATH) -c conda-forge opencv numpy av pyyaml matplotlib \
-		black flake8-black flake8 isort loguru pytest pytest-benchmark pytest-parallel coverage \
+		black flake8-black flake8 isort loguru pytest pytest-parallel pytest-benchmark coverage \
 		pyautogui python-xlib  
 	$(CONDA_ACTIVATE) $(CONDA_ENV_PATH)
 	pip install -e .
@@ -20,5 +20,14 @@ endif
 	pip install git+https://github.com/lilohuang/PyTurboJPEG.git
 
 run:
-	echo $(CONDA_ENV_PATH)
-	source activate $(CONDA_ENV_PATH)
+	@echo $(CONDA_ENV_PATH)
+	@source activate $(CONDA_ENV_PATH)
+
+test:
+	@echo "Starting all non gpu related tests"
+	@pytest --workers 2 src/ -m "not benchmark and not gpu"
+
+lint:
+	black src/
+    isort src/ --settings-file=linters/isort.ini
+    flake8 src/ --config=linters/flake8.ini
