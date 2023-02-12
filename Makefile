@@ -11,9 +11,9 @@ ifneq ($(wildcard $(CONDA_ENV_PATH)),)
 		conda env remove -p $(CONDA_ENV_PATH); \
 	fi
 endif
-	conda create -y -p $(CONDA_ENV_PATH) opencv numpy av pyyaml python-xlib matplotlib \
-		black flake8-black flake8 isort loguru pytest pytest-benchmark pytest-parallel \
-		coverage pyautogui -c conda-forge
+	conda create -y -p $(CONDA_ENV_PATH) -c conda-forge opencv numpy av pyyaml matplotlib \
+		black flake8-black flake8 isort loguru pytest pytest-benchmark pytest-parallel coverage \
+		pyautogui python-xlib  
 	$(CONDA_ACTIVATE) $(CONDA_ENV_PATH)
 	pip install -e .
 	pip install git+https://github.com/wyatthuckaby/python-uinput.git
