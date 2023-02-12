@@ -63,7 +63,10 @@ def get_display_input(
 
     return file_input, video_size
 
-def get_application_window_coordinates(game_name:str, game_resolution: List[int])-> Point:
+
+def get_application_window_coordinates(
+    game_name: str, game_resolution: List[int]
+) -> Point:
     """
     Get the coordinates of the top-left corner of the application's window
 
@@ -77,4 +80,3 @@ def get_application_window_coordinates(game_name:str, game_resolution: List[int]
     os_name = get_sanitised_os_name()
     window_name = GAME_NAME_TO_WINDOW_NAME[os_name][game_name]
     return get_window_location_linux(window_name, game_resolution)
-        
