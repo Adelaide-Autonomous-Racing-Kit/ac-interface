@@ -9,7 +9,7 @@ from loguru import logger
 from examples.random_agent import main as run_example
 from src.game_capture.state.client import StateClient
 from src.utils.os import get_application_window_coordinates
-from src.config.constants import AC_STEAM_PATH
+from src.config.constants import AC_STEAM_PATH, AC_STEAM_APPID_FILE_PATH, STEAM_APPID
 from src.config.ac_config import override_launch_configurations
 
 
@@ -79,11 +79,35 @@ def click_drive():
     pyautogui.click(top_left_corner.x + 20, top_left_corner.y + 150)
 
 
+def maybe_create_steam_appid_file():
+    """
+    Ensures that the steam_appid.txt file is present and has the correct contents
+        This file enables the game to launch without going via the launcher
+    """
+    if AC_STEAM_APPID_FILE_PATH.is_file():
+        with AC_STEAM_APPID_FILE_PATH.open('r') as file:
+            contents = file.read()
+        if contents == STEAM_APPID:
+            logger.info("Steam AppID file already present")
+            return
+    create_steam_appid_file()
+
+
+def create_steam_appid_file():
+    """
+    Creates a file named steam_appid.txt containing the app ID 244210
+    """
+    logger.info("Creating Steam AppID file...")
+    with AC_STEAM_APPID_FILE_PATH.open('w') as file:
+        file.write(STEAM_APPID)
+
+
 def main():
     """
     An Example of programatically launching the interface
     """
     ## Setup
+    maybe_create_steam_appid_file()
     override_launch_configurations()
     launch_assetto_corsa()
     try_until_state_server_is_launched()

@@ -10,7 +10,7 @@ GAME_NAME_TO_WINDOW_NAME = {
     "darwin": {},
 }
 
-
+STEAM_APPID = "244210"
 CONFIG_ROOT = os.path.dirname(__file__)
 # Capture configuration files
 GAME_CAPTURE_CONFIG_FILE = Path(CONFIG_ROOT, "capture/game_capture.yaml")
@@ -22,6 +22,7 @@ BOTTLE_C_DRIVE_PATH = Path(Path.home(), ".cxoffice/Assetto_Corsa/drive_c")
 AC_STEAM_PATH = Path(
     BOTTLE_C_DRIVE_PATH, "Program Files (x86)/Steam/steamapps/common/assettocorsa"
 )
+AC_STEAM_APPID_FILE_PATH = Path(AC_STEAM_PATH, "steam_appid.txt")
 AC_USER_PATH = Path(BOTTLE_C_DRIVE_PATH, "users/crossover/Documents/Assetto Corsa")
 
 # Default AC config paths
