@@ -61,7 +61,6 @@ class Monza(Track):
 
     @staticmethod
     def _process_group_name(s: str) -> str:
-        print(s)
         s = s.replace("MONZA-", "")
         s = "".join(filter(str.isalpha, s))
         return s.lower()
