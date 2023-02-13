@@ -18,41 +18,14 @@ We will be using a compatability tool called [Crossover](https://www.codeweavers
 ![Install Assetto Cora](imgs/crossover_assetto-corsa.png)
 
 
-### How to run without steam
-Get into the bottle terminal and go here:
-```cd \.cxoffice\Assetto_corsa\drive_c\Program Files (x86)\Steam\steamapps\common\assettocorsa```
-
-Make sure there is a `steam_appid.txt` with simply "244210" in it. This allows AC to be launched without steam open.
-
-I think this is necessary to run the game...
-```start SteamStatisticsReader.exe``` 
-
-This should boot straight to the race and not open the launcher. If you want to open the launcher it is the AssettoCorsa.exe.
-```start acs.exe```
-
-
-The config files used are not the ones in the base game under steam apps. They are the config files in the users folder i.e.
-```cd /Documents/AssettoCorsa/cfg```
-
-If you change the race.ini file in cfg with track "monza" or "imola" or what ever and save then launch again it will be at a new track. 
-
-## Game capture
+## Additional Setup
 
 <details>
 	<summary>Linux</summary>
 
-### Video
-**FFmpeg** is a free and open-source command-line tool for processing multimedia files. It can be used to capture and stream video from a variety of sources.
 
-To capture the game window, we use the [PyAV library](https://github.com/PyAV-Org/PyAV) which provides a python wrapper for ffmpeg. 
-
-To launch game capture, run the [pyav_capture.py](https://github.com/XDynames/assetto-corsa-interface/blob/main/src/game_capture/pyav_capture.py) file.
-```bash
-$ python src/game_capture/pyav_capture.py
-```
-
-### State
-AC/C have to run in WINE which means we cannot directly access the game state via shared memory.
+### Game State
+AC has to run in WINE which means we cannot directly access the game state via shared memory.
 To get around this we use a python script running inside the same WINE instance as the game to access the game state which it then makes available to the host OS via a socket.
 Crossover doesn't come with python so first we need to install that using the `Install an unlisted application` button in the `Install` tab.
 When installing python select to install it for all users.
@@ -65,26 +38,17 @@ Then modify the data field of `PATH` by appending
 %SystemRoot%\users\crossover\AppData\Local\Programs\Python\Python311
 ```
 *Note: you may need to modify the terminal folder name depending on the version of python you have installed, in this example we used 3.11.*
+
 Now we should be able to call python and its related packages from the bottle's command line.
-To access the command line inside the bottle run:
+Navigate to the root directory of the package and run:
 ```
 /opt/cxoffice/bin/wine --bottle Assetto_Corsa --cx-app cmd.exe
 ```
-Navigate to the root directory of the package and run 
+To access the command line inside the bottle.
+Then install ac interface it into the bottle by running:
 ```
 pip install -e .
 ```
-To install it into the bottle.
-You can then run
-```
-python src/gamecapture/state/server.py
-```
-to start a listener that will send game state to those that connect.
-On your host machine you should now be able to run
-```
-python src/game_capture/state/client.py
-```
-to receieve game state from AC/C outside the bottle.
 
 ### Recording
 To write out image files faster we need to make sure an additional package is installed by running `sudo apt-get install libturbojpeg` prior to running `make build`.
@@ -96,4 +60,24 @@ To write out image files faster we need to make sure an additional package is in
 <details>
 	<summary>Windows</summary>
 
+</details>
 
+
+
+# AC Interface
+## Defining an Agent
+To define your own and allow it to control a car in the game create a class that inherits from `src.interface.AssettoCorsaInterface` and define a function named `behaviour(self, observation: Dict) -> np.array`.
+To test your agent create a main method that instances your new Agent class and calls `agent.run()`.
+As an example here is an agent that does nothing:
+```
+from src.interface import AssettoCorsaInterface
+
+class MyCoolAgent(AssettoCorsaInterface):
+	def behaviour(self, observation: Dict) -> np.array:
+		return np.array([0.0, 0.0, 0.0])
+
+if __name__=="__main__":
+	agent = MyCoolAgent()
+	agent.run()
+```
+More examples of how to do this can be found in the /examples folder.
