@@ -34,7 +34,7 @@ class StateClient:
         Blocking call that waits until a new state from the game is received
         """
         while self._is_stale:
-            pass
+            continue
         self._is_stale = True
 
     @property
@@ -50,7 +50,31 @@ class StateClient:
         Blocking call that waits until the first state from the game is received
         """
         while self._latest_state is None:
-            pass
+            continue
+
+    @property
+    def is_AC_ready(self) -> bool:
+        """
+        :return: True if the packet ID recieved is above 500 
+        :rtype: bool
+        """
+        return self.latest_state['packet_id'] > 500
+    
+    def wait_until_AC_is_ready(self):
+        """
+        Blocks execution until the game is ready for the session to be started
+        """
+        self._wait_for_packet_id_reset()
+        while not self.is_AC_ready:
+            continue
+
+    def _wait_for_packet_id_reset(self):
+        """
+        Block until a packet ID close to zero is observed indicating the a new
+            game session has started.
+        """
+        while not self.latest_state['packet_id'] < 500:
+            continue
 
     def __start_update_thread(self):
         """

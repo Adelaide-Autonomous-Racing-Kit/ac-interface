@@ -1,40 +1,35 @@
+from typing import Dict
+
 import numpy as np
 from loguru import logger
 
-from src.game_capture.inference import GameCapture
-from src.input.controller import VirtualGamepad
+from src.interface import AssettoCorsaInterface
 from src.utils import display
 
 
-def main():
+class RandomAgent(AssettoCorsaInterface):
     """
-    Example of how to receive captures from the simulation and submit actions
-        This example "agent" randomly samples actions
+    Example of how to implement a control agent. This example "agent" randomly samples actions.
     """
-    n_steps = 900
-    # Instance interface objects
-    game_capture = GameCapture()
-    input_interface = VirtualGamepad()
-    # Begin game capture process
-    game_capture.start()
-    for _ in range(n_steps):
-        # Read the latest capture from the game
-        capture = game_capture.capture
+    def behaviour(self, observation: Dict) -> np.array:
         # Display the frame received
         # display.image(capture["image"])
         # Log examples state field received
         logger.info(
-            f"Steering: {capture['state']['steering_angle']}, Throttle: {capture['state']['throttle']}, Brake: {capture['state']['brake']} "
+            f"Steering: {observation['state']['steering_angle']}, " +
+            f"Throttle: {observation['state']['throttle']}, "+
+            f"Brake: {observation['state']['brake']}"
         )
         # Randomly generate an action [steering_angle, brake, throttle]
         action = np.random.rand(3)
         # Rescale steering angle to be between [-1., 1]
         action[0] = (action[0] - 0.5) * 2
-        # Submit the action to the game
-        input_interface.submit_action(action)
-    # Exit the capture process cleanly
-    game_capture.stop()
+        return action
 
+
+def main():
+    agent = RandomAgent()
+    agent.run()
 
 if __name__ == "__main__":
     main()
