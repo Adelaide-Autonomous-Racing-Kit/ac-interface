@@ -2,6 +2,7 @@ import os
 import re
 import pathlib
 from abc import ABC, abstractmethod
+from typing import Dict, List, Tuple, Union
 
 TRACK_DATA = {"monza": "tracks/monza/2.obj"}
 
@@ -42,12 +43,6 @@ class Track(ABC):
             result[key] = result.get(key, set()).union({group_name})
         return result
 
-    @property
-    @abstractmethod
-    def get_walls(self):
-        """Abstract method that returns a set of walls for the given track."""
-        pass
-
 
 class Monza(Track):
     """Class representing the Monza track."""
@@ -62,10 +57,11 @@ class Monza(Track):
         """
         super().__init__(obj_filename)
         self.wall_group_names = self.group_name_to_obj_group.get("wall", {})
-        self.walls = self._parse_walls()
+        self.walls = self._parse_walls(obj_filename)
 
     @staticmethod
     def _process_group_name(s: str) -> str:
+        print(s)
         s = s.replace("MONZA-", "")
         s = "".join(filter(str.isalpha, s))
         return s.lower()
@@ -74,13 +70,40 @@ class Monza(Track):
     def group_names(self) -> set:
         return set(self.group_name_to_obj_group.keys())
 
-    def _parse_walls(self):
+    def _parse_walls(
+        self, obj_filename: pathlib.Path
+    ) -> List[Dict[str, Union[str, Tuple[float, float, float]]]]:
+        """Parses the .obj file for wall groups.
+
+        Args:
+            obj_filename (pathlib.Path): Path to the .obj file containing wall data.
+
+        Returns:
+            list: A list of dictionaries, each representing a wall group and its vertices.
+        """
+        current_group_name = None
+        current_vertices = []
         walls = []
         with open(self.obj_filename, "r") as obj_file:
-            # Implement a way to parse walls
-            pass
-        return walls
+            for line in obj_file:
+                if line.startswith("g "):
+                    if current_group_name and current_vertices:
+                        if self._process_group_name(current_group_name) == "wall":
+                            walls.append(
+                                {
+                                    "group_name": current_group_name,
+                                    "vertices": current_vertices,
+                                }
+                            )
+                    current_group_name = line.strip().split(" ")[1]
+                    current_vertices = []
+                elif line.startswith("v "):
+                    vertex = tuple(map(float, line.strip().split(" ")[1:]))
+                    current_vertices.append(vertex)
+        if current_group_name and current_vertices:
+            if self._process_group_name(current_group_name) == "wall":
+                walls.append(
+                    {"group_name": current_group_name, "vertices": current_vertices}
+                )
 
-    @property
-    def get_walls(self):
-        return self.walls
+        return walls

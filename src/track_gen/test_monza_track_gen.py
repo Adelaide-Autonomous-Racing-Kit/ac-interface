@@ -66,9 +66,9 @@ def test_monza_group_names(example_type: str, example_file_input: str):
     "example_type, example_file_input",
     [("wall", wall_example), ("track", track_example)],
 )
-def test_monza_get_walls(example_type: str, example_file_input: str):
+def test_monza_walls(example_type: str, example_file_input: str):
     obj_file = tempfile.NamedTemporaryFile(mode="w", delete=False)
-    obj_file.write(wall_example)
+    obj_file.write(example_file_input)
     obj_file.close()
 
     if example_type == "wall":
@@ -83,17 +83,18 @@ def test_monza_get_walls(example_type: str, example_file_input: str):
                 ],
             },
         ]
-
-        assert track.get_walls == expected_walls
+        print(f"{track.walls=}")
+        print(f"{expected_walls=}")
+        assert track.walls == expected_walls
 
     elif example_type == "track":
         track = Monza(obj_file.name)
         assert track.group_names == {"asph"}
-        assert track.get_walls == []
+        assert track.walls == []
 
     os.remove(obj_file.name)
 
 
 if __name__ == "__main__":
-    # TODO(adrian): implement get walls
+    # TODO(adrian): visualise track
     pytest.main()
