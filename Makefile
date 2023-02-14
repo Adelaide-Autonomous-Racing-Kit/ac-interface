@@ -29,6 +29,7 @@ test:
 	@pytest --benchmark-sort --benchmark-autosave --workers 2 src/ -m "not benchmark and not gpu" 
 
 lint:
-	black src/
-    isort src/ --settings-file=linters/isort.ini
-    flake8 src/ --config=linters/flake8.ini
+	@black "src/" 
+	@isort --settings-file=linters/isort.ini "src/"
+	@flake8 --config=linters/flake8.ini "src/"
+	@echo "all done"

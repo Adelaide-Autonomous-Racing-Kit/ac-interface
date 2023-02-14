@@ -1,16 +1,15 @@
 import time
 
-import uinput
 import numpy as np
-
 from src.input.constants import (
     ABS_MAX,
-    VIRTUAL_BUTTONS,
+    DEVICE_NAME,
+    PRODUCT_CODE,
     VENDOR_CODE,
     VERSION_CODE,
-    PRODUCT_CODE,
-    DEVICE_NAME,
+    VIRTUAL_BUTTONS,
 )
+import uinput
 
 
 class VirtualGamepad:

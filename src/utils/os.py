@@ -1,8 +1,8 @@
 import platform
-from typing import Tuple, List
+from typing import List, Tuple
 
-from src.game_capture.video.get_window import get_window_location_linux, Point
 from src.config.constants import GAME_NAME_TO_WINDOW_NAME
+from src.game_capture.video.get_window import Point, get_window_location_linux
 
 
 def get_sanitised_os_name() -> str:

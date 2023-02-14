@@ -1,14 +1,13 @@
+from configparser import ConfigParser
 from pathlib import Path
 
-from configparser import ConfigParser
 from loguru import logger
-
-from src.utils.load import load_yaml
 from src.config.constants import (
-    DEFAULT_RACE_INI_PATH,
-    AC_USER_RACE_INI_PATH,
     AC_OVERRIDE_RACE_INI_YAML_PATH,
+    AC_USER_RACE_INI_PATH,
+    DEFAULT_RACE_INI_PATH,
 )
+from src.utils.load import load_yaml
 
 
 def create_ini_parser():

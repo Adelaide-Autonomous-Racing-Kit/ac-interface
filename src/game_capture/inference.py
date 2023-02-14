@@ -3,15 +3,13 @@ import multiprocessing as mp
 import time
 from typing import Dict
 
-import numpy as np
 from loguru import logger
-
-from src.game_capture.video.pyav_capture import ImageStream
-from src.game_capture.state.client import StateClient
-from src.game_capture.video.pyav_capture import display
-from src.game_capture.state.shared_memory import SHMStruct
-from src.utils.load import load_yaml, state_array_to_dict
+import numpy as np
 from src.config.constants import GAME_CAPTURE_CONFIG_FILE
+from src.game_capture.state.client import StateClient
+from src.game_capture.state.shared_memory import SHMStruct
+from src.game_capture.video.pyav_capture import ImageStream, display
+from src.utils.load import load_yaml, state_array_to_dict
 
 
 class GameCapture(mp.Process):
@@ -167,7 +165,7 @@ def main():
 
 def benchmark_interprocess_communication():
     n_captures = 900
-    logger.info(f"Benchmarking game capture reading from capture process")
+    logger.info("Benchmarking game capture reading from capture process")
     game_capture = GameCapture()
     game_capture.start()
     # Wait until first image has been received

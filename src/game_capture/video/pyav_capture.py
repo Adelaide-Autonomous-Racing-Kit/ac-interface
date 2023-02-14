@@ -1,14 +1,14 @@
 from threading import Thread
 import time
-import av
-import numpy as np
-from loguru import logger
 
+import av
+from loguru import logger
+import numpy as np
+from src.config.constants import FFMPEG_CONFIG_FILE, GAME_CAPTURE_CONFIG_FILE
 from src.utils import display
-from src.utils.os import get_sanitised_os_name, get_file_format, get_display_input
-from src.utils.system_monitor import track_runtime, System_Monitor
 from src.utils.load import load_yaml
-from src.config.constants import GAME_CAPTURE_CONFIG_FILE, FFMPEG_CONFIG_FILE
+from src.utils.os import get_display_input, get_file_format, get_sanitised_os_name
+from src.utils.system_monitor import System_Monitor, track_runtime
 
 
 class ImageStream:

@@ -1,9 +1,9 @@
 import ctypes
 import mmap
-import time
 from threading import Thread
-import numpy as np
+import time
 
+import numpy as np
 from src.game_capture.state.shared_memory import SHMStruct
 
 

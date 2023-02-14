@@ -1,5 +1,5 @@
 import numpy as np
-from turbojpeg import TurboJPEG, TJPF_BGRX
+from turbojpeg import TJPF_BGRX, TurboJPEG
 
 TURBO_JPEG = TurboJPEG()
 

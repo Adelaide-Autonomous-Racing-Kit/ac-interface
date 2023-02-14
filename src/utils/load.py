@@ -1,8 +1,8 @@
 from typing import Dict
-import numpy as np
-import yaml
 
+import numpy as np
 from src.game_capture.state.shared_memory import SHMStruct
+import yaml
 
 
 def load_yaml(filepath: str) -> Dict:
