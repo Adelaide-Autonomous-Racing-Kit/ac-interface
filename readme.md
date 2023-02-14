@@ -81,3 +81,16 @@ if __name__=="__main__":
 	agent.run()
 ```
 More examples of how to do this can be found in the /examples folder.
+
+## Record A Game Session
+An example of using our interface to record a game session is:
+```
+from src.recorder import AssettoCorsaRecorder
+
+
+if __name__ == "__main__":
+    save_path = "./test/monza_audi_r8_lms_1"
+	recorder = AssettoCorsaRecorder()
+    recorder.run(save_path)
+```
+To finish recording use a keyboard interrupt (crt+c) on the terminal running the script.
