@@ -1,12 +1,17 @@
-import os
-import re
-import pywavefront
-import trimesh
-import pathlib
 from abc import ABC, abstractmethod
+import os
+import pathlib
+import re
 from typing import Dict, List, Set, Tuple, Union
 
+import pywavefront
+import trimesh
+
 TRACK_DATA = {"monza": "tracks/monza/2.obj"}
+
+
+def flatten(unflattened_list: list) -> list:
+    return [item for sublist in unflattened_list for item in sublist]
 
 
 class Track(ABC):
@@ -41,11 +46,27 @@ class Track(ABC):
     def _parse_named_mesh(
         self, class_name: set
     ) -> List[Dict[str, Union[str, Tuple[float, float, float]]]]:
-        return {
-            mesh_name: trimesh.Trimesh(vertices=self.scene.vertices, faces=mesh.faces)
-            for mesh_name, mesh in self.scene.meshes.items()
-            if mesh_name in self.group_name_to_obj_group.get(class_name, {})
-        }
+        named_meshes = {}
+        for mesh_name, mesh in self.scene.meshes.items():
+            if mesh_name in self.group_name_to_obj_group.get(class_name, {}):
+                # only pass the necessary vertices to trimesh, otherwise it stores everything!
+                mesh_indices = flatten(mesh.faces)
+                min_idx, max_idx = min(mesh_indices), max(mesh_indices)
+                vertices_needed_for_mesh = self.scene.vertices[min_idx : max_idx + 1]
+
+                # zero index indices
+                new_mesh_indices = [
+                    list(map(lambda val: val - min_idx, arr)) for arr in mesh.faces
+                ]
+
+                named_meshes[mesh_name] = trimesh.Trimesh(
+                    process=False,
+                    vertices=vertices_needed_for_mesh,
+                    faces=new_mesh_indices,
+                    cache=True,
+                )
+
+        return named_meshes
 
 
 class Monza(Track):
@@ -76,7 +97,6 @@ class Monza(Track):
 
 
 if __name__ == "__main__":
-    #     # file = "tracks/monza/2_object_groups.obj"
     file = "tracks/monza/2_vertex_groups.obj"
 
     monza_data = Monza(file)

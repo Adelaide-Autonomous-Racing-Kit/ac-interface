@@ -1,7 +1,9 @@
 import os
 import tempfile
+
 import pytest
 from src.track_gen.track_gen import Monza
+import trimesh
 
 wall_example = """g 09WALL002
 v -216.9998 -9.689583 748.7813
@@ -113,47 +115,40 @@ f 43992/43992/43992 43993/43993/43993 43994/43994/43994
 @pytest.mark.parametrize(
     "example_id, example_filename",
     [
-        ("wall", "tracks/monza/2_vertex_groups.obj"),
-        # ("longer_wall", longer_wall_example),
-        # ("track", track_example),
-        # ("longer_track", longer_track_example),
+        ("monza_test_track", "tracks/monza/monza_test_mesh.obj"),
     ],
 )
 @pytest.mark.slow
 @pytest.mark.io
 def test_monza_group_names(example_id: str, example_filename: str):
-    # obj_file = tempfile.NamedTemporaryFile(mode="w", delete=False)
-    # obj_file.write(example_file_input)
-    # obj_file.close()
-
     track = Monza(example_filename)
 
-    if example_id == "wall":
+    if example_id == "monza_test_track":
         assert track.group_names == {
-            "concrete",
-            "sand",
-            "road",
-            "curb",
-            "carpet",
-            "pencncd",
-            "penasphd",
-            "tarmou",
-            "cncou",
-            "grill",
-            "penasphc",
-            "pitsmnz",
             "pencnca",
             "asph",
+            "pengrsd",
             "penasphb",
+            "road",
+            "concrete",
+            "kerb",
+            "penaspha",
+            "sand",
             "wall",
             "grass",
-            "out",
+            "penasphd",
+            "pencncd",
             "illconc",
-            "pengrsd",
-            "pengrsb",
-            "penaspha",
-            "kerb",
+            "out",
+            "curb",
         }
+
+        # evaluating the wall mesh
+        assert set(track.walls.keys()) == {"02WALL006"}
+        assert len(track.walls) == 1
+
+        wall = track.walls.get("02WALL006")
+        assert wall.vertices.shape == (219, 3)
 
 
 # @pytest.mark.fast
