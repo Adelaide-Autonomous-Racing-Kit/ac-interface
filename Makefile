@@ -25,7 +25,8 @@ run:
 
 test:
 	@echo "Starting all non gpu related tests"
-	@pytest --workers 2 src/ -m "not benchmark and not gpu"
+	# --benchmark-compare 
+	@pytest --benchmark-sort --benchmark-autosave --workers 2 src/ -m "not benchmark and not gpu" 
 
 lint:
 	black src/

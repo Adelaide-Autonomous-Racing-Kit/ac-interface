@@ -1,8 +1,10 @@
 import os
 import re
+import pywavefront
+import trimesh
 import pathlib
 from abc import ABC, abstractmethod
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Set, Tuple, Union
 
 TRACK_DATA = {"monza": "tracks/monza/2.obj"}
 
@@ -17,31 +19,33 @@ class Track(ABC):
             obj_filename (pathlib.Path): Path to the .obj file containing track data.
         """
         self.obj_filename = obj_filename
-        self._raw_group_names = self.parse_obj_file()
-        self.group_name_to_obj_group = self._preprocess_obj_groupnames(
-            self._raw_group_names
+        self.scene = self._parse_obj_file(obj_filename)
+        self.group_name_to_obj_group = self._preprocess_obj_groupnames(self.scene)
+
+    def _parse_obj_file(self, file: pathlib.Path) -> pywavefront.Wavefront:
+        """Parse obj file using pywavefront"""
+        return pywavefront.Wavefront(
+            file, strict=False, collect_faces=True, create_materials=True
         )
 
-    def parse_obj_file(self):
-        """Parse the .obj file and return a set of all group names found.
-
-        Returns:
-            set: A set of all group names found in the .obj file.
-        """
-        pattern = re.compile(r"g (.*)")
-        with open(self.obj_filename, "r") as obj_file:
-            return {
-                match.group(1)
-                for match in (pattern.match(line) for line in obj_file)
-                if match
-            }
-
-    def _preprocess_obj_groupnames(self, group_names) -> dict:
+    def _preprocess_obj_groupnames(
+        self, scene: pywavefront.Wavefront
+    ) -> Dict[str, Set[str]]:
+        """Sort all of the groupnames into class name and a set of unsanitised names"""
         result = {}
-        for group_name in group_names:
+        for group_name in scene.meshes.keys():
             key = self._process_group_name(group_name)
             result[key] = result.get(key, set()).union({group_name})
         return result
+
+    def _parse_named_mesh(
+        self, class_name: set
+    ) -> List[Dict[str, Union[str, Tuple[float, float, float]]]]:
+        return {
+            mesh_name: trimesh.Trimesh(vertices=self.scene.vertices, faces=mesh.faces)
+            for mesh_name, mesh in self.scene.meshes.items()
+            if mesh_name in self.group_name_to_obj_group.get(class_name, {})
+        }
 
 
 class Monza(Track):
@@ -56,8 +60,9 @@ class Monza(Track):
             obj_filename (pathlib.Path): Path to the .obj file containing Monza track data.
         """
         super().__init__(obj_filename)
-        self.wall_group_names = self.group_name_to_obj_group.get("wall", {})
-        self.walls = self._parse_walls(obj_filename)
+
+        self.scene = self._parse_obj_file(obj_filename)
+        self.walls = self._parse_named_mesh("wall")
 
     @staticmethod
     def _process_group_name(s: str) -> str:
@@ -69,40 +74,9 @@ class Monza(Track):
     def group_names(self) -> set:
         return set(self.group_name_to_obj_group.keys())
 
-    def _parse_walls(
-        self, obj_filename: pathlib.Path
-    ) -> List[Dict[str, Union[str, Tuple[float, float, float]]]]:
-        """Parses the .obj file for wall groups.
 
-        Args:
-            obj_filename (pathlib.Path): Path to the .obj file containing wall data.
+if __name__ == "__main__":
+    #     # file = "tracks/monza/2_object_groups.obj"
+    file = "tracks/monza/2_vertex_groups.obj"
 
-        Returns:
-            list: A list of dictionaries, each representing a wall group and its vertices.
-        """
-        current_group_name = None
-        current_vertices = []
-        walls = []
-        with open(self.obj_filename, "r") as obj_file:
-            for line in obj_file:
-                if line.startswith("g "):
-                    if current_group_name and current_vertices:
-                        if self._process_group_name(current_group_name) == "wall":
-                            walls.append(
-                                {
-                                    "group_name": current_group_name,
-                                    "vertices": current_vertices,
-                                }
-                            )
-                    current_group_name = line.strip().split(" ")[1]
-                    current_vertices = []
-                elif line.startswith("v "):
-                    vertex = tuple(map(float, line.strip().split(" ")[1:]))
-                    current_vertices.append(vertex)
-        if current_group_name and current_vertices:
-            if self._process_group_name(current_group_name) == "wall":
-                walls.append(
-                    {"group_name": current_group_name, "vertices": current_vertices}
-                )
-
-        return walls
+    monza_data = Monza(file)

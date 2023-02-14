@@ -136,6 +136,7 @@ envs
 .DS_Store
 
 # tracks stuff
+tracks/**/*.zip
 tracks/**/*.exe
 
 tracks/**/*.ini_
@@ -153,3 +154,11 @@ tracks/**/*.json
 tracks/**/*.fbx
 tracks/**/*.mtl
 tracks/**/*.obj
+
+# recording stuffs
+recordings/**/*.npy
+recordings/**/*.jpeg
+recordings/**/*.zip
+
+# benchmark
+.benchmarks/

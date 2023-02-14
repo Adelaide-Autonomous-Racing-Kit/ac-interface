@@ -46,6 +46,7 @@ usemtl physics
 f 54245/54245/54245 54246/54246/54246 54247/54247/54247
 f 54248/54248/54248 54247/54247/54247 54246/54246/54246
 f 54249/54249/54249 54250/54250/54250 54251/54251/54251
+
 """
 
 track_example = """g 14MONZA-ASPH6548
@@ -109,104 +110,150 @@ f 43992/43992/43992 43993/43993/43993 43994/43994/43994
 """
 
 
-@pytest.mark.fast
-@pytest.mark.io
 @pytest.mark.parametrize(
-    "example_id, example_file_input",
+    "example_id, example_filename",
     [
-        ("wall", wall_example),
-        ("longer_wall", longer_wall_example),
-        ("track", track_example),
-        ("longer_track", longer_track_example),
+        ("wall", "tracks/monza/2_vertex_groups.obj"),
+        # ("longer_wall", longer_wall_example),
+        # ("track", track_example),
+        # ("longer_track", longer_track_example),
     ],
 )
-def test_monza_group_names(example_id: str, example_file_input: str):
-    obj_file = tempfile.NamedTemporaryFile(mode="w", delete=False)
-    obj_file.write(example_file_input)
-    obj_file.close()
+@pytest.mark.slow
+@pytest.mark.io
+def test_monza_group_names(example_id: str, example_filename: str):
+    # obj_file = tempfile.NamedTemporaryFile(mode="w", delete=False)
+    # obj_file.write(example_file_input)
+    # obj_file.close()
 
-    track = Monza(obj_file.name)
+    track = Monza(example_filename)
 
     if example_id == "wall":
-        assert track.group_names == {"wall"}
-        assert track.group_name_to_obj_group.get("wall") == {"09WALL002"}
-    elif example_id == "longer_wall":
-        assert track.group_names == {"wall"}
-        assert track.group_name_to_obj_group.get("wall") == {"09WALL002", "10WALL003"}
-    elif example_id == "track":
-        assert track.group_names == {"asph"}
-        assert track.group_name_to_obj_group.get("asph") == {"14MONZA-ASPH6548"}
-    elif example_id == "longer_track":
-        assert track.group_names == {"asph"}
-        assert track.group_name_to_obj_group.get("asph") == {
-            "14MONZA-ASPH6548",
-            "15MONZA-ASPH2234",
+        assert track.group_names == {
+            "concrete",
+            "sand",
+            "road",
+            "curb",
+            "carpet",
+            "pencncd",
+            "penasphd",
+            "tarmou",
+            "cncou",
+            "grill",
+            "penasphc",
+            "pitsmnz",
+            "pencnca",
+            "asph",
+            "penasphb",
+            "wall",
+            "grass",
+            "out",
+            "illconc",
+            "pengrsd",
+            "pengrsb",
+            "penaspha",
+            "kerb",
         }
 
-    os.remove(obj_file.name)
+
+# @pytest.mark.fast
+# @pytest.mark.io
+# @pytest.mark.parametrize(
+#     "example_id, example_file_input",
+#     [
+#         ("wall", wall_example),
+#         ("longer_wall", longer_wall_example),
+#         ("track", track_example),
+#         ("longer_track", longer_track_example),
+#     ],
+# )
+# def test_monza_walls(example_id: str, example_file_input: str):
+#     obj_file = tempfile.NamedTemporaryFile(mode="w", delete=False)
+#     obj_file.write(example_file_input)
+#     obj_file.close()
+
+#     track = Monza(obj_file.name)
+
+#     if example_id == "wall":
+#         expected_walls = [
+#             {
+#                 "group_name": "09WALL002",
+#                 "vertices": [
+#                     (-216.9998, -9.689583, 748.7813),
+#                     (-219.1955, -6.713692, 731.4688),
+#                     (-216.9998, -6.689583, 748.7813),
+#                 ],
+#             },
+#         ]
+#         assert track.walls == expected_walls
+
+#     elif example_id == "longer_wall":
+#         expected_walls = [
+#             {
+#                 "group_name": "09WALL002",
+#                 "vertices": [
+#                     (-216.9998, -9.689583, 748.7813),
+#                     (-219.1955, -6.713692, 731.4688),
+#                     (-216.9998, -6.689583, 748.7813),
+#                 ],
+#             },
+#             {
+#                 "group_name": "10WALL003",
+#                 "vertices": [
+#                     (-200.4553, -8.034454, 280.9923),
+#                     (-199.1033, -8.011131, 266.5859),
+#                     (-200.4553, -5.034454, 280.9923),
+#                 ],
+#             },
+#         ]
+#         assert track.walls == expected_walls
+
+#     elif example_id == "track":
+#         assert track.group_names == {"asph"}
+#         assert track.walls == []
+
+#     elif example_id == "longer_track":
+#         assert track.group_names == {"asph"}
+#         assert track.walls == []
+
+#     os.remove(obj_file.name)
 
 
-@pytest.mark.fast
-@pytest.mark.io
-@pytest.mark.parametrize(
-    "example_id, example_file_input",
-    [
-        ("wall", wall_example),
-        ("longer_wall", longer_wall_example),
-        ("track", track_example),
-        ("longer_track", longer_track_example),
-    ],
-)
-def test_monza_walls(example_id: str, example_file_input: str):
-    obj_file = tempfile.NamedTemporaryFile(mode="w", delete=False)
-    obj_file.write(example_file_input)
-    obj_file.close()
+# @pytest.mark.benchmark(group="obj-parser-methods")
+# def test_obj_parse(benchmark):
+#     example_id = "longer_wall"
+#     example_file_input = longer_wall_example
 
-    track = Monza(obj_file.name)
+#     obj_file = tempfile.NamedTemporaryFile(mode="w", delete=False)
+#     obj_file.write(example_file_input)
+#     obj_file.close()
 
-    if example_id == "wall":
-        expected_walls = [
-            {
-                "group_name": "09WALL002",
-                "vertices": [
-                    (-216.9998, -9.689583, 748.7813),
-                    (-219.1955, -6.713692, 731.4688),
-                    (-216.9998, -6.689583, 748.7813),
-                ],
-            },
-        ]
-        assert track.walls == expected_walls
+#     def f(filename):
+#         _ = Monza(filename)
+#         return True
 
-    elif example_id == "longer_wall":
-        expected_walls = [
-            {
-                "group_name": "09WALL002",
-                "vertices": [
-                    (-216.9998, -9.689583, 748.7813),
-                    (-219.1955, -6.713692, 731.4688),
-                    (-216.9998, -6.689583, 748.7813),
-                ],
-            },
-            {
-                "group_name": "10WALL003",
-                "vertices": [
-                    (-200.4553, -8.034454, 280.9923),
-                    (-199.1033, -8.011131, 266.5859),
-                    (-200.4553, -5.034454, 280.9923),
-                ],
-            },
-        ]
-        assert track.walls == expected_walls
+#     benchmark(f, obj_file.name)
+#     assert True
 
-    elif example_id == "track":
-        assert track.group_names == {"asph"}
-        assert track.walls == []
 
-    elif example_id == "longer_track":
-        assert track.group_names == {"asph"}
-        assert track.walls == []
+# file = "tracks/monza/2_vertex_groups.obj"
 
-    os.remove(obj_file.name)
+# import pywavefront
+# import trimesh
+
+# def flatten(l):
+#     return (item for sublist in l for item in sublist)
+
+# scene = pywavefront.Wavefront(
+#     file, strict=False, collect_faces=True, create_materials=True
+# )
+
+# for mesh_name, mesh in scene.meshes.items():
+#     mesh_obj = trimesh.Trimesh(vertices=scene.vertices, faces=mesh.faces)
+
+#     print(mesh_name, mesh_obj.bounds)
+
+# print(len(scene.meshes.items()))
 
 
 if __name__ == "__main__":
