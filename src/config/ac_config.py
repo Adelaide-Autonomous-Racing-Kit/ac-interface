@@ -4,11 +4,7 @@ from configparser import ConfigParser
 from loguru import logger
 
 from src.utils.load import load_yaml
-from src.config.constants import (
-    DEFAULT_RACE_INI_PATH,
-    AC_USER_RACE_INI_PATH,
-    AC_OVERRIDE_RACE_INI_YAML_PATH,
-)
+from src.config.constants import CONFIG_OVERRIDE_PATHS
 
 
 def create_ini_parser():
@@ -44,12 +40,11 @@ def override_launch_configurations():
     An example of combining thr steam default race.ini with a yaml and writing
         it so AC launches with the set options
     """
-    logger.info("Overriding launch configurations with package defaults...")
-    config = combine_configurations(
-        DEFAULT_RACE_INI_PATH,
-        AC_OVERRIDE_RACE_INI_YAML_PATH,
-    )
-    write_ini(config, AC_USER_RACE_INI_PATH)
+    for override_file_name in CONFIG_OVERRIDE_PATHS:
+        logger.info(f"Overriding {override_file_name} with package defaults")
+        override_paths = CONFIG_OVERRIDE_PATHS[override_file_name]
+        config = combine_configurations(override_paths.default, override_paths.override)
+        write_ini(config, override_paths.user)
     logger.info("Launch configurations now set to package defaults")
 
 
