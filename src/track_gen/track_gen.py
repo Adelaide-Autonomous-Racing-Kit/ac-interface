@@ -14,6 +14,20 @@ def flatten(unflattened_list: list) -> list:
     return [item for sublist in unflattened_list for item in sublist]
 
 
+class ACOObjParser(pywavefront.ObjParser):
+    def parse_g(self):
+        # do nothing with this info
+        self.next_line()
+
+    def parse_s(self):
+        # do nothing with this info
+        self.next_line()
+
+
+class ACWavefront(pywavefront.Wavefront):
+    parser_cls = ACOObjParser
+
+
 class Track(ABC):
     """Base class representing a track."""
 
@@ -29,7 +43,7 @@ class Track(ABC):
 
     def _parse_obj_file(self, file: pathlib.Path) -> pywavefront.Wavefront:
         """Parse obj file using pywavefront"""
-        return pywavefront.Wavefront(
+        return ACWavefront(
             file, strict=False, collect_faces=True, create_materials=True
         )
 
