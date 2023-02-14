@@ -22,18 +22,18 @@ class AssettoCorsaInterface(abc.ABC):
     """
 
     def __init__(self):
-        self.__setup()
+        self._setup()
         self.is_running = True
 
-    def __setup(self):
-        self.__initialise_AC()
-        self.__initialise_capture()
+    def _setup(self):
+        self._initialise_AC()
+        self._initialise_capture()
 
-    def __initialise_AC(self):
+    def _initialise_AC(self):
         maybe_create_steam_appid_file()
         override_launch_configurations()
 
-    def __initialise_capture(self):
+    def _initialise_capture(self):
         try_until_state_server_is_launched()
         self._game_capture = GameCapture()
         self._input_interface = VirtualGamepad()
@@ -46,6 +46,11 @@ class AssettoCorsaInterface(abc.ABC):
     def _start_capture(self):
         self._game_capture.start()
 
+    def shutdown(self):
+        self._game_capture.stop()
+        self._shutdown_AC()
+        self._shutdown_python()
+
     def _shutdown_AC(self):
         subprocess.run(["pkill", "acs.exe"])
 
@@ -57,12 +62,13 @@ class AssettoCorsaInterface(abc.ABC):
         self._start_capture()
         click_drive()
         while self.is_running:
-            observation = self.get_observation()
-            action = self.behaviour(observation)
-            self.act(action)
-        self._game_capture.stop()
-        self._shutdown_AC()
-        self._shutdown_python()
+            try:
+                observation = self.get_observation()
+                action = self.behaviour(observation)
+                self.act(action)
+            except KeyboardInterrupt:
+                self.is_running = False
+        self.shutdown()
 
     def get_observation(self) -> Dict:
         """

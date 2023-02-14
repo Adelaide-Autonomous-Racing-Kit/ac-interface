@@ -8,7 +8,6 @@ from loguru import logger
 
 from src.game_capture.video.pyav_capture import ImageStream
 from src.game_capture.state.client import StateClient
-from src.game_capture.video.pyav_capture import display
 from src.game_capture.state.shared_memory import SHMStruct
 from src.utils.load import load_yaml, state_array_to_dict
 from src.config.constants import GAME_CAPTURE_CONFIG_FILE
@@ -22,13 +21,15 @@ class GameCapture(mp.Process):
         To cleanly exit call game_capture.stop()
     """
 
-    def __init__(self):
+    def __init__(self, use_RGB_images=True, use_state_dicts=True):
         super().__init__()
+        self._use_RGB_images = use_RGB_images
+        self._use_state_dicts = use_state_dicts
         self.__setup_configuration()
         self.__setup_processes_shared_memory()
 
     @property
-    def capture(self) -> np.array:
+    def capture(self) -> Dict:
         """
         Blocking access that waits until a new image from the game is received before
             returning a capture dictionary
@@ -43,7 +44,9 @@ class GameCapture(mp.Process):
             image = image_np_array.copy()
             state = state_np_array.copy()
         self.is_stale = True
-        return {"image": image, "state": state_array_to_dict(state)}
+        if self._use_state_dicts:
+            state = state_array_to_dict(state)
+        return {"image": image, "state": state}
 
     def _wait_for_fresh_capture(self):
         while self.is_stale:
@@ -117,7 +120,10 @@ class GameCapture(mp.Process):
         image_stream = ImageStream()
         state_capture = StateClient()
         while self.is_running:
-            image = image_stream.latest_image
+            if self._use_RGB_images:
+                image = image_stream.latest_image
+            else:
+                image = image_stream.latest_bgr0_image
             state = state_capture.latest_state
             self.capture = {"image": image, "state": state}
 
@@ -129,7 +135,8 @@ class GameCapture(mp.Process):
 
     def __setup_configuration(self):
         width, height = load_yaml(GAME_CAPTURE_CONFIG_FILE)["game_resolution"]
-        self._image_shape = (height, width, 3)
+        n_channels = 3 if self._use_RGB_images else 4
+        self._image_shape = (height, width, n_channels)
 
     def __setup_processes_shared_memory(self):
         self.__setup_shared_image_buffer()

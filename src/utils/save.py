@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 from turbojpeg import TurboJPEG, TJPF_BGRX
 
@@ -35,3 +37,16 @@ def save_state(filepath: str, array: np.array):
         file.write(magic_string)
         file.write(header)
         file.write(array.tobytes())
+
+
+def maybe_create_folders(path: str):
+    """
+    If the folders in the path doesn't exist, create them
+
+    :path: Folder path required to exist
+    :type path: str
+    """
+    path = Path(path)
+    if path.exists():
+        return
+    path.mkdir(parents=True)
