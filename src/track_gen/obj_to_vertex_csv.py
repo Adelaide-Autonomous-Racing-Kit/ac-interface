@@ -1,3 +1,6 @@
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
 vertices = []
 
 with open("tracks/monza/outside_line.obj", "r") as file:
@@ -8,9 +11,6 @@ with open("tracks/monza/outside_line.obj", "r") as file:
             y = float(vertex[2])
             z = float(vertex[3])
             vertices.append((x, y, z))
-
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection="3d")
