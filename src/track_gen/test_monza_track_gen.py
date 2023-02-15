@@ -144,11 +144,14 @@ def test_monza_group_names(example_id: str, example_filename: str):
         }
 
         # evaluating the wall mesh
-        assert set(track.walls.keys()) == {"02WALL006"}
-        assert len(track.walls) == 1
+        assert set(track.named_meshes.get("wall").keys()) == {"02WALL006"}
+        assert len(track.named_meshes.get("wall")) == 1
 
-        wall = track.walls.get("02WALL006")
+        wall = track.named_meshes.get("wall").get("02WALL006")
         assert wall.vertices.shape == (219, 3)
+
+        # evaluating the sand mesh(s)
+        assert set(track.named_meshes.get("sand").keys()) == {"02SAND", "03SAND"}
 
 
 # @pytest.mark.fast

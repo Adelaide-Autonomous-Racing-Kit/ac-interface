@@ -41,6 +41,11 @@ class Track(ABC):
         self.scene = self._parse_obj_file(obj_filename)
         self.group_name_to_obj_group = self._preprocess_obj_groupnames(self.scene)
 
+        self.named_meshes = {
+            name: self._parse_named_mesh(name)
+            for name in self.group_name_to_obj_group.keys()
+        }
+
     def _parse_obj_file(self, file: pathlib.Path) -> pywavefront.Wavefront:
         """Parse obj file using pywavefront"""
         return ACWavefront(
@@ -111,6 +116,11 @@ class Monza(Track):
 
 
 if __name__ == "__main__":
-    file = "tracks/monza/2_vertex_groups.obj"
+    file = "tracks/monza/monza_test_mesh.obj"
 
     monza_data = Monza(file)
+
+    print(monza_data.named_meshes.keys())
+
+    for k, v in monza_data.named_meshes.get("sand").items():
+        print(k, v)
