@@ -4,7 +4,8 @@ import time
 from threading import Thread
 import numpy as np
 
-from src.game_capture.state.shared_memory import SHMStruct
+from src.game_capture.state.shared_memory.physics import PhysicsSharedMemory
+from src.game_capture.state.shared_memory.graphics import GraphicsSharedMemory
 
 
 class AssettoCorsaData:
@@ -15,41 +16,50 @@ class AssettoCorsaData:
     def __init__(self):
         self._physics_memory_map = mmap.mmap(
             -1,
-            ctypes.sizeof(SHMStruct),
+            ctypes.sizeof(PhysicsSharedMemory),
             "Local\\acpmf_physics",
+            access=mmap.ACCESS_READ,
+        )
+        self._graphics_memory_map = mmap.mmap(
+            -1,
+            ctypes.sizeof(GraphicsSharedMemory),
+            "Local\\acpmf_graphics",
             access=mmap.ACCESS_READ,
         )
         self.update_thread = Thread(target=self._run, daemon=True)
         self.update_thread.start()
-        self.initial_packetId = -1
-        self._has_AC_started = False
 
     def _run(self):
         while True:
             self._update()
 
     def _update(self):
-        self._physics_memory_map.seek(0)
-        raw_data = self._physics_memory_map.read(ctypes.sizeof(SHMStruct))
-        shared_memory = np.frombuffer(raw_data, SHMStruct._fields_)
-        self.shared_memory = shared_memory
+        self._reset_buffer_positions()
+        self._read_from_buffers()
 
-    def has_AC_started(self):
-        if self.shared_memory["packetId"] != self.initial_packetId:
-            self._has_AC_started = True
-        return self._has_AC_started
+    def _reset_buffer_positions(self):
+        self._physics_memory_map.seek(0)
+        self._graphics_memory_map.seek(0)
+
+    def _read_from_buffers(self):
+        # self._physics = read_memory(self._physics_memory_map, PhysicsSharedMemory)
+        self._graphics = read_memory(self._graphics_memory_map, GraphicsSharedMemory)
+
+
+def read_memory(mmap: mmap.mmap, shared_memory_struct: ctypes.Structure) -> np.array:
+    raw_data = mmap.read(ctypes.sizeof(shared_memory_struct))
+    return np.frombuffer(raw_data, shared_memory_struct._fields_)
 
 
 # Small test loop for debugging
 def main():
     acd = AssettoCorsaData()
+    time.sleep(1)
     while True:
-        if acd.has_AC_started():
-            print("=== Simulation is running ===")
-            for field in acd.shared_memory._fields_:
-                value = eval(f"acd.shared_memory.{field[0]}")
-                print(f"{field[0]}: {value}")
-            time.sleep(10)
+        print("=== Simulation is running ===")
+        for field in acd._graphics.dtype.names:
+            print(f"{field}: {acd._graphics[field]}")
+        time.sleep(10)
 
 
 if __name__ == "__main__":
