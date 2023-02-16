@@ -1,7 +1,9 @@
 import ctypes
 import mmap
 import time
+from loguru import logger
 from threading import Thread
+
 import numpy as np
 
 from src.game_capture.state.shared_memory.physics import PhysicsSharedMemory
@@ -48,7 +50,18 @@ class AssettoCorsaData:
 
 def read_memory(mmap: mmap.mmap, shared_memory_struct: ctypes.Structure) -> np.array:
     raw_data = mmap.read(ctypes.sizeof(shared_memory_struct))
-    return np.frombuffer(raw_data, shared_memory_struct._fields_)
+    """ 
+    for ctype_field, np_dtype in zip(
+        shared_memory_struct._fields_, shared_memory_struct.dtypes
+    ):
+        # if not ctypes.sizeof(ctype_field[1]) == np.dtype(np_dtype[1]).itemsize:
+        logger.info(f"Field Name: {ctype_field[0]}")
+        logger.info(f"Struct Size: {ctypes.sizeof(ctype_field[1])}")
+        logger.info(f"Numpy Size: {np.dtype(np_dtype[1]).itemsize}")
+    logger.info(f"Struct Size: {ctypes.sizeof(shared_memory_struct)}")
+    logger.info(f"Numpy Size: {np.dtype(shared_memory_struct.dtypes).itemsize}")
+    """
+    return np.frombuffer(raw_data, shared_memory_struct.dtypes)
 
 
 # Small test loop for debugging
