@@ -7,7 +7,10 @@ from typing import Dict, List, Set, Tuple, Union
 import pywavefront
 import trimesh
 
-TRACK_DATA = {"monza": "tracks/monza/2.obj"}
+TRACK_DATA = {
+    "monza": "tracks/monza/physics_mesh_object_groups.obj",  # 2.obj
+    "spa": "tracks/spa/physics_mesh_object_groups.obj",  # 3.obj
+}
 
 
 def flatten(unflattened_list: list) -> list:
@@ -102,7 +105,6 @@ class Monza(Track):
         super().__init__(obj_filename)
 
         self.scene = self._parse_obj_file(obj_filename)
-        self.walls = self._parse_named_mesh("wall")
 
     @staticmethod
     def _process_group_name(s: str) -> str:
@@ -115,12 +117,39 @@ class Monza(Track):
         return set(self.group_name_to_obj_group.keys())
 
 
+class Spa(Track):
+    """Class representing the Spa track."""
+
+    def __init__(
+        self, obj_filename: pathlib.Path = pathlib.Path(TRACK_DATA.get("spa"))
+    ) -> None:
+        """Initialize a Spa object.
+
+        Args:
+            obj_filename (pathlib.Path): Path to the .obj file containing Spa track data.
+        """
+        super().__init__(obj_filename)
+
+        self.scene = self._parse_obj_file(obj_filename)
+
+    @staticmethod
+    def _process_group_name(s: str) -> str:
+        s = "".join(filter(str.isalpha, s))
+        s = s.replace("SPA", "")
+        s = s.replace("BLACK", "")
+        return s.lower()
+
+    @property
+    def group_names(self) -> set:
+        return set(self.group_name_to_obj_group.keys())
+
+
 if __name__ == "__main__":
-    file = "tracks/monza/monza_test_mesh.obj"
+    file = "tracks/spa/physics_mesh_object_groups.obj"
 
-    monza_data = Monza(file)
+    spa_data = Spa(file)
 
-    print(monza_data.named_meshes.keys())
+    print(spa_data.named_meshes.keys())
 
-    for k, v in monza_data.named_meshes.get("sand").items():
+    for k, v in spa_data.named_meshes.get("sand").items():
         print(k, v)
