@@ -1,5 +1,6 @@
 import ctypes
 
+from src.game_capture.state.shared_memory.utils import Point
 
 
 class GraphicsSharedMemory(ctypes.Structure):

@@ -8,7 +8,7 @@ from loguru import logger
 
 from src.game_capture.video.pyav_capture import ImageStream
 from src.game_capture.state.client import StateClient
-from game_capture.state.shared_memory.physics import PhysicsSharedMemory
+from src.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
 from src.utils.load import load_yaml, state_array_to_dict
 from src.config.constants import GAME_CAPTURE_CONFIG_FILE
 
@@ -161,7 +161,7 @@ class GameCapture(mp.Process):
 
     @property
     def _n_state_fields(self):
-        return len(PhysicsSharedMemory._fields_)
+        return len(COMBINED_DATA_TYPES)
 
     def __setup_shared_flags(self):
         self._is_stale = mp.Value("i", True)

@@ -55,11 +55,11 @@ class StateClient:
     @property
     def is_AC_ready(self) -> bool:
         """
-        :return: True if the packet ID recieved is above 500 
+        :return: True if the packet ID recieved is above 500
         :rtype: bool
         """
-        return self.latest_state['packet_id'] > 500
-    
+        return self.latest_state["physics_packet_id"] > 500
+
     def wait_until_AC_is_ready(self):
         """
         Blocks execution until the game is ready for the session to be started
@@ -73,7 +73,7 @@ class StateClient:
         Block until a packet ID close to zero is observed indicating the a new
             game session has started.
         """
-        while not self.latest_state['packet_id'] < 500:
+        while not self.latest_state["physics_packet_id"] < 500:
             continue
 
     def __start_update_thread(self):
@@ -102,11 +102,8 @@ def print_state_output(state_client):
     for _ in range(10):
         logger.info("=== Reading from AC ===")
         state = state_client.latest_state
-        for field in state.dtype.names:
-            if field == "P2PActivation":
-                break
-            logger.info(f"{field}: {state[field]}")
-        # logger.info(f"Throttle: {state['throttle']}, Brake: {state['brake']}")
+        logger.info(f"Graphics Packet ID: {state['graphics_packet_id']}")
+        logger.info(f"Physics Packet ID: {state['physics_packet_id']}")
         time.sleep(0.25)
 
 

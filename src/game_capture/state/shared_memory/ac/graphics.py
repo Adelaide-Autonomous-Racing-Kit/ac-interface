@@ -1,7 +1,5 @@
 import ctypes
 
-from src.game_capture.state.utils import Point
-
 
 class GraphicsSharedMemory(ctypes.Structure):
     """
@@ -11,7 +9,7 @@ class GraphicsSharedMemory(ctypes.Structure):
     """
 
     _fields_ = [
-        ("packet_id", ctypes.c_int),
+        # ("packet_id", ctypes.c_int),
         ("acc_status", ctypes.c_int),
         ("acc_session_type", ctypes.c_int),
         ("current_time", ctypes.c_wchar * 15),
@@ -32,8 +30,9 @@ class GraphicsSharedMemory(ctypes.Structure):
         ("tyre_compound", ctypes.c_wchar * 33),
         ("replay_time_multiplier", ctypes.c_float),
         ("normalised_car_position", ctypes.c_float),
-        ("car_coordinates", Point),
-        ("penalty_time", ctypes.c_float),
+        ("ego_location_x", ctypes.c_float),
+        ("ego_location_y", ctypes.c_float),
+        ("ego_location_z", ctypes.c_float),
         ("flag", ctypes.c_int),
         ("ideal_line_on", ctypes.c_int),
         ("is_in_pit_lane", ctypes.c_int),
@@ -44,7 +43,7 @@ class GraphicsSharedMemory(ctypes.Structure):
     ]
 
     dtypes = [
-        ("packet_id", ctypes.c_int),
+        # ("packet_id", ctypes.c_int),
         ("acc_status", ctypes.c_int),
         ("acc_session_type", ctypes.c_int),
         ("current_time", "V30"),
@@ -65,7 +64,9 @@ class GraphicsSharedMemory(ctypes.Structure):
         ("tyre_compound", "V68"),
         ("replay_time_multiplier", ctypes.c_float),
         ("normalised_car_position", ctypes.c_float),
-        ("car_coordinates", Point),
+        ("ego_location_x", ctypes.c_float),
+        ("ego_location_y", ctypes.c_float),
+        ("ego_location_z", ctypes.c_float),
         ("flag", ctypes.c_int),
         ("ideal_line_on", ctypes.c_int),
         ("is_in_pit_lane", ctypes.c_int),

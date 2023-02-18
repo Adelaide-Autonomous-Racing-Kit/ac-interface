@@ -9,7 +9,7 @@ class PhysicsSharedMemory(ctypes.Structure):
     """
 
     _fields_ = [
-        ("packet_id", ctypes.c_int),
+        # ("physics_packet_id", ctypes.c_int),
         ("throttle", ctypes.c_float),
         ("brake", ctypes.c_float),
         ("fuel", ctypes.c_float),
@@ -91,7 +91,7 @@ class PhysicsSharedMemory(ctypes.Structure):
         ("is_engine_brake_on", ctypes.c_int),
         ("energy_recovery_system_recovery_level", ctypes.c_int),
         ("energy_recovery_system_power_level", ctypes.c_int),
-         # Investigate "ERS changing: 0 (Motor) or 1 (Battery)"
+        # Investigate "ERS changing: 0 (Motor) or 1 (Battery)"
         ("energy_recovery_system_heat_charging", ctypes.c_int),
         ("is_energy_recovery_system_charging", ctypes.c_int),
         ("kinetic_energy_recovery_system_current_kilojoules", ctypes.c_float),
