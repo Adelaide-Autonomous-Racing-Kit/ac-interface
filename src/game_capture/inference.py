@@ -11,7 +11,7 @@ from src.config.constants import GAME_CAPTURE_CONFIG_FILE
 from src.game_capture.video.pyav_capture import ImageStream
 from src.game_capture.state.client import StateClient
 from src.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
-from src.utils.load import load_yaml
+from src.utils.load import load_yaml, state_bytes_to_dict
 
 
 class GameCapture(mp.Process):
@@ -22,9 +22,10 @@ class GameCapture(mp.Process):
         To cleanly exit call game_capture.stop()
     """
 
-    def __init__(self, use_RGB_images=True):
+    def __init__(self, use_RGB_images=True, use_state_dicts=True):
         super().__init__()
         self._use_RGB_images = use_RGB_images
+        self._use_state_dicts = use_state_dicts
         self.__setup_configuration()
         self.__setup_processes_shared_memory()
 
@@ -35,7 +36,7 @@ class GameCapture(mp.Process):
             returning a capture dictionary
 
         :return: {Dictionary image: BGR image as np.array, state: bytes}
-        :rtype: Dict[str : np.array, bytes]
+        :rtype: Dict[str : np.array, Union[bytes, Dict]]
         """
         image_mp_array, image_np_array = self._shared_image_buffer
         mp_buffer = self._shared_state_buffer
@@ -44,7 +45,9 @@ class GameCapture(mp.Process):
             image = image_np_array.copy()
             state = mp_buffer.buf[:].tobytes()
         self.is_stale = True
-        return {"state": state,"image": image}
+        if self._use_state_dicts:
+            state = state_bytes_to_dict(state)
+        return {"state": state, "image": image}
 
     def _wait_for_fresh_capture(self):
         while self.is_stale:
@@ -157,9 +160,7 @@ class GameCapture(mp.Process):
         return int(np.prod(self._image_shape))
 
     def __setup_shared_state_buffer(self):
-        self._shared_state_buffer = SharedMemory(
-            create=True, size=self.buffer_size
-        )
+        self._shared_state_buffer = SharedMemory(create=True, size=self.buffer_size)
 
     @property
     def buffer_size(self):
@@ -209,9 +210,7 @@ def benchmark_interprocess_communication():
         _ = game_capture.capture
     elapsed_time = time.time() - start_time
     game_capture.stop()
-    logger.info(
-        f"Read {n_captures} in {elapsed_time}s {n_captures/elapsed_time}Hz"
-    )
+    logger.info(f"Read {n_captures} in {elapsed_time}s {n_captures/elapsed_time}Hz")
 
 
 if __name__ == "__main__":

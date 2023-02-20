@@ -12,6 +12,7 @@ STRING_KEYS = [
     "current_time",
 ]
 
+
 def load_yaml(filepath: str) -> Dict:
     """
     Loads a yaml file as a dictionary
@@ -28,16 +29,18 @@ def load_game_state(filepath: str) -> Dict:
     """
     with open(filepath, "rb") as file:
         data = file.read()
-    state = np.frombuffer(data, COMBINED_DATA_TYPES)
-    return state_array_to_dict(state)
+    return state_bytes_to_dict(data)
 
 
-def state_array_to_dict(state_array: np.array) -> Dict:
+def state_bytes_to_dict(data: bytes) -> Dict:
     """
     Converts a game state np.arrays to a dictionary of observations
         see src.game_capture.state.shared_memory for a list of keys
     """
-    state_dict = {key[0]: value for key, value in zip(COMBINED_DATA_TYPES, state_array[0])}
+    state_array = np.frombuffer(data, COMBINED_DATA_TYPES)
+    state_dict = {
+        key[0]: value for key, value in zip(COMBINED_DATA_TYPES, state_array[0])
+    }
     for string_key in STRING_KEYS:
         state_dict[string_key] = state_dict[string_key].tobytes().decode("utf-8")
     return state_dict

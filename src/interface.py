@@ -15,6 +15,8 @@ from src.utils.launch import (
     try_until_state_server_is_launched,
 )
 
+from loguru import logger
+
 
 class AssettoCorsaInterface(abc.ABC):
     """
@@ -63,6 +65,7 @@ class AssettoCorsaInterface(abc.ABC):
         click_drive()
         while self.is_running:
             try:
+                logger.info("Agent Action Loop")
                 observation = self.get_observation()
                 action = self.behaviour(observation)
                 self.act(action)
@@ -76,7 +79,7 @@ class AssettoCorsaInterface(abc.ABC):
             present in the game state dictionary see src/game_capture/state/shared_memory.py
 
         :return: {Dictionary image: BGR image as np.array, state: Dict{str: float}}
-        :rtype: Dict[str: np.array]
+        :rtype: Dict[str: np.array, Dict]
         """
         return self._game_capture.capture
 

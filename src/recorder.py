@@ -15,7 +15,7 @@ class AssettoCorsaRecorder(AssettoCorsaInterface):
 
     def _initialise_capture(self):
         try_until_state_server_is_launched()
-        self._game_capture = GameCapture(use_RGB_images=False)
+        self._game_capture = GameCapture(use_RGB_images=False, use_state_dicts=False)
 
     def behaviour(self, observation: Dict):
         pass
