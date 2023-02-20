@@ -10,7 +10,10 @@ from loguru import logger
 from src.config.constants import GAME_CAPTURE_CONFIG_FILE
 from src.game_capture.video.pyav_capture import ImageStream
 from src.game_capture.state.client import StateClient
-from src.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
+from src.game_capture.state.shared_memory.ac.combined import (
+    COMBINED_DATA_TYPES,
+    CombinedSharedMemory,
+)
 from src.utils.load import load_yaml
 
 
@@ -42,10 +45,10 @@ class GameCapture(mp.Process):
         mp_buffer = self._shared_state_buffer
         self._wait_for_fresh_capture()
         with image_mp_array.get_lock():
-            image = image_np_array.copy()
+            # image = image_np_array.copy()
             state = mp_buffer.buf[:].tobytes()
         self.is_stale = True
-        return {"image": image, "state": state}
+        return {"state": state}  # ,"image": image}
 
     def _wait_for_fresh_capture(self):
         while self.is_stale:
@@ -62,7 +65,9 @@ class GameCapture(mp.Process):
         image_mp_array, image_np_array = self._shared_image_buffer
         mp_buffer = self._shared_state_buffer
         with image_mp_array.get_lock():
-            image_np_array[:] = capture["image"]
+            # image_np_array[:] = capture["image"]
+            state = capture["state"]["state"]
+            #logger.info(f"Received: {len(state)}")
             mp_buffer.buf[:] = capture["state"]["state"]
         self.is_stale = False
 
@@ -123,7 +128,7 @@ class GameCapture(mp.Process):
             else:
                 image = self.image_stream.latest_bgr0_image
             state = self.state_capture.latest_state
-            self.capture = {"image": image, "state": state}
+            self.capture = {"state": state}  # "image": image}
 
     def __setup_capture_process(self):
         self.image_stream = ImageStream()
@@ -158,12 +163,13 @@ class GameCapture(mp.Process):
         return int(np.prod(self._image_shape))
 
     def __setup_shared_state_buffer(self):
-        self._shared_state_buffer = SharedMemory(create=True, size=self.buffer_size)
+        self._shared_state_buffer = SharedMemory(
+            create=True, size=self.buffer_size
+        )
 
     @property
     def buffer_size(self):
-        # TODO: Figure out why the received bytes are 8 bytes less than expected by numpy
-        return np.dtype(COMBINED_DATA_TYPES).itemsize - 8
+        return np.dtype(COMBINED_DATA_TYPES).itemsize
 
     def __setup_shared_flags(self):
         self._is_stale = mp.Value("i", True)
@@ -171,7 +177,30 @@ class GameCapture(mp.Process):
 
 
 def main():
+    test_object_store()
     benchmark_interprocess_communication()
+
+
+def test_object_store():
+    n_captures = 1
+    game_capture = GameCapture()
+    game_capture.start()
+    # Wait until first image has been received
+    _ = game_capture.capture
+    for _ in range(n_captures):
+        state = game_capture.capture["state"]
+        state = np.frombuffer(state, COMBINED_DATA_TYPES)
+        for element, dtype in zip(state[0], COMBINED_DATA_TYPES):
+            if dtype[0] in [
+                "tyre_compound",
+                "last_time",
+                "best_time",
+                "split",
+                "current_time",
+            ]:
+                element = element.tostring().decode()
+            logger.info(f"{dtype[0]} : {element}")
+    game_capture.stop()
 
 
 def benchmark_interprocess_communication():
@@ -186,7 +215,9 @@ def benchmark_interprocess_communication():
         _ = game_capture.capture
     elapsed_time = time.time() - start_time
     game_capture.stop()
-    logger.info(f"Read {n_captures} in {elapsed_time}s {n_captures/elapsed_time}Hz")
+    logger.info(
+        f"Read {n_captures} in {elapsed_time}s {n_captures/elapsed_time}Hz"
+    )
 
 
 if __name__ == "__main__":

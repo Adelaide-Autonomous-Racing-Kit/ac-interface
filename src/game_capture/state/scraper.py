@@ -21,13 +21,13 @@ class AssettoCorsaData:
     def __init__(self):
         self._physics_memory_map = mmap.mmap(
             -1,
-            ctypes.sizeof(PhysicsSharedMemory),
+            ctypes.sizeof(PhysicsSharedMemory) + ctypes.sizeof(ctypes.c_int),
             "Local\\acpmf_physics",
             access=mmap.ACCESS_READ,
         )
         self._graphics_memory_map = mmap.mmap(
             -1,
-            ctypes.sizeof(GraphicsSharedMemory),
+            ctypes.sizeof(GraphicsSharedMemory) + ctypes.sizeof(ctypes.c_int),
             "Local\\acpmf_graphics",
             access=mmap.ACCESS_READ,
         )
@@ -54,7 +54,6 @@ class AssettoCorsaData:
             self.graphics_packet_id = struct.unpack("i", graphics_bytes[0])[0]
             self.physics_packet_id = struct.unpack("i", physics_bytes[0])[0]
             self.combined_byte_string = graphics_bytes[1] + physics_bytes[1]
-            # self.shared_memory = buffer_to_numpy(combined_buffer, COMBINED_DATA_TYPES)
 
     @property
     def game_state(self) -> Dict:

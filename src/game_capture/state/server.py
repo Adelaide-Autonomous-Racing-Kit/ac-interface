@@ -1,4 +1,3 @@
-import ctypes
 import socket
 from multiprocessing.connection import Listener
 from threading import Thread
@@ -8,7 +7,7 @@ from loguru import logger
 from src.game_capture.state.scraper import AssettoCorsaData
 
 ADDRESS = "localhost"
-PORT = 6002
+PORT = 6001
 
 
 class StateServer:

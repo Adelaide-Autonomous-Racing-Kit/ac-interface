@@ -33,12 +33,13 @@ class GraphicsSharedMemory(ctypes.Structure):
         ("ego_location_x", ctypes.c_float),
         ("ego_location_y", ctypes.c_float),
         ("ego_location_z", ctypes.c_float),
+        ("penalty_time", ctypes.c_float),
         ("flag", ctypes.c_int),
         ("ideal_line_on", ctypes.c_int),
         ("is_in_pit_lane", ctypes.c_int),
         ("surface_grip", ctypes.c_float),
         ("mandatory_pit_done", ctypes.c_int),
-        ("wind_speed", ctypes.c_float),
+        ("wind_speed_kmh", ctypes.c_float),
         ("wind_direction", ctypes.c_float),
     ]
 
@@ -67,11 +68,12 @@ class GraphicsSharedMemory(ctypes.Structure):
         ("ego_location_x", ctypes.c_float),
         ("ego_location_y", ctypes.c_float),
         ("ego_location_z", ctypes.c_float),
+        ("penalty_time", ctypes.c_float),
         ("flag", ctypes.c_int),
         ("ideal_line_on", ctypes.c_int),
         ("is_in_pit_lane", ctypes.c_int),
         ("surface_grip", ctypes.c_float),
         ("mandatory_pit_done", ctypes.c_int),
-        ("wind_speed", ctypes.c_float),
+        ("wind_speed_kmh", ctypes.c_float),
         ("wind_direction", ctypes.c_float),
     ]
