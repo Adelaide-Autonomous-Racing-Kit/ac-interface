@@ -114,7 +114,7 @@ def benchmark_polling_rate(state_client):
     n_reads = 900
     start_time = time.time()
     for _ in range(n_reads):
-        state = state_client.new_state
+        _ = state_client.new_state
     elapsed_time = time.time() - start_time
     logger.info(
         f"Received {n_reads} states in {elapsed_time}s {n_reads/elapsed_time}Hz"
