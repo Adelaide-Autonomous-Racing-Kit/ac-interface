@@ -4,7 +4,7 @@ from loguru import logger
 
 from src.interface import AssettoCorsaInterface
 from src.game_capture.inference import GameCapture
-from src.utils.save import save_bgr0_as_jpeg, save_state, maybe_create_folders
+from src.utils.save import save_bgr0_as_jpeg, save_state, maybe_create_folders, save_bytes
 from src.utils.launch import try_until_state_server_is_launched, click_drive
 
 
@@ -15,7 +15,7 @@ class AssettoCorsaRecorder(AssettoCorsaInterface):
 
     def _initialise_capture(self):
         try_until_state_server_is_launched()
-        self._game_capture = GameCapture(use_RGB_images=False, use_state_dicts=False)
+        self._game_capture = GameCapture(use_RGB_images=False)
 
     def behaviour(self, observation: Dict):
         pass
@@ -46,6 +46,6 @@ class AssettoCorsaRecorder(AssettoCorsaInterface):
 
     def _write_capture_to_file(self):
         observation = self.get_observation()
-        save_state(f"{self._save_path}/{self.frame_count}", observation["state"])
+        save_bytes(f"{self._save_path}/{self.frame_count}", observation["state"])
         save_bgr0_as_jpeg(f"{self._save_path}/{self.frame_count}", observation["image"])
         self.frame_count += 1
