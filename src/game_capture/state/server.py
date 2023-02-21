@@ -26,22 +26,15 @@ class StateServer:
         self.is_running = True
         logger.info(f"State server created, listing on {ADDRESS}:{PORT}")
 
-    @property
-    def game_state(self) -> ctypes.Structure:
-        return self.assetto_corsa_data.shared_memory
-
-    @property
-    def latest_packet_id(self) -> int:
-        return self.assetto_corsa_data.shared_memory["packet_id"]
-
     def send_game_state(self, connection):
         last_packet_id = -1
         is_connected = True
         while is_connected:
-            if not last_packet_id == self.latest_packet_id:
+            game_state = self.assetto_corsa_data.game_state
+            if not last_packet_id == game_state["graphics_packet_id"]:
                 try:
-                    connection.send(self.assetto_corsa_data.shared_memory)
-                    last_packet_id = self.assetto_corsa_data.shared_memory["packet_id"]
+                    connection.send(game_state)
+                    last_packet_id = game_state["graphics_packet_id"]
                 except Exception as e:
                     print(f"Connection Closed: {e}")
                     connection.close()

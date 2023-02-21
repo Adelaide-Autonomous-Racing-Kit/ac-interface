@@ -34,7 +34,7 @@ class StateClient:
         Blocking call that waits until a new state from the game is received
         """
         while self._is_stale:
-            pass
+            continue
         self._is_stale = True
 
     @property
@@ -50,7 +50,31 @@ class StateClient:
         Blocking call that waits until the first state from the game is received
         """
         while self._latest_state is None:
-            pass
+            continue
+
+    @property
+    def is_AC_ready(self) -> bool:
+        """
+        :return: True if the packet ID recieved is above 500
+        :rtype: bool
+        """
+        return self.latest_state["physics_packet_id"] > 500
+
+    def wait_until_AC_is_ready(self):
+        """
+        Blocks execution until the game is ready for the session to be started
+        """
+        self._wait_for_packet_id_reset()
+        while not self.is_AC_ready:
+            continue
+
+    def _wait_for_packet_id_reset(self):
+        """
+        Block until a packet ID close to zero is observed indicating the a new
+            game session has started.
+        """
+        while not self.latest_state["physics_packet_id"] < 500:
+            continue
 
     def __start_update_thread(self):
         """
@@ -78,11 +102,8 @@ def print_state_output(state_client):
     for _ in range(10):
         logger.info("=== Reading from AC ===")
         state = state_client.latest_state
-        for field in state.dtype.names:
-            if field == "P2PActivation":
-                break
-            logger.info(f"{field}: {state[field]}")
-        # logger.info(f"Throttle: {state['throttle']}, Brake: {state['brake']}")
+        logger.info(f"Graphics Packet ID: {state['graphics_packet_id']}")
+        logger.info(f"Physics Packet ID: {state['physics_packet_id']}")
         time.sleep(0.25)
 
 
@@ -93,7 +114,7 @@ def benchmark_polling_rate(state_client):
     n_reads = 900
     start_time = time.time()
     for _ in range(n_reads):
-        state = state_client.new_state
+        _ = state_client.new_state
     elapsed_time = time.time() - start_time
     logger.info(
         f"Received {n_reads} states in {elapsed_time}s {n_reads/elapsed_time}Hz"

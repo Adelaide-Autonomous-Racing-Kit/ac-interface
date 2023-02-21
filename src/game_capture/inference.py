@@ -1,15 +1,19 @@
 import ctypes
 import multiprocessing as mp
 import time
+from multiprocessing.shared_memory import SharedMemory
 from typing import Dict
 
 from loguru import logger
 import numpy as np
-from src.config.constants import GAME_CAPTURE_CONFIG_FILE
-from src.game_capture.state.client import StateClient
+
 from src.game_capture.state.shared_memory import SHMStruct
 from src.game_capture.video.pyav_capture import ImageStream, display
-from src.utils.load import load_yaml, state_array_to_dict
+
+from src.config.constants import GAME_CAPTURE_CONFIG_FILE
+from src.game_capture.state.client import StateClient
+from src.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
+from src.utils.load import load_yaml, state_bytes_to_dict
 
 
 class GameCapture(mp.Process):
@@ -20,46 +24,50 @@ class GameCapture(mp.Process):
         To cleanly exit call game_capture.stop()
     """
 
-    def __init__(self):
+    def __init__(self, use_RGB_images=True, use_state_dicts=True):
         super().__init__()
+        self._use_RGB_images = use_RGB_images
+        self._use_state_dicts = use_state_dicts
         self.__setup_configuration()
         self.__setup_processes_shared_memory()
 
     @property
-    def capture(self) -> np.array:
+    def capture(self) -> Dict:
         """
         Blocking access that waits until a new image from the game is received before
             returning a capture dictionary
 
-        :return: {Dictionary image: BGR image as np.array, state: Dict{str: float}}
-        :rtype: Dict[str : np.array]
+        :return: {Dictionary image: BGR image as np.array, state: bytes}
+        :rtype: Dict[str : np.array, Union[bytes, Dict]]
         """
         image_mp_array, image_np_array = self._shared_image_buffer
-        _, state_np_array = self._shared_state_buffer
+        mp_buffer = self._shared_state_buffer
         self._wait_for_fresh_capture()
         with image_mp_array.get_lock():
             image = image_np_array.copy()
-            state = state_np_array.copy()
+            state = mp_buffer.buf[:].tobytes()
         self.is_stale = True
-        return {"image": image, "state": state_array_to_dict(state)}
+        if self._use_state_dicts:
+            state = state_bytes_to_dict(state)
+        return {"state": state, "image": image}
 
     def _wait_for_fresh_capture(self):
         while self.is_stale:
             continue
 
     @capture.setter
-    def capture(self, capture: Dict[str, np.array]):
+    def capture(self, capture: Dict):
         """
         Accepts a capture dictionary and copies them to the shared memory buffer
 
         :capture: A Dictionary containing {"image": image, "state": state}
-        :type capture: Dict[str : np.array]
+        :type capture: Dict[str : np.array, bytes]
         """
         image_mp_array, image_np_array = self._shared_image_buffer
-        _, state_np_array = self._shared_state_buffer
+        mp_buffer = self._shared_state_buffer
         with image_mp_array.get_lock():
             image_np_array[:] = capture["image"]
-            state_np_array[:] = np.asarray(capture["state"].tolist())
+            mp_buffer.buf[:] = capture["state"]["state"]
         self.is_stale = False
 
     @property
@@ -112,22 +120,30 @@ class GameCapture(mp.Process):
         """
         Called on GameCapture.start()
         """
-        image_stream = ImageStream()
-        state_capture = StateClient()
+        self.__setup_capture_process()
         while self.is_running:
-            image = image_stream.latest_image
-            state = state_capture.latest_state
-            self.capture = {"image": image, "state": state}
+            if self._use_RGB_images:
+                image = self.image_stream.latest_image
+            else:
+                image = self.image_stream.latest_bgr0_image
+            state = self.state_capture.latest_state
+            self.capture = {"state": state, "image": image}
+
+    def __setup_capture_process(self):
+        self.image_stream = ImageStream()
+        self.state_capture = StateClient()
 
     def stop(self):
         """
         Stops the capture process
         """
         self.is_running = False
+        self._shared_state_buffer.unlink()
 
     def __setup_configuration(self):
         width, height = load_yaml(GAME_CAPTURE_CONFIG_FILE)["game_resolution"]
-        self._image_shape = (height, width, 3)
+        n_channels = 3 if self._use_RGB_images else 4
+        self._image_shape = (height, width, n_channels)
 
     def __setup_processes_shared_memory(self):
         self.__setup_shared_image_buffer()
@@ -146,13 +162,11 @@ class GameCapture(mp.Process):
         return int(np.prod(self._image_shape))
 
     def __setup_shared_state_buffer(self):
-        mp_array = mp.RawArray("f", self._n_state_fields)
-        np_array = np.ndarray(self._n_state_fields, dtype="f", buffer=mp_array)
-        self._shared_state_buffer = (mp_array, np_array)
+        self._shared_state_buffer = SharedMemory(create=True, size=self.buffer_size)
 
     @property
-    def _n_state_fields(self):
-        return len(SHMStruct._fields_)
+    def buffer_size(self):
+        return np.dtype(COMBINED_DATA_TYPES).itemsize
 
     def __setup_shared_flags(self):
         self._is_stale = mp.Value("i", True)
@@ -160,7 +174,30 @@ class GameCapture(mp.Process):
 
 
 def main():
+    test_object_store()
     benchmark_interprocess_communication()
+
+
+def test_object_store():
+    n_captures = 1
+    game_capture = GameCapture()
+    game_capture.start()
+    # Wait until first image has been received
+    _ = game_capture.capture
+    for _ in range(n_captures):
+        state = game_capture.capture["state"]
+        state = np.frombuffer(state, COMBINED_DATA_TYPES)
+        for element, dtype in zip(state[0], COMBINED_DATA_TYPES):
+            if dtype[0] in [
+                "tyre_compound",
+                "last_time",
+                "best_time",
+                "split",
+                "current_time",
+            ]:
+                element = element.tostring().decode()
+            logger.info(f"{dtype[0]} : {element}")
+    game_capture.stop()
 
 
 def benchmark_interprocess_communication():

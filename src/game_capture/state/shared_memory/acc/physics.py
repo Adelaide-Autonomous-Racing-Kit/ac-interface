@@ -1,11 +1,11 @@
 import ctypes
 
 
-class SHMStruct(ctypes.Structure):
+class PhysicsSharedMemory(ctypes.Structure):
     """
-    Enables from buffer copy into an inteligable python object
+    Enables from buffer copy into an intelligible python object
         each tuple is a (attribute, dtype) pair that presents on
-        the resulting object as `shms_struct.attribute`
+        the resulting object as `physics_shared_memory.attribute`
     """
 
     _fields_ = [
@@ -17,9 +17,9 @@ class SHMStruct(ctypes.Structure):
         ("rpm", ctypes.c_int),
         ("steering_angle", ctypes.c_float),
         ("speed", ctypes.c_float),
-        ("velocity1", ctypes.c_float),  # Investigate
-        ("velocity2", ctypes.c_float),
-        ("velocity3", ctypes.c_float),
+        ("velocity_x", ctypes.c_float),
+        ("velocity_y", ctypes.c_float),
+        ("velocity_z", ctypes.c_float),
         ("acceleration_g_X", ctypes.c_float),
         ("acceleration_g_Y", ctypes.c_float),
         ("acceleration_g_Z", ctypes.c_float),
@@ -102,19 +102,19 @@ class SHMStruct(ctypes.Structure):
         ("brake_temperature_rear_left", ctypes.c_float),
         ("brake_temperature_rear_right", ctypes.c_float),
         ("clutch", ctypes.c_float),
-        # Investigate I,M,O and 1,2,3,4 designations
-        ("tyre_temperature_I_1", ctypes.c_float),
-        ("tyre_temperature_I_2", ctypes.c_float),
-        ("tyre_temperature_I_3", ctypes.c_float),
-        ("tyre_temperature_I_4", ctypes.c_float),
-        ("tyre_temperature_M_1", ctypes.c_float),
-        ("tyre_temperature_M_2", ctypes.c_float),
-        ("tyre_temperature_M_3", ctypes.c_float),
-        ("tyre_temperature_M_4", ctypes.c_float),
-        ("tyre_temperature_O_1", ctypes.c_float),
-        ("tyre_temperature_O_2", ctypes.c_float),
-        ("tyre_temperature_O_3", ctypes.c_float),
-        ("tyre_temperature_O_4", ctypes.c_float),
+        # Investigate I,M,O
+        ("tyre_temperature_I_front_left", ctypes.c_float),
+        ("tyre_temperature_I_front_right", ctypes.c_float),
+        ("tyre_temperature_I_rear_left", ctypes.c_float),
+        ("tyre_temperature_I_rear_right", ctypes.c_float),
+        ("tyre_temperature_M_front_left", ctypes.c_float),
+        ("tyre_temperature_M_front_right", ctypes.c_float),
+        ("tyre_temperature_M_rear_left", ctypes.c_float),
+        ("tyre_temperature_M_rear_right", ctypes.c_float),
+        ("tyre_temperature_O_front_left", ctypes.c_float),
+        ("tyre_temperature_O_front_right", ctypes.c_float),
+        ("tyre_temperature_O_rear_left", ctypes.c_float),
+        ("tyre_temperature_O_rear_right", ctypes.c_float),
         ("is_ai_controlled", ctypes.c_int),
         ("tyre_contact_point_front_left_X", ctypes.c_float),
         ("tyre_contact_point_front_left_Y", ctypes.c_float),
@@ -172,27 +172,24 @@ class SHMStruct(ctypes.Structure):
         ("f_y_2", ctypes.c_float),
         ("f_y_3", ctypes.c_float),
         ("f_y_4", ctypes.c_float),
-        # Investigate 1,2,3,4 designations
-        ("slip_ratio_1", ctypes.c_float),
-        ("slip_ratio_2", ctypes.c_float),
-        ("slip_ratio_3", ctypes.c_float),
-        ("slip_ratio_4", ctypes.c_float),
-        ("slip_angle_1", ctypes.c_float),
-        ("slip_angle_2", ctypes.c_float),
-        ("slip_angle_3", ctypes.c_float),
-        ("slip_angle_4", ctypes.c_float),
+        ("slip_ratio_front_left", ctypes.c_float),
+        ("slip_ratio_front_right", ctypes.c_float),
+        ("slip_ratio_rear_left", ctypes.c_float),
+        ("slip_ratio_rear_right", ctypes.c_float),
+        ("slip_angle_front_left", ctypes.c_float),
+        ("slip_angle_front_right", ctypes.c_float),
+        ("slip_angle_rear_left", ctypes.c_float),
+        ("slip_angle_rear_right", ctypes.c_float),
         ("is_traction_control_activated", ctypes.c_int),
         ("is_anti_lock_braking_system_activated", ctypes.c_int),
-        # Investigate 1,2,3,4 designations
-        ("suspension_damage_1", ctypes.c_float),
-        ("suspension_damage_2", ctypes.c_float),
-        ("suspension_damage_3", ctypes.c_float),
-        ("suspension_damage_4", ctypes.c_float),
-        # Investigate 1,2,3,4 designations
-        ("tyre_temperature_1", ctypes.c_float),
-        ("tyre_temperature_2", ctypes.c_float),
-        ("tyre_temperature_3", ctypes.c_float),
-        ("tyre_temperature_4", ctypes.c_float),
+        ("suspension_damage_front_left", ctypes.c_float),
+        ("suspension_damage_front_right", ctypes.c_float),
+        ("suspension_damage_rear_left", ctypes.c_float),
+        ("suspension_damage_rear_right", ctypes.c_float),
+        ("tyre_temperature_front_left", ctypes.c_float),
+        ("tyre_temperature_front_right", ctypes.c_float),
+        ("tyre_temperature_rear_left", ctypes.c_float),
+        ("tyre_temperature_rear_right", ctypes.c_float),
         ("water_temperature", ctypes.c_float),
         ("brake_pressure_front_left", ctypes.c_float),
         ("brake_pressure_front_right", ctypes.c_float),
