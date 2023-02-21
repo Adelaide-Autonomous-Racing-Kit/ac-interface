@@ -54,8 +54,8 @@ AC_OVERRIDE_CAMERA_MANAGER_INI_YAML_PATH = Path(
 AC_OVERRIDE_VIDEO_INI_YAML_PATH = Path(CONFIG_ROOT, "simulation/defaults/video.yaml")
 
 
-OverridePaths = namedtuple("OverridePaths", "default user override")
 # Collection of Default Overrides
+OverridePaths = namedtuple("OverridePaths", "default user override")
 CONFIG_OVERRIDE_PATHS = {
     "race.ini": OverridePaths(
         DEFAULT_RACE_INI_PATH,

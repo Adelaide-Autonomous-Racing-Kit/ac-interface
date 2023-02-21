@@ -28,7 +28,8 @@ def launch_assetto_corsa():
             "acs.exe",
         ],
         stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.PIPE,
     )
     os.chdir(original_dir)
 
