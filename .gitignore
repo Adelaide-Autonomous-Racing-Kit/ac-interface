@@ -159,6 +159,7 @@ tracks/**/*.obj
 recordings/**/*.npy
 recordings/**/*.jpeg
 recordings/**/*.zip
+recordings/**/*.bin
 
 # benchmark
 .benchmarks/

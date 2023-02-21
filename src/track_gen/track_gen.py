@@ -146,7 +146,6 @@ class Spa(Track):
 
 if __name__ == "__main__":
     file = "tracks/spa/physics_mesh_object_groups.obj"
-
     spa_data = Spa(file)
 
     print(spa_data.named_meshes.keys())
