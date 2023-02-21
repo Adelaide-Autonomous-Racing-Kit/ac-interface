@@ -2,20 +2,18 @@ import abc
 import subprocess
 from typing import Dict
 
+from loguru import logger
 import numpy as np
-
-from src.game_capture.state.client import StateClient
-from src.game_capture.inference import GameCapture
-from src.input.controller import VirtualGamepad
 from src.config.ac_config import override_launch_configurations
+from src.game_capture.inference import GameCapture
+from src.game_capture.state.client import StateClient
+from src.input.controller import VirtualGamepad
 from src.utils.launch import (
     click_drive,
     launch_assetto_corsa,
     maybe_create_steam_appid_file,
     try_until_state_server_is_launched,
 )
-
-from loguru import logger
 
 
 class AssettoCorsaInterface(abc.ABC):

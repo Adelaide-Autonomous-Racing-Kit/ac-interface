@@ -1,6 +1,6 @@
+from collections import namedtuple
 import os
 from pathlib import Path
-from collections import namedtuple
 
 GAME_NAME_TO_WINDOW_NAME = {
     "linux": {

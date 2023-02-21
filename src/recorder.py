@@ -1,16 +1,10 @@
 from typing import Dict
 
 from loguru import logger
-
-from src.interface import AssettoCorsaInterface
 from src.game_capture.inference import GameCapture
-from src.utils.save import (
-    save_bgr0_as_jpeg,
-    save_bytes,
-    maybe_create_folders,
-    save_bytes,
-)
-from src.utils.launch import try_until_state_server_is_launched, click_drive
+from src.interface import AssettoCorsaInterface
+from src.utils.launch import click_drive, try_until_state_server_is_launched
+from src.utils.save import maybe_create_folders, save_bgr0_as_jpeg, save_bytes
 
 
 class AssettoCorsaRecorder(AssettoCorsaInterface):

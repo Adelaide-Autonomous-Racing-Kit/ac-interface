@@ -5,11 +5,10 @@ from loguru import logger
 from src.config.constants import (
     AC_OVERRIDE_RACE_INI_YAML_PATH,
     AC_USER_RACE_INI_PATH,
+    CONFIG_OVERRIDE_PATHS,
     DEFAULT_RACE_INI_PATH,
 )
 from src.utils.load import load_yaml
-
-from src.config.constants import CONFIG_OVERRIDE_PATHS
 
 
 def create_ini_parser():

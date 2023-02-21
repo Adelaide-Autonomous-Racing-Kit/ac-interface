@@ -19,6 +19,7 @@ def save_bytes(filepath: str, state_bytes: bytes):
     with open(f"{filepath}.bin", "wb") as file:
         file.write(state_bytes)
 
+
 def maybe_create_folders(path: str):
     """
     If the folders in the path doesn't exist, create them
