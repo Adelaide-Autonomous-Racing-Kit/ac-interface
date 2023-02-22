@@ -33,3 +33,6 @@ lint:
 	@isort --settings-file=linters/isort.ini "src/"
 	@flake8 --config=linters/flake8.ini "src/"
 	@echo "all done"
+
+jupyter:
+	@bash python3 -m jupyterlab --ip 0.0.0.0 --port 8889

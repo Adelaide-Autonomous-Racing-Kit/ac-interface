@@ -163,3 +163,6 @@ recordings/**/*.bin
 
 # benchmark
 .benchmarks/
+
+# analysis
+src/analysis/imgs
