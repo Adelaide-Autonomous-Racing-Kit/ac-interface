@@ -1,16 +1,16 @@
 import ctypes
 import multiprocessing as mp
-import time
 from multiprocessing.shared_memory import SharedMemory
+import time
 from typing import Dict
 
-import numpy as np
 from loguru import logger
-
+import numpy as np
 from src.config.constants import GAME_CAPTURE_CONFIG_FILE
-from src.game_capture.video.pyav_capture import ImageStream
 from src.game_capture.state.client import StateClient
+from src.game_capture.state.shared_memory import SHMStruct
 from src.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
+from src.game_capture.video.pyav_capture import ImageStream, display
 from src.utils.load import load_yaml, state_bytes_to_dict
 
 
@@ -200,7 +200,7 @@ def test_object_store():
 
 def benchmark_interprocess_communication():
     n_captures = 900
-    logger.info(f"Benchmarking game capture reading from capture process")
+    logger.info("Benchmarking game capture reading from capture process")
     game_capture = GameCapture()
     game_capture.start()
     # Wait until first image has been received

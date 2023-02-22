@@ -1,8 +1,8 @@
 import platform
-from typing import Tuple, List
+from typing import List, Tuple
 
-from src.game_capture.video.get_window import get_window_location_linux, Point
 from src.config.constants import GAME_NAME_TO_WINDOW_NAME
+from src.game_capture.video.get_window import Point, get_window_location_linux
 
 
 def get_sanitised_os_name() -> str:
@@ -63,7 +63,10 @@ def get_display_input(
 
     return file_input, video_size
 
-def get_application_window_coordinates(game_name:str, game_resolution: List[int])-> Point:
+
+def get_application_window_coordinates(
+    game_name: str, game_resolution: List[int]
+) -> Point:
     """
     Get the coordinates of the top-left corner of the application's window
 
@@ -77,4 +80,3 @@ def get_application_window_coordinates(game_name:str, game_resolution: List[int]
     os_name = get_sanitised_os_name()
     window_name = GAME_NAME_TO_WINDOW_NAME[os_name][game_name]
     return get_window_location_linux(window_name, game_resolution)
-        

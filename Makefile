@@ -11,14 +11,28 @@ ifneq ($(wildcard $(CONDA_ENV_PATH)),)
 		conda env remove -p $(CONDA_ENV_PATH); \
 	fi
 endif
-	conda create -y -p $(CONDA_ENV_PATH) opencv numpy av pyyaml python-xlib \
-		black flake8-black flake8 isort loguru pytest pytest-benchmark pytest-parallel \
-		coverage pyautogui -c conda-forge
+	conda create -y -p $(CONDA_ENV_PATH) -c conda-forge opencv numpy av pyyaml matplotlib pillow \
+		black flake8-black flake8 isort loguru pytest pytest-parallel pytest-benchmark coverage \
+		pyautogui python-xlib
 	$(CONDA_ACTIVATE) $(CONDA_ENV_PATH)
 	pip install -e .
 	pip install git+https://github.com/wyatthuckaby/python-uinput.git
 	pip install git+https://github.com/lilohuang/PyTurboJPEG.git
 
 run:
-	echo $(CONDA_ENV_PATH)
-	source activate $(CONDA_ENV_PATH)
+	@echo $(CONDA_ENV_PATH)
+	@source activate $(CONDA_ENV_PATH)
+
+test:
+	@echo "Starting all non gpu related tests"
+	# --benchmark-compare 
+	@pytest --benchmark-sort --benchmark-autosave --workers 2 src/ -m "not benchmark and not gpu" 
+
+lint:
+	@black "src/" 
+	@isort --settings-file=linters/isort.ini "src/"
+	@flake8 --config=linters/flake8.ini "src/"
+	@echo "all done"
+
+jupyter:
+	@bash python3 -m jupyterlab --ip 0.0.0.0 --port 8889

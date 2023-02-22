@@ -1,8 +1,8 @@
 from typing import Dict
-import numpy as np
-import yaml
 
+import numpy as np
 from src.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
+import yaml
 
 STRING_KEYS = [
     "tyre_compound",

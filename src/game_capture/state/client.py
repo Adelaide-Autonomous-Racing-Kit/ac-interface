@@ -1,9 +1,9 @@
-import time
 from multiprocessing.connection import Client
 from threading import Thread
+import time
+
 from loguru import logger
 import numpy as np
-
 from src.game_capture.state.server import ADDRESS, PORT
 
 
@@ -109,7 +109,7 @@ def print_state_output(state_client):
 
 def benchmark_polling_rate(state_client):
     logger.info(
-        f"Benchmarking rate at which state updates are received from the simulator"
+        "Benchmarking rate at which state updates are received from the simulator"
     )
     n_reads = 900
     start_time = time.time()

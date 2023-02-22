@@ -1,9 +1,9 @@
-import time
 from collections import defaultdict
 from functools import wraps
+import time
 
-import numpy as np
 from loguru import logger
+import numpy as np
 
 
 def track_runtime(function):

@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import numpy as np
-from turbojpeg import TurboJPEG, TJPF_BGRX
+from turbojpeg import TJPF_BGRX, TurboJPEG
 
 TURBO_JPEG = TurboJPEG()
 
@@ -18,6 +18,7 @@ def save_bgr0_as_jpeg(filepath: str, image: np.array):
 def save_bytes(filepath: str, state_bytes: bytes):
     with open(f"{filepath}.bin", "wb") as file:
         file.write(state_bytes)
+
 
 def maybe_create_folders(path: str):
     """

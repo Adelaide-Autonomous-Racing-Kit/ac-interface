@@ -1,16 +1,16 @@
 import ctypes
 import mmap
 import struct
-import time
 from threading import Lock, Thread
+import time
 from typing import Dict, List, Tuple
 
-import numpy as np
 from loguru import logger
-
-from src.game_capture.state.shared_memory.ac.physics import PhysicsSharedMemory
-from src.game_capture.state.shared_memory.ac.graphics import GraphicsSharedMemory
+import numpy as np
+from src.game_capture.state.shared_memory import SHMStruct
 from src.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
+from src.game_capture.state.shared_memory.ac.graphics import GraphicsSharedMemory
+from src.game_capture.state.shared_memory.ac.physics import PhysicsSharedMemory
 
 
 class AssettoCorsaData:

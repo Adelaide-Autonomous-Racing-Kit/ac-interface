@@ -134,3 +134,35 @@ dmypy.json
 envs
 .obsidian
 .DS_Store
+
+# tracks stuff
+tracks/**/*.zip
+tracks/**/*.exe
+
+tracks/**/*.ini_
+tracks/**/*.candidate
+tracks/**/*.opt
+
+tracks/**/*.ini
+tracks/**/*.dds
+tracks/**/*.png
+tracks/**/*.jpg
+tracks/**/*.ai
+tracks/**/*.kn5
+tracks/**/*.csv
+tracks/**/*.json
+tracks/**/*.fbx
+tracks/**/*.mtl
+tracks/**/*.obj
+
+# recording stuffs
+recordings/**/*.npy
+recordings/**/*.jpeg
+recordings/**/*.zip
+recordings/**/*.bin
+
+# benchmark
+.benchmarks/
+
+# analysis
+src/analysis/imgs

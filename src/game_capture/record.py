@@ -1,15 +1,14 @@
 import threading
 import time
 
-import numpy as np
 from loguru import logger
-
+import numpy as np
+from src.config.constants import RECORD_CONFIG_FILE
 from src.game_capture.state.client import StateClient
 from src.game_capture.video.pyav_capture import ImageStream
-from src.utils.system_monitor import System_Monitor, track_runtime
-from src.utils.save import save_bgr0_as_jpeg, save_state, save_bytes
 from src.utils.load import load_yaml
-from src.config.constants import RECORD_CONFIG_FILE
+from src.utils.save import save_bgr0_as_jpeg, save_bytes, save_state
+from src.utils.system_monitor import System_Monitor, track_runtime
 
 
 class GameRecorder:
@@ -45,7 +44,7 @@ class GameRecorder:
 
     @track_runtime
     def _write_capture_to_file(self, image: np.array, state: np.array):
-        save_bytes(f"{self.root_dir}/{self.frame_counter}", state['state'])
+        save_bytes(f"{self.root_dir}/{self.frame_counter}", state["state"])
         save_bgr0_as_jpeg(f"{self.root_dir}/{self.frame_counter}", image)
 
 

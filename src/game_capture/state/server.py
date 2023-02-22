@@ -1,9 +1,9 @@
-import socket
+import ctypes
 from multiprocessing.connection import Listener
+import socket
 from threading import Thread
 
 from loguru import logger
-
 from src.game_capture.state.scraper import AssettoCorsaData
 
 ADDRESS = "localhost"
