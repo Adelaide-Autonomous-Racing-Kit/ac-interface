@@ -110,6 +110,7 @@ def gen_frame(i, positions, track) -> None:
     # ax.set_ylim([-750, -1300])
     ax.set_xlim([x - 200, x + 200])
     ax.set_ylim([z - 200, z + 200])
+    plt.gca().invert_xaxis()
     plt.xticks([])
     plt.yticks([])
     plt.savefig(f"src/analysis/imgs/foo_{i}.png", bbox_inches="tight")
@@ -119,7 +120,7 @@ def gen_frame(i, positions, track) -> None:
     return [f"src/analysis/imgs/foo_{i}.png"]
 
 
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 if __name__ == "__main__":
     """
