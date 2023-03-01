@@ -1,8 +1,13 @@
-# Assetto Corsa
+# Assetto Corsa, a new racing benchmark
+![](https://imgs.xkcd.com/comics/standards_2x.png)
+
 **Assetto Corsa** is a racing simulation game that allows players to drive a variety of cars on different tracks. 
+
+
 
 ## Creating the bottle
 We will be using a compatability tool called [Crossover](https://www.codeweavers.com/crossover) by the [CodeWeavers team](https://www.codeweavers.com/) as Assetto Corsa is a Windows only application. They offer a 14-day trial. A perpetual license is $74 USD at the time of writing, this licsense can be used for all operating systems according to their FAQ.
+
 
 
 
