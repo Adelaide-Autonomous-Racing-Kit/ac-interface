@@ -33,18 +33,13 @@ We will be using a compatability tool called [Crossover](https://www.codeweavers
 AC has to run in WINE which means we cannot directly access the game state via shared memory.
 To get around this we use a python script running inside the same WINE instance as the game to access the game state which it then makes available to the host OS via a socket.
 Crossover doesn't come with python so first we need to install that using the `Install an unlisted application` button in the `Install` tab.
-When installing python select to install it for all users.
-Once python is installed, go to your bottle with Python and AC in Crossover and click the `Run Command` button.
-To use python from the command line we need to add it to the bottle's path.
-In the command field type `regedit` and hit `Run`.
-Navigate to `HKEY_LOCAL_MACHINE` > `System` > `CurrentControlSet` > `Control` > `Session Manager` > `Environment`.
-Then modify the data field of `PATH` by appending 
-```
-%SystemRoot%\users\crossover\AppData\Local\Programs\Python\Python311
-```
-*Note: you may need to modify the terminal folder name depending on the version of python you have installed, in this example we used 3.11.*
+When installing python select to install it for all users in the Advanced Menu.
+
+![image](https://user-images.githubusercontent.com/26395770/223075507-2eed5cd2-5ce6-4bcd-a991-a8301265386a.png)
+
 
 Now we should be able to call python and its related packages from the bottle's command line.
+To verify this, in crossover click `Run Commnad` and in the `Command` field type `python`, this should launch your Python (version 3.11 in our example) interactive terminal. 
 Navigate to the root directory of the package and run:
 ```
 /opt/cxoffice/bin/wine --bottle Assetto_Corsa --cx-app cmd.exe
@@ -58,12 +53,6 @@ pip install -e .
 ### Recording
 To write out image files faster we need to make sure an additional package is installed by running `sudo apt-get install libturbojpeg` prior to running `make build`.
 
-
-</details>
-
-
-<details>
-	<summary>Windows</summary>
 
 </details>
 
