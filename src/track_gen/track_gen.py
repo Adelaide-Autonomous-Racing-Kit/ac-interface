@@ -1,7 +1,5 @@
-from abc import ABC, abstractmethod
-import os
+from abc import ABC
 import pathlib
-import re
 from typing import Dict, List, Set, Tuple, Union
 
 import pywavefront
