@@ -21,7 +21,7 @@ def main():
     video_path = os.path.join(RECORDED_DATA_PATH, "monza_audi_r8.avi")
     fourcc = cv2.VideoWriter_fourcc(*"XVID")
     output = cv2.VideoWriter(video_path, fourcc, 30, (2 * 1920, 1080))
-    for record in tqdm(records[800:1300]):
+    for record in tqdm(records):
         root_path = os.path.join(RECORDED_DATA_PATH, record)
         mask = cv2.imread(root_path + "-colour.png")
         image = cv2.imread(root_path + ".jpeg")

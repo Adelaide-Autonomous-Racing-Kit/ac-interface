@@ -111,7 +111,7 @@ MESH_NAME_TO_SEMANTIC_CLASS = {
     "shadowserraglio": "road",
     "shape": "structure",
     "shaps": "structure",
-    "sand": "sand",
+    # "sand": "sand",
     "sndgrp": "sand",
     "standhi": "structure",
     "standlow": "structure",
@@ -120,7 +120,7 @@ MESH_NAME_TO_SEMANTIC_CLASS = {
     # "t": "vegetation",
     "terrain": "structure",
     "treed": "vegetation",
-    "treeshadow": "vegetation",
+    # "treeshadow": "vegetation",
     "tribasc": "structure",
     "triblesmo": "structure",
     # "u": "vegetation",
@@ -128,7 +128,7 @@ MESH_NAME_TO_SEMANTIC_CLASS = {
     "veichles": "vehicle",
     "whline": "track_limit",
     # "z": "vegetation",
-    "painted": "road",
+    # "painted": "road",
 }
 
 

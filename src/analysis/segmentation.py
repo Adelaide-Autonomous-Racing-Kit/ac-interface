@@ -18,9 +18,7 @@ from src.analysis.monza.constants import (
     MESH_NAME_TO_ID,
 )
 
-TRACK_MESH_PATH = Path.home().joinpath(
-    Path("Documents/tracks/monza/visual_mesh.obj")
-)
+TRACK_MESH_PATH = Path.home().joinpath(Path("Documents/tracks/monza/visual_mesh.obj"))
 RECORDED_DATA_PATH = Path.home().joinpath(
     Path("Documents/recordings/monza_audi_r8_lms_1/")
 )
