@@ -42,9 +42,7 @@ class Track(ABC):
         """
         self.obj_filename = obj_filename
         self.scene = self._parse_obj_file(obj_filename)
-        self.group_name_to_obj_group = self._preprocess_obj_groupnames(
-            self.scene
-        )
+        self.group_name_to_obj_group = self._preprocess_obj_groupnames(self.scene)
 
         self.named_meshes = {
             name: self._parse_named_mesh(name)
@@ -76,14 +74,11 @@ class Track(ABC):
                 # only pass the necessary vertices to trimesh, otherwise it stores everything!
                 mesh_indices = flatten(mesh.faces)
                 min_idx, max_idx = min(mesh_indices), max(mesh_indices)
-                vertices_needed_for_mesh = self.scene.vertices[
-                    min_idx : max_idx + 1
-                ]
+                vertices_needed_for_mesh = self.scene.vertices[min_idx : max_idx + 1]
 
                 # zero index indices
                 new_mesh_indices = [
-                    list(map(lambda val: val - min_idx, arr))
-                    for arr in mesh.faces
+                    list(map(lambda val: val - min_idx, arr)) for arr in mesh.faces
                 ]
 
                 named_meshes[mesh_name] = trimesh.Trimesh(

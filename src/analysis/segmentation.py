@@ -8,6 +8,7 @@ from typing import List
 
 import trimesh
 from loguru import logger
+from tqdm import tqdm
 
 from src.utils.load import load_game_state
 from src.track_gen.track_gen import Monza
@@ -58,7 +59,7 @@ class SegmentationGenerator:
             os.path.join(RECORDED_DATA_PATH, state_filename + ".bin")
         )
         angles = [state["pitch"], state["heading"], state["roll"]]
-        angles[1] = angles[1] + math.pi
+        angles[1] = -(angles[1] + math.pi)
         distance = 0.0
         center = [
             state["ego_location_x"],
@@ -68,20 +69,16 @@ class SegmentationGenerator:
         fov = (91, 60)
         resolution = (1920, 1080)
         self._scene.set_camera(angles, distance, center, resolution, fov)
-        logger.info(f"Moved camera to: {center} with rotation {angles}")
 
     def _get_triangle_ray_intersections(self) -> List[int]:
         origins, vectors, _ = self._scene.camera_rays()
         tri_indexes = self._mesh.intersects_first(origins, vectors)
-        pixel_ids = np.empty(tri_indexes.size, dtype=np.int32)
-        pixel_ids[tri_indexes == -1] = -1
-        pixel_ids[tri_indexes != -1] = self._scene.triangles_to_ids[
+        tri_indexes[tri_indexes != -1] = self._scene.triangles_to_ids[
             tri_indexes[tri_indexes != -1]
         ]
-        return pixel_ids
+        return tri_indexes
 
     def save_colour_map(self, record_number: str):
-        start_time = time.time()
         pixel_ids = self._get_triangle_ray_intersections()
         to_plot = np.array(
             COLOUR_LIST[pixel_ids],
@@ -93,9 +90,6 @@ class SegmentationGenerator:
         cv2.imwrite(
             os.path.join(RECORDED_DATA_PATH, f"{record_number}-colour.png"),
             to_plot,
-        )
-        logger.info(
-            f"Saved semantic colour map in {time.time() - start_time}s"
         )
 
 
@@ -109,7 +103,7 @@ def main():
         ],
         key=lambda x: int(x),
     )
-    for record in records:
+    for record in tqdm(records):
         segmentation_generator.adjust_camera(record)
         segmentation_generator.save_colour_map(record)
 
