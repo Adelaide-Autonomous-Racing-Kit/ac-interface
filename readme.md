@@ -47,6 +47,7 @@ Navigate to the root directory of the package and run:
 To access the command line inside the bottle.
 Then install ac interface it into the bottle by running:
 ```
+pip install loguru numpy # needed for the scraper.py
 pip install -e .
 ```
 
