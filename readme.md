@@ -50,6 +50,12 @@ Then install ac interface it into the bottle by running:
 pip install loguru numpy # needed for the scraper.py
 pip install -e .
 ```
+	
+In linux, do this to make sure the python uinput module has access to the kernel uinput module. 
+```bash
+sudo modprobe uinput
+sudo chmod a+r+w /dev/uinput
+```
 
 ### Recording
 To write out image files faster we need to make sure an additional package is installed by running `sudo apt-get install libturbojpeg` prior to running `make build`.
