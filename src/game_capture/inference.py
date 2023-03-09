@@ -8,7 +8,6 @@ from loguru import logger
 import numpy as np
 from src.config.constants import GAME_CAPTURE_CONFIG_FILE
 from src.game_capture.state.client import StateClient
-from src.game_capture.state.shared_memory import SHMStruct
 from src.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
 from src.game_capture.video.pyav_capture import ImageStream, display
 from src.utils.load import load_yaml, state_bytes_to_dict

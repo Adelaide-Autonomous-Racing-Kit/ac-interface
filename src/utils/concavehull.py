@@ -18,8 +18,7 @@ import math
 
 # import numpy as np
 import matplotlib.tri as tri
-from shapely.geometry import LineString
-from shapely.geometry import Polygon
+from shapely.geometry import LineString, Polygon
 from shapely.ops import linemerge
 
 

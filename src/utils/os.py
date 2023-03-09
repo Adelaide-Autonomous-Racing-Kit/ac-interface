@@ -1,3 +1,4 @@
+import os
 import platform
 from typing import List, Tuple
 
@@ -43,7 +44,7 @@ def get_display_input(
     :type os_name: str
     :param game_name: Name of the game
     :type game_name: str
-    :param game_resolution: A list containing width and height of the game we're trying to look for and capture i.e. [1920, 1080]
+    :param game_resolution: A list containing width and height of the game we're trying to look for and capture i.e. [1600, 900]
     :type game_resolution: List[int]
     :returns: Tuple containing file input and video size
     :rtype: Tuple[str, str]
@@ -56,7 +57,9 @@ def get_display_input(
         raise NotImplementedError
     elif os_name == "linux":
         window_location = get_window_location_linux(window_name, game_resolution)
-        file_input = f":0.0+{window_location.x},{window_location.y}"
+        file_input = (
+            f"{os.environ['DISPLAY']}.0+{window_location.x},{window_location.y}"
+        )
         video_size = "x".join(map(str, game_resolution))
     else:
         raise NotImplementedError("Unsupported operating system")
@@ -72,7 +75,7 @@ def get_application_window_coordinates(
 
     :param game_name: Name of the game
     :type game_name: str
-    :param game_resolution: A list containing width and height of the game we're trying to look for and capture i.e. [1920, 1080]
+    :param game_resolution: A list containing width and height of the game we're trying to look for and capture i.e. [1600, 900]
     :type game_resolution: List[int]
     :returns: Point object containing the x,y location of the top-left of the application's window
     :rtype: Point

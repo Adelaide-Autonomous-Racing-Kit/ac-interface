@@ -1,19 +1,19 @@
 import glob
 import os
-import scipy
 import pathlib
 from typing import List, Tuple
-from tqdm import tqdm
 
-from IPython.display import display, HTML
+from IPython.display import HTML, display
 from PIL import Image
 from loguru import logger
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
-import trimesh
-from src.utils.load import load_game_state
+import scipy
 from src.utils.concavehull import ConcaveHull
+from src.utils.load import load_game_state
+from tqdm import tqdm
+import trimesh
 
 
 def load_sample_file(
@@ -130,6 +130,7 @@ if __name__ == "__main__":
     multi_process = True
 
     import copy
+
     from src.track_gen.track_gen import Monza
 
     track = Monza("tracks/monza/physics_mesh_object_groups.obj")
