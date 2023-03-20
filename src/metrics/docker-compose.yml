@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:11.6-alpine
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=my_db
+    command: [ "postgres", "-c", "wal_level=logical" ]
+
+  materialize:
+    image: materialize/materialized:latest
+    container_name: materialize
+    ports:
+      - "6875:6875" # The SQL interface will be available on port 6875.
+      - "6876:6876" # The HTTP interface will be available on port 6876.
+    command: >
+      bash -c "materialized --experimental --persistent-user=materialize \ 'postgresql://user:pass@postgres:5432/my_db'"
