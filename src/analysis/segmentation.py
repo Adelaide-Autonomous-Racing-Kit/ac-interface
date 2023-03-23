@@ -21,10 +21,7 @@ from src.analysis.monza.constants import (
 )
 
 
-# TODO: finetune camera position, add multiprocessing,
-#       add normal maps, add depth maps
-# Normals can be calculated from Triangles
-# Depth can be extracted from returning locations
+# TODO: finetune camera position, add multiprocessing
 class DataGenerator:
     def __init__(self, configuration_path: str):
         self._config = load_yaml(configuration_path)
@@ -61,7 +58,7 @@ class DataGenerator:
         width, height = self.image_size
         focal_length = height / math.tan(math.radians(fov_v) / 2)
         fov_h = math.degrees(2 * math.atan(width / focal_length))
-        self.fov = (fov_v, fov_h)
+        self.fov = (fov_h, fov_v)
 
     def __setup_folders(self):
         maybe_create_folders(self.output_path)
@@ -121,9 +118,11 @@ class DataGenerator:
 
     def _save_gorund_truth_data(self, record_number: str):
         self._adjust_camera(record_number)
-        pixel_ids = self._get_triangle_ray_intersections()
+        pixel_ids, depth, normals = self._get_triangle_ray_intersections()
         self._save_colour_map(record_number, pixel_ids)
         self._save_segmentation_map(record_number, pixel_ids)
+        self._save_depth_map(record_number, depth)
+        self._save_normal_map(record_number, normals)
         self._copy_frame(record_number)
 
     def _adjust_camera(self, state_filename: str):
@@ -150,19 +149,46 @@ class DataGenerator:
         return location
 
     def _get_triangle_ray_intersections(self) -> List[int]:
-        origins, vectors, _ = self._scene.camera_rays()
-        tri_indexes = self._mesh.intersects_first(origins, vectors)
-        tri_indexes[tri_indexes != -1] = self._scene.triangles_to_ids[
-            tri_indexes[tri_indexes != -1]
+        origins, vectors, pixels = self._scene.camera_rays()
+        points, ray_indices, tri_indices = self._mesh.intersects_location(
+            origins, vectors, multiple_hits=False
+        )
+        pixel_ray = pixels[ray_indices]
+        # Normal Map
+        normals, _ = trimesh.triangles.normals(
+            self._scene.triangles[tri_indices]
+        )
+        normal_map = self._allocate_empty_frame(channels=3)
+        normals = (normals - normals.min()) / normals.ptp()
+        normals = (normals * 255).round().astype(np.uint8)
+        normal_map[pixel_ray[:, 0], pixel_ray[:, 1]] = normals
+        # Depth Map
+        depth = trimesh.util.diagonal_dot(
+            points - origins[0], vectors[ray_indices]
+        )
+        depth_float = abs(((depth - depth.min()) / depth.ptp()) - 1)
+        depth_int = (depth_float * 255).round().astype(np.uint8)
+        depth_map = self._allocate_empty_frame()
+        depth_map[pixel_ray[:, 0], pixel_ray[:, 1]] = depth_int
+        # Semantic Lables
+        tri_indices[tri_indices != -1] = self._scene.triangles_to_ids[
+            tri_indices[tri_indices != -1]
         ]
-        return tri_indexes
+        pixel_ids = self._allocate_empty_frame()
+        pixel_ids[pixel_ray[:, 0], pixel_ray[:, 1]] = tri_indices
+        return pixel_ids, depth_map, normal_map
+
+    def _allocate_empty_frame(self, channels: int = 0) -> np.array:
+        shape = self.image_size
+        if channels > 0:
+            shape = (*self.image_size, channels)
+        return np.zeros(shape, dtype=np.uint8)
 
     def _save_colour_map(self, record_number: str, pixel_ids: np.array):
         visualised_map = np.array(COLOUR_LIST[pixel_ids], dtype=np.uint8)
         visualised_map = visualised_map.reshape(*self.image_size, 3)
         visualised_map = cv2.cvtColor(visualised_map, cv2.COLOR_RGB2BGR)
         visualised_map = np.rot90(visualised_map)
-        visualised_map = np.flipud(visualised_map)
         filepath = self.output_path.joinpath(f"{record_number}-colour.png")
         cv2.imwrite(str(filepath), visualised_map)
 
@@ -170,9 +196,18 @@ class DataGenerator:
         segmentation_map = np.array(TRAIN_ID_LIST[pixel_ids], dtype=np.uint8)
         segmentation_map = segmentation_map.reshape(*self.image_size)
         segmentation_map = np.rot90(segmentation_map)
-        segmentation_map = np.flipud(segmentation_map)
         filepath = self.output_path.joinpath(f"{record_number}-trainids.png")
         cv2.imwrite(str(filepath), segmentation_map)
+
+    def _save_depth_map(self, record_number: str, depth_map: np.array):
+        depth_map = np.rot90(depth_map)
+        filepath = self.output_path.joinpath(f"{record_number}-depth.png")
+        cv2.imwrite(str(filepath), depth_map)
+
+    def _save_normal_map(self, record_number: str, normal_map: np.array):
+        normal_map = np.rot90(normal_map)
+        filepath = self.output_path.joinpath(f"{record_number}-normals.png")
+        cv2.imwrite(str(filepath), normal_map)
 
     def _copy_frame(self, record: str):
         source_path = self.recording_path.joinpath(record + ".jpeg")

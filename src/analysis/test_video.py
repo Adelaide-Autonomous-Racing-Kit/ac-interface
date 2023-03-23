@@ -5,23 +5,31 @@ import cv2
 import numpy as np
 from tqdm import tqdm
 
-from src.analysis.segmentation import DataGenerator
+ROOT = Path.home().joinpath("Documents")
+SOURCE_1_PATH = ROOT.joinpath("recordings/monza_audi_r8_lms_1")
+SOURCE_2_PATH = ROOT.joinpath("visualised")
+OUTPUT_VIDEO_PATH = ROOT.joinpath("recordings/inference_v1.avi")
+IMAGE_SIZE = (1280, 720)
 
 
 def main():
-    root_path = Path(os.path.dirname(__file__))
-    config_path = root_path.joinpath("monza/config.yaml")
-    data_generator = DataGenerator(config_path)
-    video_path = data_generator.output_path.joinpath("monza_audi_r8.avi")
-    image_size = data_generator.image_size
-    video_size = (2 * image_size[0], image_size[1])
+    frames = sorted(
+        [
+            frame[:-5]
+            for frame in os.listdir(SOURCE_1_PATH)
+            if frame[-4:] == "jpeg"
+        ],
+        key=lambda x: int(x),
+    )
+    video_size = (2 * IMAGE_SIZE[0], IMAGE_SIZE[1])
     fourcc = cv2.VideoWriter_fourcc(*"XVID")
-    frame_rate = 30 // data_generator._config["sample_every"]
-    output = cv2.VideoWriter(str(video_path), fourcc, frame_rate, video_size)
-    for record in tqdm(data_generator._get_subsample()):
-        root_path = str(data_generator.recording_path.joinpath(record))
-        mask = cv2.imread(root_path + "-colour.png")
-        image = cv2.imread(root_path + ".jpeg")
+    output = cv2.VideoWriter(str(OUTPUT_VIDEO_PATH), fourcc, 30, video_size)
+    for record in tqdm(frames):
+        mask_path = SOURCE_2_PATH.joinpath(record).with_suffix(".png")
+        image_path = SOURCE_1_PATH.joinpath(record).with_suffix(".jpeg")
+        mask = cv2.imread(str(mask_path))
+        image = cv2.imread(str(image_path))
+        image = cv2.resize(image, dsize=(IMAGE_SIZE[0], IMAGE_SIZE[1]))
         to_show = np.hstack([image, mask])
         output.write(to_show)
     output.release()
