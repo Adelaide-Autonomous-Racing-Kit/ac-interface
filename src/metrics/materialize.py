@@ -8,8 +8,9 @@ docker compose up -d src/metrics/docker-compose.yml
 docker compose down src/metrics/docker-compose.yml
 """
 
-import psycopg
 import sys
+
+import psycopg
 
 # Establish connection to Postgres server
 conn = psycopg.connect(
