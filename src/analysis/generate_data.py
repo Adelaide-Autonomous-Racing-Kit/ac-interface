@@ -23,6 +23,13 @@ from src.analysis.monza.constants import (
 
 # TODO: finetune camera position, add multiprocessing
 class DataGenerator:
+    """
+    Generates ground truth training data from recordings captured
+        using the asseto corsa interface. Currently generates
+        semantic segmentation maps, normal maps and depth maps.
+        The depth and normal maps are scaled for visualisation.
+    """
+
     def __init__(self, configuration_path: str):
         self._config = load_yaml(configuration_path)
         self.__setup()
@@ -103,6 +110,16 @@ class DataGenerator:
         return self._scene.triangle_nodes
 
     def generate_segmentation_data(self):
+        """
+        Run through each of the records specifed in the configuration
+            file. For each it generates and saves the following:
+            - Visualised segmentation map
+            - Segmentation map with train ids
+            - Visualised normal map of the scene
+            - Visualised depth map of the scene
+            It also copies the original frame captured to the output
+            folder to be used as input in the training dataset.
+        """
         for record in tqdm(self._get_subsample()):
             self._save_gorund_truth_data(record)
 
