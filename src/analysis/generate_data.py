@@ -21,7 +21,8 @@ from src.analysis.monza.constants import (
 )
 
 
-# TODO: finetune camera position, add multiprocessing
+# TODO: finetune camera position, add multiprocessing,
+#   dynamically import constants based on track
 class DataGenerator:
     """
     Generates ground truth training data from recordings captured
@@ -33,12 +34,6 @@ class DataGenerator:
     def __init__(self, configuration_path: str):
         self._config = load_yaml(configuration_path)
         self.__setup()
-
-    def __setup(self):
-        self.__setup_fov()
-        self.__setup_folders()
-        self.__setup_scene()
-        self.__setup_collision_mesh()
 
     @property
     def track_mesh_path(self) -> Path:
@@ -265,6 +260,12 @@ class DataGenerator:
         source_path = self.recording_path.joinpath(record + ".jpeg")
         destination_path = self.output_path.joinpath(record + ".jpeg")
         shutil.copyfile(source_path, destination_path)
+
+    def __setup(self):
+        self.__setup_fov()
+        self.__setup_folders()
+        self.__setup_scene()
+        self.__setup_collision_mesh()
 
     def __setup_fov(self):
         fov_v = self._config["vertical_fov"]
