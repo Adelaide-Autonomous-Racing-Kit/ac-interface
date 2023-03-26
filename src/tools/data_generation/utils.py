@@ -1,3 +1,4 @@
+import cv2
 import math
 from pathlib import Path
 from typing import Dict, List
@@ -165,3 +166,14 @@ def allocate_empty_frame(
     if channels > 0:
         shape = (*shape, channels)
     return np.zeros(shape, dtype=np.uint8)
+
+
+def calculate_depth(hit_to_camera: np.array, directions: np.array) -> np.array:
+    return trimesh.util.diagonal_dot(hit_to_camera, directions)
+
+
+def save_image(to_save: np.array, filepath: Path, flipud: bool):
+    to_save = np.rot90(to_save)
+    if flipud:
+        to_save = np.flipud(to_save)
+    cv2.imwrite(str(filepath), to_save)

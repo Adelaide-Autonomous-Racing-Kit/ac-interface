@@ -4,10 +4,14 @@ from pathlib import Path
 from typing import Dict, List
 
 
+TIMEOUT = 0.5
+
+
 @dataclass
 class SharedVariables:
     ray_cast_queue: mp.Queue
     generation_queue: mp.Queue
+    is_ray_casting_done: mp.Value
     is_done: mp.Value
     is_ready: mp.Value
     n_complete: mp.Value
@@ -18,6 +22,18 @@ class BaseWorker(mp.Process):
         super().__init__()
         self._config = configuration
         self._shared_state = shared_state
+
+    @property
+    def is_ready(self) -> bool:
+        return self._shared_state.is_ready.value
+
+    @property
+    def is_done(self) -> bool:
+        return self._shared_state.is_done.value
+
+    @property
+    def is_ray_casting_done(self) -> bool:
+        return self._shared_state.is_ray_casting_done.value
 
     @property
     def n_complete(self) -> int:
@@ -52,7 +68,7 @@ class BaseWorker(mp.Process):
         return self._config["image_size"]
 
     def increment_n_complete(self):
-        with self._shared_state.n_complete.lock():
+        with self._shared_state.n_complete.get_lock():
             self._shared_state.n_complete.value += 1
 
     def set_as_ready(self):

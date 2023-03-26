@@ -6,12 +6,13 @@ finish_at_sample: 9135
 sample_every: 90
 vertical_fov: 60
 image_size: [1920, 1080]
-n_workers: 4
+n_ray_casting_workers: 6
+n_generation_workers: 4
 generate:
   segmentation:
     - data
     - visuals
-  depth:
-    - visuals
+  #depth:
+  #  - visuals
   normals:
     - visuals

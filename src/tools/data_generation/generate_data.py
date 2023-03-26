@@ -10,36 +10,25 @@ from tqdm import tqdm
 
 from src.utils.load import load_yaml
 from src.utils.save import maybe_create_folders
-
-
-"""
-    def __setup_data_generators(self):
-        self._is_generating_depth = "depth" in self._config["generate"]
-        self._is_generating_normals = "normals" in self._config["generate"]
-        self._is_generating_segmentation = (
-            "segmentation" in self._config["generate"]
-        )
-        if self._is_generating_segmentation:
-            self._is_generating_visualised_semantics = (
-                "visuals" in self._config["generate"]["segmentation"]
-            )
-            self._is_generating_semantic_training_data = (
-                "data" in self._config["generate"]["segmentation"]
-            )
-        else:
-            self._is_generating_visualised_semantics = False
-            self._is_generating_semantic_training_data = False
-"""
+from src.tools.data_generation.worker import BaseWorker, SharedVariables
+from src.tools.data_generation.ray_caster import RayCastingWorker
+from src.tools.data_generation.data_generator import DataGenerationWorker
 
 
 # TODO: finetune camera position, dynamically import constants based on track
 class MultiprocessDataGenerator:
     def __init__(self, configuration_path: str):
         self._config = load_yaml(configuration_path)
-        self._n_workers = self._config["n_workers"]
+        self._n_ray_casting_workers = self._config["n_ray_casting_workers"]
+        self._n_generation_workers = self._config["n_generation_workers"]
         self._log_configuration()
         self.__setup_folders()
-        self.__setup_workers(configuration_path)
+        self.__initialise_member_variables()
+        self.__setup_workers()
+
+    @property
+    def output_path(self) -> Path:
+        return Path(self._config["output_path"])
 
     def __setup_folders(self):
         maybe_create_folders(self.output_path)
@@ -47,26 +36,49 @@ class MultiprocessDataGenerator:
     def _log_configuration(self):
         pass
 
-    def __setup_workers(self, configuration_path: str):
-        self._shared_queue = mp.Queue()
-        self._shared_n_done = mp.Value("i", 0)
-        self._workers = []
-        logger.info(f"Starting {self._n_workers} data generation workers...")
-        for _ in range(self._n_workers):
-            shared_is_done = mp.Value(ctypes.c_bool, False)
-            shared_is_ready = mp.Value(ctypes.c_bool, False)
-            worker = IntersectionWorker(
-                configuration_path,
-                self._shared_queue,
-                shared_is_done,
-                shared_is_ready,
-                self._shared_n_done,
-            )
-            self._workers.append((worker, shared_is_done, shared_is_ready))
+    def __initialise_member_variables(self):
+        self._ray_casting_queue = mp.Queue()
+        self._generation_queue = mp.Queue()
+        self._n_completed = mp.Value("i", 0)
+        self._is_ray_casting_done = mp.Value(ctypes.c_bool, False)
+        self._ray_casting_workers, self._generation_workers = [], []
+        self.is_generation_done, self.is_ray_casting_done = False, False
+        self.is_ready = False
+
+    def __setup_workers(self):
+        logger.info(
+            f"Creating {self._n_ray_casting_workers} ray casting worker(s)..."
+        )
+        for _ in range(self._n_ray_casting_workers):
+            shared_state = self._create_shared_worker_state()
+            worker = RayCastingWorker(self._config, shared_state)
+            self._ray_casting_workers.append(worker)
+        logger.info(
+            f"Creating {self._n_generation_workers} generation worker(s)..."
+        )
+        for _ in range(self._n_generation_workers):
+            shared_state = self._create_shared_worker_state()
+            worker = DataGenerationWorker(self._config, shared_state)
+            self._generation_workers.append(worker)
+
+    def _create_shared_worker_state(self) -> SharedVariables:
+        shared_state = SharedVariables(
+            ray_cast_queue=self._ray_casting_queue,
+            generation_queue=self._generation_queue,
+            is_ray_casting_done=self._is_ray_casting_done,
+            is_done=mp.Value(ctypes.c_bool, False),
+            is_ready=mp.Value(ctypes.c_bool, False),
+            n_complete=self._n_completed,
+        )
+        return shared_state
 
     @property
     def recording_path(self) -> Path:
         return Path(self._config["recorded_data_path"])
+
+    @property
+    def _workers(self) -> List[BaseWorker]:
+        return [*self._ray_casting_workers, *self._generation_workers]
 
     def start(self):
         """
@@ -80,27 +92,45 @@ class MultiprocessDataGenerator:
             It also copies the original frame captured to the output folder
             to be used as input in the training dataset.
         """
-        is_ready, is_done, last_n_done = False, False, 0
+        # Populate ray casting queue
         records = self._get_subsample()
-        [self._shared_queue.put(record) for record in records]
-        [worker[0].start() for worker in self._workers]
-        while not is_ready:
-            is_ready = all([worker[2].value for worker in self._workers])
+        [self._ray_casting_queue.put(record) for record in records]
+        # Start worker processes
+        [worker.start() for worker in self._workers]
+        # Wait for works to run setup
+        while not self.is_ready:
+            self.is_ready = all([worker.is_ready for worker in self._workers])
+            time.sleep(0.1)
         logger.info(f"Workers intialised sucessfully")
-        start_time = time.time()
+
+        # Monitor worker progress
+        start_time, last_n_completed = time.time(), 0
         with tqdm(total=len(records)) as pbar:
-            while not self._shared_queue.empty():
-                current_n_done = self._shared_n_done.value
-                pbar.update(current_n_done - last_n_done)
-                time.sleep(0.5)
-                last_n_done = current_n_done
-        while not is_done:
-            is_done = all([worker[1] for worker in self._workers])
+            while not self._ray_casting_queue.empty():
+                current_n_done = self._n_completed.value
+                pbar.update(current_n_done - last_n_completed)
+                last_n_completed = current_n_done
+                time.sleep(0.2)
+        # Wait for all ray casters to finish
+        while not self.is_ray_casting_done:
+            self.is_ray_casting_done = all(
+                [worker.is_done for worker in self._ray_casting_workers]
+            )
+            time.sleep(0.1)
+        self._is_ray_casting_done.value = True
+        # Wait for generators to finish
+        while not self.is_generation_done:
+            self.is_generation_done = all(
+                [worker.is_done for worker in self._generation_workers]
+            )
             time.sleep(0.1)
         elapsed = time.time() - start_time
-        current_n_done = self._shared_n_done.value
-        pbar.update(current_n_done - last_n_done)
+        # Finish off progress bar
+        current_n_done = self._n_completed.value
+        pbar.update(current_n_done - last_n_completed)
         logger.info(f"Generated {len(records)} samples in {elapsed}s")
+        # Clean up workers
+        [worker.terminate() for worker in self._workers]
 
     def _get_subsample(self):
         start = self._config["start_at_sample"]
@@ -125,8 +155,6 @@ def main():
     config_path = root_path.joinpath("monza/config.yaml")
     data_generator = MultiprocessDataGenerator(config_path)
     data_generator.start()
-    # data_generator = DataGenerator(config_path)
-    # data_generator.generate_segmentation_data()
 
 
 if __name__ == "__main__":
