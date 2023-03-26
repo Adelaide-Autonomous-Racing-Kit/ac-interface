@@ -118,7 +118,15 @@ class RayCastingWorker(BaseWorker):
             "record_number": record_number,
             "i_triangles": self._i_triangles,
         }
-        self.generation_queue.put()
+        if self._is_generating_depth:
+            addition_for_depth = {
+                "locations": self._locations,
+                "pixels_to_rays": self._pixels_to_rays,
+                "ray_origin": self._ray_origins[0],
+                "ray_directions": self._ray_directions[self._i_rays],
+            }
+            generation_job.update(addition_for_depth)
+        self.generation_queue.put(generation_job)
 
     def __setup(self):
         logger.info("Setting up ray casting worker...")
