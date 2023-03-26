@@ -15,7 +15,7 @@ from src.tools.data_generation.ray_caster import RayCastingWorker
 from src.tools.data_generation.data_generator import DataGenerationWorker
 
 
-# TODO: finetune camera position, dynamically import constants based on track
+# TODO: Clean this shit hole
 class MultiprocessDataGenerator:
     def __init__(self, configuration_path: str):
         self._config = load_yaml(configuration_path)

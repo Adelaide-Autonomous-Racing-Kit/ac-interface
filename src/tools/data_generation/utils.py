@@ -7,6 +7,8 @@ from typing import Dict, List
 import numpy as np
 import trimesh
 
+
+# TODO: Dynamically import constants based on track
 from src.tools.data_generation.monza.constants import (
     GEOMETRIES_TO_REMOVE,
     COLOUR_LIST,
@@ -107,6 +109,7 @@ def convert_scene_to_collision_mesh(
     return trimesh.ray.ray_pyembree.RayMeshIntersector(mesh)
 
 
+# TODO: Finetune camera pose base on car data
 def get_camera_rotation(state: Dict) -> List[float]:
     """
     From a game capture state dictionary extract the camera pose's rotation

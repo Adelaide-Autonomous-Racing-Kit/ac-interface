@@ -26,6 +26,7 @@ from src.tools.data_generation.utils import (
 )
 
 
+# TODO: Split off each type of data into a class that are registered with the worker
 class DataGenerationWorker(BaseWorker):
     def __init__(self, configuration: Dict, shared_state: SharedVariables):
         """
@@ -36,30 +37,6 @@ class DataGenerationWorker(BaseWorker):
         """
         super().__init__(configuration, shared_state)
 
-    @property
-    def _record_number(self) -> str:
-        return self._generation_job["record_number"]
-
-    @property
-    def _i_triangles(self) -> np.array:
-        return self._generation_job["i_triangles"]
-
-    @property
-    def _pixels_to_rays(self) -> np.array:
-        return self._generation_job["pixels_to_rays"]
-
-    @property
-    def _hit_to_camera(self) -> np.array:
-        locations = self._generation_job["locations"]
-        origin = self._generation_job["origin"]
-        return locations - origin
-
-    @property
-    def _ray_directions(self) -> np.array:
-        directions = self._generation_job["ray_directions"]
-        i_ray = self._generation_job["i_rays"]
-        return directions[i_ray]
-
     def run(self):
         """
         Called on DataGenerationWorker.start()
@@ -69,10 +46,13 @@ class DataGenerationWorker(BaseWorker):
         self.__setup()
         self.is_running = True
         while self.is_running:
-            if self._maybe_recieve_work():
-                self._save_gorund_truth_data()
-                self.increment_n_complete()
+            self._maybe_do_work()
         self.set_as_done()
+
+    def _maybe_do_work(self):
+        if self._maybe_recieve_work():
+            self._save_gorund_truth_data()
+            self.increment_n_complete()
 
     def _maybe_recieve_work(self) -> bool:
         try:
@@ -185,6 +165,30 @@ class DataGenerationWorker(BaseWorker):
 
     def _is_all_work_done(self) -> bool:
         return self.is_ray_casting_done and self.generation_queue.empty()
+
+    @property
+    def _record_number(self) -> str:
+        return self._generation_job["record_number"]
+
+    @property
+    def _i_triangles(self) -> np.array:
+        return self._generation_job["i_triangles"]
+
+    @property
+    def _pixels_to_rays(self) -> np.array:
+        return self._generation_job["pixels_to_rays"]
+
+    @property
+    def _hit_to_camera(self) -> np.array:
+        locations = self._generation_job["locations"]
+        origin = self._generation_job["origin"]
+        return locations - origin
+
+    @property
+    def _ray_directions(self) -> np.array:
+        directions = self._generation_job["ray_directions"]
+        i_ray = self._generation_job["i_rays"]
+        return directions[i_ray]
 
     def __setup(self):
         logger.info("Setting up data generation worker...")

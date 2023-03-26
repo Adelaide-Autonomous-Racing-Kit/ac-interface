@@ -36,10 +36,13 @@ class RayCastingWorker(BaseWorker):
         self.__setup()
         self.is_running = True
         while self.is_running:
-            if self._maybe_recieve_work():
-                self._cast_rays()
-                self._submit_generation_job()
+            self._maybe_do_work()
         self.set_as_done()
+
+    def _maybe_do_work(self):
+        if self._maybe_recieve_work():
+            self._cast_rays()
+            self._submit_generation_job()
 
     def _maybe_recieve_work(self) -> bool:
         try:
@@ -80,6 +83,22 @@ class RayCastingWorker(BaseWorker):
         if not self._is_generating_depth:
             return self._mesh.intersects_first(origins, directions)
         return self._mesh.intersects_location(origins, directions, False)
+
+    def _submit_generation_job(self):
+        generation_job = {
+            "record_number": self._record_number,
+            "i_triangles": self._i_triangles,
+        }
+        if self._is_generating_depth:
+            addition_for_depth = {
+                "locations": self._locations,
+                "origin": self._ray_origins[0],
+                "pixels_to_rays": self._pixels_to_rays,
+                "ray_directions": self._ray_directions,
+                "i_rays": self._i_rays,
+            }
+            generation_job.update(addition_for_depth)
+        self.generation_queue.put(generation_job)
 
     @property
     def _i_rays(self) -> np.array:
@@ -124,22 +143,6 @@ class RayCastingWorker(BaseWorker):
         Direction of camera ray for each pixel
         """
         return self._camera_rays[1]
-
-    def _submit_generation_job(self):
-        generation_job = {
-            "record_number": self._record_number,
-            "i_triangles": self._i_triangles,
-        }
-        if self._is_generating_depth:
-            addition_for_depth = {
-                "locations": self._locations,
-                "origin": self._ray_origins[0],
-                "pixels_to_rays": self._pixels_to_rays,
-                "ray_directions": self._ray_directions,
-                "i_rays": self._i_rays,
-            }
-            generation_job.update(addition_for_depth)
-        self.generation_queue.put(generation_job)
 
     def __setup(self):
         logger.info("Setting up ray casting worker...")
