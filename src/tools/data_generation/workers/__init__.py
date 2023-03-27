@@ -1,3 +1,3 @@
 from .base import BaseWorker, SharedState, WorkerSharedState
-from .generator import DataGenerationWorker
-from .ray_caster import RayCastingWorker
+from .generator.generator import DataGenerationWorker
+from .ray_caster.ray_caster import RayCastingWorker

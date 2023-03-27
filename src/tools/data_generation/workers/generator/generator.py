@@ -5,11 +5,12 @@ import numpy as np
 from loguru import logger
 from typing import Dict
 
+from src.tools.data_generation.workers.utils import load_track_mesh
 from src.tools.data_generation.workers.base import (
     BaseWorker,
     WorkerSharedState,
 )
-from src.tools.data_generation.utils import (
+from src.tools.data_generation.workers.generator.utils import (
     allocate_empty_frame,
     calculate_depth,
     convert_to_uint8,
@@ -17,7 +18,6 @@ from src.tools.data_generation.utils import (
     get_triangle_to_semantic_id_mapping,
     get_triangle_to_normal_mapping,
     get_visualised_semantics,
-    load_track_mesh,
     noramlise_values,
     save_image,
     reverse_sign_of_values,

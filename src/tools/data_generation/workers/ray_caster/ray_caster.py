@@ -4,16 +4,16 @@ from loguru import logger
 from typing import Dict
 
 from src.utils.load import load_game_state
+from src.tools.data_generation.workers.utils import load_track_mesh
 from src.tools.data_generation.workers.base import (
     BaseWorker,
     WorkerSharedState,
 )
-from src.tools.data_generation.utils import (
+from src.tools.data_generation.workers.ray_caster.utils import (
     calculate_horizontal_fov,
     convert_scene_to_collision_mesh,
     get_camera_location,
     get_camera_rotation,
-    load_track_mesh,
 )
 
 
