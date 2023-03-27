@@ -139,9 +139,11 @@ class MultiprocessDataGenerator:
         self._config = load_yaml(configuration_path)
         self._log_configuration()
 
+    # TODO: Implement this
     def _log_configuration(self):
         pass
 
+    # TODO: Fix pbar printing in logs
     def _setup_progress_bar(self):
         self._records = self._get_records_to_be_processed()
         self._pbar = tqdm(total=len(self._records))
