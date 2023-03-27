@@ -1,13 +1,12 @@
 import numpy as np
-import queue
+import multiprocessing as mp
 from loguru import logger
 from typing import Dict
 
 from src.utils.load import load_game_state
-from src.tools.data_generation.worker import (
+from src.tools.data_generation.workers.base import (
     BaseWorker,
-    SharedVariables,
-    TIMEOUT,
+    WorkerSharedState,
 )
 from src.tools.data_generation.utils import (
     calculate_horizontal_fov,
@@ -19,39 +18,20 @@ from src.tools.data_generation.utils import (
 
 
 class RayCastingWorker(BaseWorker):
-    def __init__(self, configuration: Dict, shared_state: SharedVariables):
+    def __init__(self, configuration: Dict, shared_state: WorkerSharedState):
         """
         Process responsible for calculating collisions via casting camera rays
-            out into a scene. Recieves work from the MultiprocessDataGenerator
+            out into a scene. Receives work from the MultiprocessDataGenerator
             and posts work to DataGenerationWorkers
         """
         super().__init__(configuration, shared_state)
 
-    def run(self):
-        """
-        Called on RayCastingWorker.start()
-            Recieves work from the shared mp queue casting rays and pushing
-            the resulting collision information into the data generation queue
-        """
-        self.__setup()
-        self.is_running = True
-        while self.is_running:
-            self._maybe_do_work()
-        self.set_as_done()
+    def _is_work_complete(self) -> bool:
+        return self._job_queue.empty()
 
-    def _maybe_do_work(self):
-        if self._maybe_recieve_work():
-            self._cast_rays()
-            self._submit_generation_job()
-
-    def _maybe_recieve_work(self) -> bool:
-        try:
-            self._record_number = self.ray_cast_queue.get(timeout=TIMEOUT)
-            return True
-        except queue.Empty:
-            if self.ray_cast_queue.empty():
-                self.is_running = False
-            return False
+    def _do_work(self):
+        self._cast_rays()
+        self._submit_generation_job()
 
     def _cast_rays(self):
         self._adjust_camera()
@@ -101,6 +81,17 @@ class RayCastingWorker(BaseWorker):
         self.generation_queue.put(generation_job)
 
     @property
+    def _record_number(self) -> str:
+        """
+        ID number of the sample in a recording to be processed
+        """
+        return self._work
+
+    @property
+    def _job_queue(self) -> mp.Queue:
+        return self.ray_cast_queue
+
+    @property
     def _i_rays(self) -> np.array:
         """
         Index for each ray cast by camera pixels
@@ -144,26 +135,26 @@ class RayCastingWorker(BaseWorker):
         """
         return self._camera_rays[1]
 
-    def __setup(self):
+    def _setup(self):
         logger.info("Setting up ray casting worker...")
-        self.__set_depth_generation_flag()
-        self.__setup_field_of_view()
-        self.__setup_scene()
-        self.__setup_collision_mesh()
+        self._set_depth_generation_flag()
+        self._setup_field_of_view()
+        self._setup_scene()
+        self._setup_collision_mesh()
         logger.info("Setup complete")
         self.set_as_ready()
 
-    def __set_depth_generation_flag(self):
+    def _set_depth_generation_flag(self):
         self._is_generating_depth = "depth" in self._config["generate"]
 
-    def __setup_scene(self):
+    def _setup_scene(self):
         scene = load_track_mesh(self.track_mesh_path, self.modified_mesh_path)
         self._scene = scene
 
-    def __setup_collision_mesh(self):
+    def _setup_collision_mesh(self):
         self._mesh = convert_scene_to_collision_mesh(self._scene)
 
-    def __setup_field_of_view(self):
+    def _setup_field_of_view(self):
         v_fov = self._config["vertical_fov"]
         width, height = self.image_size
         h_fov = calculate_horizontal_fov(v_fov, width, height)

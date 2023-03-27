@@ -7,7 +7,7 @@ For each frame, or a sub sampling of frames, it can generate semantic segmentati
 ![depth](../../../imgs/depth-maps.gif)
 ![normals](../../../imgs/normal-maps.gif)
 
-Each track needs to be manually inspected and a foler with associated constants created prior to being able to use the generator.
-Introduction of a new map requires each vertex groups semantic label to be decided on, any vertex groups that should be removed and any that require their materials to be modifed so they are distiguishable from an important class.
+Each track needs to be manually inspected and a file with associated constants created prior to being able to use the generator, see `tracks/monza.py`.
+Introduction of a new map requires each vertex groups semantic label to be decided on, any vertex groups that should be removed and any that require their materials to be modified so they are distinguishable from an important class.
 We usually open the mesh in blender to inspect any classes that are ambiguous and progressively refine them based on visualisation of the coded rules.
-It can be helpful to assemble the data into a videofeed with the raw capture on the left and the generated data on the right using `test_video.py` script.
+It can be helpful to assemble the data into a video with the raw capture on the left and the generated data on the right using `test_video.py` script.

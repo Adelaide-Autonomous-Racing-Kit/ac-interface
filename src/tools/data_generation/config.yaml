@@ -12,7 +12,7 @@ generate:
   segmentation:
     - data
     - visuals
-  #depth:
-  #  - visuals
+  depth:
+    - visuals
   normals:
     - visuals

@@ -1,5 +1,6 @@
 import cv2
 import math
+import os
 from pathlib import Path
 from typing import Dict, List
 
@@ -7,9 +8,9 @@ from typing import Dict, List
 import numpy as np
 import trimesh
 
-
+# TODO: Split utils file into data generator utils and ray caster utils
 # TODO: Dynamically import constants based on track
-from src.tools.data_generation.monza.constants import (
+from src.tools.data_generation.tracks.monza import (
     GEOMETRIES_TO_REMOVE,
     COLOUR_LIST,
     MESH_NAME_TO_ID,
@@ -33,7 +34,7 @@ def preprocess_track_mesh(track_mesh: Path, modified_mesh: Path):
     """
     Changes the material of vertex groups specified in VERTEX_GROUPS_TO_MODIFY
         to physics. This material is ignored in the collision mesh used for
-        ray casting so it a convient way to remove vertex groups from the mesh.
+        ray casting so it a convenient way to remove vertex groups from the mesh.
     """
     is_modifying = False
     source_file = track_mesh.open("r")
@@ -99,8 +100,8 @@ def convert_scene_to_collision_mesh(
 ) -> trimesh.ray.ray_pyembree.RayMeshIntersector:
     """
     Concatenates all the geometry nodes in a scene into a single trimesh.Mesh
-        object and instanciates a RayMeshIntersector with it. The triangle
-        indexes of the concatenated mesh align with the orignal scene, so
+        object and instantiates a RayMeshIntersector with it. The triangle
+        indexes of the concatenated mesh align with the original scene, so
         collisions returned my the mesh intersector and be used index the scene
         which they are made from.
     """
@@ -135,7 +136,7 @@ def get_semantic_training_data(pixel_ids: np.array) -> np.array:
     return id_map
 
 
-def get_visualied_semantics(pixel_ids: np.array) -> np.array:
+def get_visualised_semantics(pixel_ids: np.array) -> np.array:
     visualised_map = np.array(COLOUR_LIST[pixel_ids], dtype=np.uint8)
     visualised_map = rgb_to_bgr(visualised_map)
     return visualised_map
@@ -180,3 +181,17 @@ def save_image(to_save: np.array, filepath: Path, flipud: bool):
     if flipud:
         to_save = np.flipud(to_save)
     cv2.imwrite(str(filepath), to_save)
+
+
+def get_sample_list(recording_path: Path) -> List[str]:
+    filenames = os.listdir(recording_path)
+    samples = filter_for_game_state_files(filenames)
+    return sort_records(samples)
+
+
+def filter_for_game_state_files(filenames: List[str]) -> List[str]:
+    return [record[:-4] for record in filenames if record[-4:] == ".bin"]
+
+
+def sort_records(filenames: List[str]) -> List[str]:
+    return sorted(filenames, key=lambda x: int(x))

@@ -1,15 +1,13 @@
-import queue
+import multiprocessing as mp
 import shutil
-import time
 
 import numpy as np
 from loguru import logger
 from typing import Dict
 
-from src.tools.data_generation.worker import (
+from src.tools.data_generation.workers.base import (
     BaseWorker,
-    SharedVariables,
-    TIMEOUT,
+    WorkerSharedState,
 )
 from src.tools.data_generation.utils import (
     allocate_empty_frame,
@@ -18,7 +16,7 @@ from src.tools.data_generation.utils import (
     get_semantic_training_data,
     get_triangle_to_semantic_id_mapping,
     get_triangle_to_normal_mapping,
-    get_visualied_semantics,
+    get_visualised_semantics,
     load_track_mesh,
     noramlise_values,
     save_image,
@@ -27,8 +25,9 @@ from src.tools.data_generation.utils import (
 
 
 # TODO: Split off each type of data into a class that are registered with the worker
+#       Fix background colour map colour
 class DataGenerationWorker(BaseWorker):
-    def __init__(self, configuration: Dict, shared_state: SharedVariables):
+    def __init__(self, configuration: Dict, shared_state: WorkerSharedState):
         """
         Generates ground truth training data from recordings captured
             using the asseto corsa interface. Currently generates
@@ -37,33 +36,14 @@ class DataGenerationWorker(BaseWorker):
         """
         super().__init__(configuration, shared_state)
 
-    def run(self):
-        """
-        Called on DataGenerationWorker.start()
-            Recieves work from the shared mp queue generating ground truth data
-            saving the results to file
-        """
-        self.__setup()
-        self.is_running = True
-        while self.is_running:
-            self._maybe_do_work()
-        self.set_as_done()
+    def _is_work_complete(self) -> bool:
+        return self.is_ray_casting_done and self._job_queue.empty()
 
-    def _maybe_do_work(self):
-        if self._maybe_recieve_work():
-            self._save_gorund_truth_data()
-            self.increment_n_complete()
+    def _do_work(self):
+        self._save_ground_truth_data()
+        self.increment_n_complete()
 
-    def _maybe_recieve_work(self) -> bool:
-        try:
-            self._generation_job = self.generation_queue.get(timeout=TIMEOUT)
-            return True
-        except queue.Empty:
-            if self._is_all_work_done():
-                self.is_running = False
-            return False
-
-    def _save_gorund_truth_data(self):
+    def _save_ground_truth_data(self):
         # TODO: Replace with registered functions
         if self._is_generating_segmentation:
             self._generate_semantic_segmentation_data()
@@ -92,7 +72,7 @@ class DataGenerationWorker(BaseWorker):
         return pixel_ids
 
     def _generate_visualised_semantics(self, pixel_ids: np.array):
-        visualised_map = get_visualied_semantics(pixel_ids)
+        visualised_map = get_visualised_semantics(pixel_ids)
         self._save_colour_map(visualised_map)
 
     def _save_colour_map(self, colour_map: np.array):
@@ -163,8 +143,13 @@ class DataGenerationWorker(BaseWorker):
         destination_path = self.output_path.joinpath(filename)
         shutil.copyfile(source_path, destination_path)
 
-    def _is_all_work_done(self) -> bool:
-        return self.is_ray_casting_done and self.generation_queue.empty()
+    @property
+    def _generation_job(self) -> Dict:
+        return self._work
+
+    @property
+    def _job_queue(self) -> mp.Queue:
+        return self.generation_queue
 
     @property
     def _record_number(self) -> str:
@@ -190,19 +175,20 @@ class DataGenerationWorker(BaseWorker):
         i_ray = self._generation_job["i_rays"]
         return directions[i_ray]
 
-    def __setup(self):
+    def _setup(self):
         logger.info("Setting up data generation worker...")
-        self.__setup_triangle_property_maps()
-        self.__set_generation_flags()
+        self._setup_triangle_property_maps()
+        self._set_generation_flags()
         logger.info("Setup complete")
         self.set_as_ready()
 
-    def __setup_triangle_property_maps(self):
+    def _setup_triangle_property_maps(self):
         scene = load_track_mesh(self.track_mesh_path, self.modified_mesh_path)
         self._triangle_to_normal = get_triangle_to_normal_mapping(scene)
         self._triangle_to_id = get_triangle_to_semantic_id_mapping(scene)
 
-    def __set_generation_flags(self):
+    # TODO: What a nightmare, clean this up
+    def _set_generation_flags(self):
         self._is_generating_depth = "depth" in self._config["generate"]
         self._is_generating_normals = "normals" in self._config["generate"]
         self._is_generating_segmentation = (
