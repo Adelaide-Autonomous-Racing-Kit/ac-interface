@@ -132,6 +132,10 @@ class BaseWorker(mp.Process):
     def track_name(self) -> str:
         return self._config["track_name"]
 
+    @property
+    def car_name(self) -> str:
+        return self._config["car_name"]
+
     def increment_n_complete(self):
         with self._shared_state.n_complete.get_lock():
             self._shared_state.n_complete.value += 1

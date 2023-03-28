@@ -40,8 +40,8 @@ class RayCastingWorker(BaseWorker):
         state_path = self.recording_path.joinpath(self._record_number + ".bin")
         state = load_game_state(state_path)
         self._scene.set_camera(
-            angles=get_camera_rotation(state),
-            center=get_camera_location(state),
+            angles=get_camera_rotation(state, self.car_name),
+            center=get_camera_location(state, self.car_name),
             resolution=self.image_size,
             distance=0.0,
             fov=self.fov,
@@ -135,12 +135,10 @@ class RayCastingWorker(BaseWorker):
         return self._camera_rays[1]
 
     def _setup(self):
-        logger.info("Setting up ray casting worker...")
         self._set_depth_generation_flag()
         self._setup_field_of_view()
         self._setup_scene()
         self._setup_collision_mesh()
-        logger.info("Setup complete")
         self.set_as_ready()
 
     def _set_depth_generation_flag(self):

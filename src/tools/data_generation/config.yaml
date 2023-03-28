@@ -2,6 +2,7 @@ track_mesh_path: /home/james/Documents/tracks/monza/monza.obj
 recorded_data_path: /home/james/Documents/recordings/monza_audi_r8_lms_1/
 output_path: /home/james/Documents/recordings/monza_audi_r8_lms_1/train/
 track_name: monza
+car_name: audi_r8_lms_2016
 start_at_sample: 365
 finish_at_sample: 9135
 sample_every: 90

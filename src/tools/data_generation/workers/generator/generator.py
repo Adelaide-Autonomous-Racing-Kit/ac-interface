@@ -58,10 +58,8 @@ class DataGenerationWorker(BaseWorker):
         return self._work["record_number"]
 
     def _setup(self):
-        logger.info("Setting up data generation worker...")
         self._setup_scene()
         self._setup_data_generators()
-        logger.info("Setup complete")
         self.set_as_ready()
 
     def _setup_data_generators(self):

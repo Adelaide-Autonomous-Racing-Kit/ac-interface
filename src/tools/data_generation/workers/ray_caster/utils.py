@@ -3,6 +3,8 @@ from typing import Dict, List
 
 import trimesh
 
+from src.tools.data_generation.cars import CAR_DATA
+
 
 def calculate_horizontal_fov(
     vertical_fov: float,
@@ -34,18 +36,20 @@ def convert_scene_to_collision_mesh(
 
 
 # TODO: Finetune camera pose base on car data
-def get_camera_rotation(state: Dict) -> List[float]:
+def get_camera_rotation(state: Dict, car_name: str) -> List[float]:
     """
     From a game capture state dictionary extract the camera pose's rotation
     """
+    car_data = CAR_DATA[car_name]
     angles = [state["pitch"], -(state["heading"] + math.pi), state["roll"]]
     return angles
 
 
-def get_camera_location(state: Dict) -> List[float]:
+def get_camera_location(state: Dict, car_name: str) -> List[float]:
     """
     From a game capture state dictionary extract the camera pose's location
     """
+    car_data = CAR_DATA[car_name]
     location = [
         state["ego_location_x"],
         state["ego_location_y"] + state["centre_of_gravity_height"],

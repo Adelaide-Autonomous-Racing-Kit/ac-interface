@@ -5,6 +5,7 @@ import multiprocessing as mp
 from pathlib import Path
 from typing import List
 
+from halo import Halo
 from loguru import logger
 from prettytable import PrettyTable
 from tqdm import tqdm
@@ -72,8 +73,9 @@ class MultiprocessDataGenerator:
         self._start_time = time.time()
 
     def _wait_until_workers_are_initialised(self):
-        while not self._is_worker_pool_ready():
-            time.sleep(0.1)
+        with Halo(text="Waiting until workers are ready...", spinner="line"):
+            while not self._is_worker_pool_ready():
+                time.sleep(0.1)
         logger.success(f"Workers initialised")
 
     def _is_worker_pool_ready(self):
@@ -98,8 +100,9 @@ class MultiprocessDataGenerator:
         self._wait_until_generators_are_done()
 
     def _wait_until_ray_casters_are_done(self):
-        while not self._is_ray_casting_done():
-            time.sleep(0.1)
+        with Halo(text="Waiting until ray casters finish...", spinner="line"):
+            while not self._is_ray_casting_done():
+                time.sleep(0.1)
         self._shared.is_ray_casting_done.value = True
 
     def _is_ray_casting_done(self) -> bool:
@@ -107,8 +110,9 @@ class MultiprocessDataGenerator:
         return all([worker.is_done for worker in workers])
 
     def _wait_until_generators_are_done(self):
-        while not self._is_generation_done():
-            time.sleep(0.1)
+        with Halo(text="Waiting until generators finish...", spinner="line"):
+            while not self._is_generation_done():
+                time.sleep(0.1)
 
     def _is_generation_done(self) -> bool:
         workers = self._generation_workers
