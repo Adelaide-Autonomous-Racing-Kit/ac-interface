@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import List
 
 from loguru import logger
+from prettytable import PrettyTable
 from tqdm import tqdm
 
 from src.utils.load import load_yaml
@@ -56,7 +57,6 @@ class MultiprocessDataGenerator:
             A copy of the original frame captured is made to the output folder
             to be used as input in training datasets.
         """
-        self._populate_ray_cast_queue()
         self._start_worker_processes()
         self._wait_until_workers_are_initialised()
         self._monitor_progress()
@@ -80,9 +80,13 @@ class MultiprocessDataGenerator:
         return all([worker.is_ready for worker in self.workers])
 
     def _monitor_progress(self):
+        self._start_progress_bar()
         while not self._shared.ray_cast_queue.empty():
             self._update_progress_bar()
             time.sleep(0.2)
+
+    def _start_progress_bar(self):
+        self._pbar = tqdm(total=len(self._records))
 
     def _update_progress_bar(self):
         current_n_done = self._shared.n_complete.value
@@ -128,25 +132,37 @@ class MultiprocessDataGenerator:
         logger.success(f"Generated {n_records} samples in {elapsed} hh:mm:ss")
 
     def _setup(self, configuration_path: str):
-        self._setup_config(configuration_path)
-        self._setup_progress_bar()
+        self._load_config(configuration_path)
         self._setup_folders()
         self._initialise_member_variables()
         self._initialise_shared_state()
-        self._setup_workers()
-
-    def _setup_config(self, configuration_path: str):
-        self._config = load_yaml(configuration_path)
         self._log_configuration()
+        self._setup_workers()
+        self._setup_work()
 
-    # TODO: Implement this
+    def _load_config(self, configuration_path: str):
+        self._config = load_yaml(configuration_path)
+
     def _log_configuration(self):
-        pass
+        table = PrettyTable(["Name", "Setting"])
+        self._add_setting_to_table(table)
+        self._add_data_generation_to_table(table)
+        logger.info("\n" + str(table))
 
-    # TODO: Fix pbar printing in logs
-    def _setup_progress_bar(self):
+    def _add_setting_to_table(self, table: PrettyTable):
+        for key in self._config.keys():
+            if key == "generate":
+                continue
+            table.add_row([key, self._config[key]])
+
+    def _add_data_generation_to_table(self, table: PrettyTable):
+        for data_type in self._config["generate"].keys():
+            to_generate = ", ".join(self._config["generate"][data_type])
+            table.add_row([data_type, to_generate])
+
+    def _setup_work(self):
         self._records = self._get_records_to_be_processed()
-        self._pbar = tqdm(total=len(self._records))
+        [self._shared.ray_cast_queue.put(record) for record in self._records]
 
     def _get_records_to_be_processed(self):
         return self._get_subsample()
