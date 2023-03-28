@@ -4,7 +4,6 @@ import shutil
 from loguru import logger
 from typing import Dict
 
-from src.tools.data_generation.workers.utils import load_track_mesh
 from src.tools.data_generation.workers.base import (
     BaseWorker,
     WorkerSharedState,
@@ -64,10 +63,6 @@ class DataGenerationWorker(BaseWorker):
         self._setup_data_generators()
         logger.info("Setup complete")
         self.set_as_ready()
-
-    def _setup_scene(self):
-        scene = load_track_mesh(self.track_mesh_path, self.modified_mesh_path)
-        self._scene = scene
 
     def _setup_data_generators(self):
         for data_type in self._config["generate"]:

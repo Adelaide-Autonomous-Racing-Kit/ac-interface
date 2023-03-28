@@ -7,19 +7,14 @@ from src.tools.data_generation.workers.generator.utils import (
     rgb_to_bgr,
 )
 
-# TODO: Dynamically import constants based on track
-from src.tools.data_generation.tracks.monza import (
+from src.tools.data_generation.tracks.constants import (
     COLOUR_LIST,
-    MESH_NAME_TO_ID,
     TRAIN_ID_LIST,
 )
+from src.tools.data_generation.tracks import TRACK_DATA
 
 
 class SegmentationGenerator(DataGenerator):
-    def __init__(self, worker_reference):
-        super().__init__(worker_reference)
-        self._setup()
-
     def generate(self):
         pixel_ids = self._get_semantic_pixel_ids()
         for method in self._generation_methods:
@@ -54,7 +49,8 @@ class SegmentationGenerator(DataGenerator):
         self._register_generation_methods()
 
     def _setup_triangle_to_id_map(self):
-        triangle_to_id = get_triangle_to_semantic_id_map(self._worker._scene)
+        scene, track_name = self._worker._scene, self._worker.track_name
+        triangle_to_id = get_triangle_to_semantic_id_map(scene, track_name)
         self._triangle_to_id = triangle_to_id
 
     def _register_generation_methods(self):
@@ -67,13 +63,17 @@ class SegmentationGenerator(DataGenerator):
             self._generation_methods.append(method)
 
 
-def get_triangle_to_semantic_id_map(scene: trimesh.Scene) -> np.array:
+def get_triangle_to_semantic_id_map(
+    scene: trimesh.Scene,
+    track_name: str,
+) -> np.array:
     """
     Returns a mapping between triangle indexes and the semantic ID of
         that triangle's geometry.
     """
     triangle_to_node = scene.triangles_node
-    triangle_to_id = [MESH_NAME_TO_ID[name] for name in triangle_to_node]
+    material_to_id = TRACK_DATA[track_name].material_to_id
+    triangle_to_id = [material_to_id[name] for name in triangle_to_node]
     return np.asarray(triangle_to_id, dtype=np.uint8)
 
 

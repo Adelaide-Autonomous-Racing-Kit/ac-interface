@@ -10,10 +10,6 @@ from src.tools.data_generation.workers.generator.utils import (
 
 
 class NormalMapGenerator(DataGenerator):
-    def __init__(self, worker_reference):
-        super().__init__(worker_reference)
-        self._setup()
-
     def generate(self):
         [method() for method in self._generation_methods]
 

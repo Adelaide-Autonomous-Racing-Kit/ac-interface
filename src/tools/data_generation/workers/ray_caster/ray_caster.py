@@ -4,7 +4,6 @@ from loguru import logger
 from typing import Dict
 
 from src.utils.load import load_game_state
-from src.tools.data_generation.workers.utils import load_track_mesh
 from src.tools.data_generation.workers.base import (
     BaseWorker,
     WorkerSharedState,
@@ -146,10 +145,6 @@ class RayCastingWorker(BaseWorker):
 
     def _set_depth_generation_flag(self):
         self._is_generating_depth = "depth" in self._config["generate"]
-
-    def _setup_scene(self):
-        scene = load_track_mesh(self.track_mesh_path, self.modified_mesh_path)
-        self._scene = scene
 
     def _setup_collision_mesh(self):
         self._mesh = convert_scene_to_collision_mesh(self._scene)

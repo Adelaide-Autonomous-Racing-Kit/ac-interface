@@ -1,6 +1,8 @@
 import numpy as np
 import trimesh
 
+from loguru import logger
+
 from src.tools.data_generation.workers.generator.base import DataGenerator
 from src.tools.data_generation.workers.generator.utils import (
     allocate_empty_frame,
@@ -36,8 +38,10 @@ class DepthMapGenerator(DataGenerator):
     def _save_depth_map(self, depth_map: np.array):
         self._save_data(f"{self._record_number}-depth.png", depth_map)
 
+    def _setup(self):
+        self._register_generation_methods()
+
     def _register_generation_methods(self):
-        self._generation_methods = []
         generator_config = self._worker._config["generate"]["depth"]
         if "visuals" in generator_config:
             method = self._generate_visualised_depth_map

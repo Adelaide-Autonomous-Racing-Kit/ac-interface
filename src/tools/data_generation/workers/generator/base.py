@@ -11,11 +11,19 @@ class DataGenerator:
     def __init__(self, worker_reference):
         self._worker = worker_reference
         self._generation_methods = []
+        self._setup()
 
     @abc.abstractmethod
     def generate(self):
         """
         Implement data generation work specific to the data being created
+        """
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def _setup(self):
+        """
+        Implement data generator specific setup steps
         """
         raise NotImplementedError()
 

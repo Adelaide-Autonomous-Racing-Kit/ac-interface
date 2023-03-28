@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List
 
+from src.tools.data_generation.workers.utils import load_track_mesh
 
 TIMEOUT = 0.5
 
@@ -127,6 +128,10 @@ class BaseWorker(mp.Process):
     def image_size(self) -> List[int]:
         return self._config["image_size"]
 
+    @property
+    def track_name(self) -> str:
+        return self._config["track_name"]
+
     def increment_n_complete(self):
         with self._shared_state.n_complete.get_lock():
             self._shared_state.n_complete.value += 1
@@ -136,3 +141,10 @@ class BaseWorker(mp.Process):
 
     def set_as_done(self):
         self._shared_state.is_done.value = True
+
+    def _setup_scene(self):
+        self._scene = load_track_mesh(
+            self.track_mesh_path,
+            self.modified_mesh_path,
+            self.track_name,
+        )
