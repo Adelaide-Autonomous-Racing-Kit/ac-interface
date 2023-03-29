@@ -5,6 +5,7 @@ import time
 from loguru import logger
 import numpy as np
 from src.game_capture.state.server import ADDRESS, PORT
+from src.metrics.deephaven.state_logger import DeephavenStateLogger
 
 
 class StateClient:
@@ -89,6 +90,19 @@ class StateClient:
             game_state = self.client.recv()
             self._latest_state = game_state
             self._is_stale = False
+
+
+class DeephavenStateClient(StateClient):
+    def __init__(self):
+        super().__init__()
+        self._deephaven_logger = DeephavenStateLogger()
+
+    def _run(self):
+        while self.is_running:
+            game_state = self.client.recv()
+            self._latest_state = game_state
+            self._is_stale = False
+            self._deephaven_logger.log_state(game_state["state"])
 
 
 # Example test loops and benchmarking

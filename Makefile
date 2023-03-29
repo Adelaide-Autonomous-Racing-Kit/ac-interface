@@ -16,19 +16,19 @@ endif
 	docker compose version || { echo "Please install docker compose first: https://docs.docker.com/desktop/install/ubuntu/"; exit 1; }
 	conda create -y -p $(CONDA_ENV_PATH) -c conda-forge opencv numpy av pyyaml matplotlib pillow \
 		black flake8-black flake8 isort loguru pytest pytest-parallel pytest-benchmark coverage \
-		pyautogui python-xlib loguru yaml
+		pyautogui python-xlib loguru yaml tqdm halo
 	$(CONDA_ACTIVATE) $(CONDA_ENV_PATH)
 	pip3 install -e .
 	pip3 install git+https://github.com/wyatthuckaby/python-uinput.git
 	pip3 install git+https://github.com/lilohuang/PyTurboJPEG.git
 	pip3 install python-uinput
-	git clone https://github.com/deephaven/deephaven-core.git deephaven-clone && \
+	git clone https://github.com/jmao-denver/deephaven-core.git deephaven-clone && \
 		cd deephaven-clone/py/client && \
+		git checkout 3580-pyclient-inputtable && \
 		pip3 install -r requirements-dev.txt && \
 		python3 setup.py bdist_wheel && \
 		pip3 install dist/pydeephaven-0.23.0-py3-none-any.whl && \
 		cd ../../../ && rm -rf deephaven-clone 
-
 	# start deephaven server
 	docker compose up -d
 

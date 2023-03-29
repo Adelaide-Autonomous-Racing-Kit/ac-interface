@@ -36,7 +36,7 @@ class StateServer:
                     connection.send(game_state)
                     last_packet_id = game_state["graphics_packet_id"]
                 except Exception as e:
-                    print(f"Connection Closed: {e}")
+                    logger.info((f"Connection Closed: {e}"))
                     connection.close()
                     is_connected = False
 

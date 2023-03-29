@@ -1,10 +1,12 @@
 import os
-from pathlib import Path
 import subprocess
 import time
+from pathlib import Path
 
-from loguru import logger
 import pyautogui
+from halo import Halo
+from loguru import logger
+
 from src.config.constants import AC_STEAM_APPID_FILE_PATH, AC_STEAM_PATH, STEAM_APPID
 from src.game_capture.state.client import StateClient
 from src.utils.os import get_application_window_coordinates
@@ -39,14 +41,14 @@ def try_until_state_server_is_launched():
     """
     is_running = False
     while not is_running:
-        try:
-            logger.info("Attempting to start State Server")
-            p_state_server = launch_sate_server()
-            time.sleep(2)
-            _ = StateClient()
-            is_running = True
-        except ConnectionRefusedError:
-            p_state_server.terminate()
+        with Halo(text="Starting State Server...", spinner="line"):
+            try:
+                p_state_server = launch_sate_server()
+                time.sleep(2)
+                _ = StateClient()
+                is_running = True
+            except ConnectionRefusedError:
+                p_state_server.terminate()
     logger.info("State Server Started")
 
 
