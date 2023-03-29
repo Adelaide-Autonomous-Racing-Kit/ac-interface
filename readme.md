@@ -22,6 +22,7 @@ We will be using a compatability tool called [Crossover](https://www.codeweavers
 
 ![Install Assetto Cora](imgs/crossover_assetto-corsa.png)
 
+Open AC and drive with a car checking that everything is working as expected.
 
 ## Additional Setup
 
@@ -40,6 +41,8 @@ When installing python select to install it for all users in the Advanced Menu.
 
 Now we should be able to call python and its related packages from the bottle's command line.
 To verify this, in crossover click `Run Commnad` and in the `Command` field type `python`, this should launch your Python (version 3.11 in our example) interactive terminal. 
+
+
 Navigate to the root directory of the package and run:
 ```
 /opt/cxoffice/bin/wine --bottle Assetto_Corsa --cx-app cmd.exe
@@ -47,7 +50,7 @@ Navigate to the root directory of the package and run:
 To access the command line inside the bottle.
 Then install ac interface it into the bottle by running:
 ```
-pip install loguru numpy # needed for the scraper.py
+pip install loguru numpy
 pip install -e .
 ```
 	
@@ -57,8 +60,8 @@ sudo modprobe uinput
 sudo chmod a+r+w /dev/uinput
 ```
 
-Additionally, if the game resolution is set to be the same as your windowed resolution, i.e. you have a 1920x1080 screen, and in AC you disable fullscreen mode (enabling windowed mode) and set the resolution to be 1920x1080, AC will ignore your windowed mode request and thus our scripts won't be able to do game capture. So you will need to set the game resolution to something smaller than your display, i.e. 1920x1080 screen, so 1900x600 game resolution. 
-	
+Additionally, if the game resolution is set to be the same as your windowed resolution, i.e. you have a 1920x1080 screen, and in AC you disable fullscreen mode (enabling windowed mode) and set the resolution to be 1920x1080, AC will ignore your windowed mode request and thus our scripts won't be able to do game capture. So you will need to set the game resolution to something smaller than your display, i.e. 1920x1080 screen, so 1600x900 game resolution. 
+You will need to go into `src/config/capture/game_capture.yaml` and change the resolution to the one chosen in game.
 
 ### Recording
 To write out image files faster we need to make sure an additional package is installed by running `sudo apt-get install libturbojpeg` prior to running `make build`.
