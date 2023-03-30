@@ -28,7 +28,8 @@ endif
 		pip3 install -r requirements-dev.txt && \
 		python3 setup.py bdist_wheel && \
 		pip3 install dist/pydeephaven-0.23.0-py3-none-any.whl && \
-		cd ../../../ && rm -rf deephaven-clone 
+		cd ../../../ && \
+		rm -rf deephaven-clone 
 	# start deephaven server
 	docker compose up -d
 

@@ -52,7 +52,7 @@ def load_state_as_dict(state: bytes) -> Dict:
     return {key: [value] for key, value in state.items()}
 
 
-RECORDING_PATH = "../recordings/monza_audi_r8_lms_1/"
+RECORDING_PATH = "recordings/monza_audi_r8_lms_1/"
 
 
 def main():
@@ -71,9 +71,9 @@ def main():
 
     start = time.time()
     for binary_record in tqdm(binary_records):
-        deephaven_logger.push_state_to_deephaven(binary_record)
+        deephaven_logger.log_state(binary_record)
     elapsed = time.time() - start
-    logger.info(f"{elapsed}s")
+    logger.info(f"{elapsed:0.2f} seconds")
 
 
 if __name__ == "__main__":
