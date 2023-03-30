@@ -31,7 +31,10 @@ class DeephavenStateLogger:
             print(e)
 
         self._primary_table = self._session.input_table(PYARROW_DATA_SCHEMA)
-        self._session.bind_table(self._get_run_name(), self._primary_table)
+
+        self._run_name = self._get_run_name()
+        logger.info(f'Sending datat to table "{self._run_name}"')
+        self._session.bind_table(self._run_name, self._primary_table)
 
     # TODO: Descriptive, unique, table name
     def _get_run_name(self) -> str:
@@ -70,7 +73,7 @@ def main():
         binary_records.append(binary_record)
 
     start = time.time()
-    for binary_record in tqdm(binary_records):
+    for binary_record in tqdm(binary_records[: 60 * 10]):
         deephaven_logger.log_state(binary_record)
     elapsed = time.time() - start
     logger.info(f"{elapsed:0.2f} seconds")
