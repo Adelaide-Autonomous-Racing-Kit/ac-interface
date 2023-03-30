@@ -1,5 +1,4 @@
 import pyarrow as pa
-
 from src.game_capture.state.shared_memory.ac.combined import COMBINED_CTYPES
 
 CTYPES_TO_PYARROW = {

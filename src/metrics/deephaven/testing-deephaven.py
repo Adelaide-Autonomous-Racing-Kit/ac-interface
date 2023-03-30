@@ -1,13 +1,12 @@
 import os
 import time
 
-import pyarrow as pa
 from loguru import logger
+import pyarrow as pa
 from pydeephaven import Session
-from tqdm import tqdm
-
 from src.utils.load import load_game_state
 from src.utils.system_monitor import System_Monitor, track_runtime
+from tqdm import tqdm
 
 RECORDING_PATH = "../recordings/monza_audi_r8_lms_1/"
 

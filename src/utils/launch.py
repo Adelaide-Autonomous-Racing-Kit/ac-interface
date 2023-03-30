@@ -1,12 +1,11 @@
 import os
+from pathlib import Path
 import subprocess
 import time
-from pathlib import Path
 
-import pyautogui
 from halo import Halo
 from loguru import logger
-
+import pyautogui
 from src.config.constants import AC_STEAM_APPID_FILE_PATH, AC_STEAM_PATH, STEAM_APPID
 from src.game_capture.state.client import StateClient
 from src.utils.os import get_application_window_coordinates

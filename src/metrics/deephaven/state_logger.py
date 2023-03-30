@@ -1,15 +1,14 @@
+from datetime import datetime
 import os
 import time
-from datetime import datetime
 from typing import Dict
 
-import pyarrow as pa
 from loguru import logger
-from pydeephaven import Session, Table
-from tqdm import tqdm
-
+import pyarrow as pa
+from pydeephaven import DHError, Session, Table
 from src.metrics.deephaven.schema import PYARROW_DATA_SCHEMA
 from src.utils.load import state_bytes_to_dict
+from tqdm import tqdm
 
 
 class DeephavenStateLogger:
@@ -17,9 +16,20 @@ class DeephavenStateLogger:
         self._setup_deephaven_session()
 
     def _setup_deephaven_session(self):
-        logger.info("Connecting to Deephaven")
-        self._session = Session()
-        logger.info("Connected to Deephaven")
+        try:
+            logger.info("Connecting to Deephaven...")
+            self._session = Session()
+            logger.success("Connected to Deephaven")
+        except DHError as e:
+            logger.info(f"DHError from deephaven: {e}")
+            logger.error(
+                "Deephaven error when connecting to session, is the docker compose image active? check with `docker container ls`, you can also try to start it with `docker compose up -d`."
+            )
+            exit(1)
+        except Exception as e:
+            print("Unknown error")
+            print(e)
+
         self._primary_table = self._session.input_table(PYARROW_DATA_SCHEMA)
         self._session.bind_table(self._get_run_name(), self._primary_table)
 
