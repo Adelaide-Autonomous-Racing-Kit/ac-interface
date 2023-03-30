@@ -15,7 +15,7 @@ def launch_assetto_corsa():
     """
     Launches AC in a crossover bottle
     """
-    logger.info(f"Starting Assetto Corsa...")
+    logger.info("Starting Assetto Corsa...")
     original_dir = Path.cwd()
     os.chdir(AC_STEAM_PATH)
     subprocess.Popen(
