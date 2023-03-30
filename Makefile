@@ -39,7 +39,7 @@ run:
 
 test:
 	@echo "Starting all non gpu related tests"
-	@pytest --workers 2 src/ -m "not benchmark and not gpu" 
+	@pytest --workers 4 src/ -m "not benchmark and not gpu" 
 
 lint:
 	@black "src/" 
