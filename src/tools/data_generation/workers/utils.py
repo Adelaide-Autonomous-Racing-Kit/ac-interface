@@ -13,6 +13,15 @@ def load_track_mesh(
     """
     Prepares a collision mesh for generating data from. Modifies and removes
         geometries specified in the track's constants.VERTEX_GROUPS_TO_MODIFY
+
+    :param track_mesh: Path to the track mesh file.
+    :type track_mesh: Path
+    :param modified_mesh: Path to the modified mesh file.
+    :type modified_mesh: Path
+    :param track_name: Name of the track.
+    :type track_name: str
+    :return: A trimesh.Scene object using the modified mesh.
+    :rtype: trimesh.Scene
     """
     preprocess_track_mesh(track_mesh, modified_mesh, track_name)
     scene = trimesh.load(modified_mesh)
@@ -30,6 +39,13 @@ def preprocess_track_mesh(
         to physics. This material is ignored in the collision mesh used for
         ray casting so it a convenient way to remove vertex groups from the
         mesh.
+
+    :param track_mesh: Path to the track mesh file.
+    :type track_mesh: Path
+    :param modified_mesh: Path to the modified mesh file.
+    :type modified_mesh: Path
+    :param track_name: Name of the track.
+    :type track_name: str
     """
     is_modifying = False
     source_file = track_mesh.open("r")
@@ -50,7 +66,15 @@ def preprocess_track_mesh(
 def is_vertex_group_to_modify(line: str, track_name: str) -> bool:
     """
     Returns True if the line contains any of the vertex group names
-        specified in constants.VERTEX_GROUPS_TO_MODIFY
+        specified in the track specific configuration data
+
+    :param line: Line from the mesh file.
+    :type line: str
+    :param track_name: Name of the track.
+    :type track_name: str
+    :return: True if the line contains any of the vertex group names specified
+        in the track specific configuration data, False otherwise.
+    :rtype: bool
     """
     vertex_groups_to_modify = TRACK_DATA[track_name].vertex_groups_to_modify
     return any([name in line for name in vertex_groups_to_modify])

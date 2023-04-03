@@ -6,10 +6,12 @@ import numpy as np
 from tqdm import tqdm
 
 ROOT = Path.home().joinpath("Documents")
-SOURCE_1_PATH = ROOT.joinpath("recordings/monza_audi_r8_lms_1")
-SOURCE_2_PATH = ROOT.joinpath("visualised")
-OUTPUT_VIDEO_PATH = ROOT.joinpath("recordings/inference_v1.avi")
-IMAGE_SIZE = (1280, 720)
+SOURCE_1_PATH = ROOT.joinpath("generated/monza/audi_r8_lms_2016/test/")
+SOURCE_2_PATH = ROOT.joinpath("generated/monza/audi_r8_lms_2016/test/")
+OUTPUT_VIDEO_PATH = ROOT.joinpath(
+    "generated/monza/audi_r8_lms_2016/test-overlay.avi"
+)
+IMAGE_SIZE = (1920, 1080)
 
 
 def main():
@@ -21,16 +23,17 @@ def main():
         ],
         key=lambda x: int(x),
     )
-    video_size = (2 * IMAGE_SIZE[0], IMAGE_SIZE[1])
+    video_size = (IMAGE_SIZE[0], IMAGE_SIZE[1])
     fourcc = cv2.VideoWriter_fourcc(*"XVID")
     output = cv2.VideoWriter(str(OUTPUT_VIDEO_PATH), fourcc, 30, video_size)
     for record in tqdm(frames):
-        mask_path = SOURCE_2_PATH.joinpath(record).with_suffix(".png")
+        mask_path = SOURCE_2_PATH.joinpath(record + "-vis").with_suffix(".png")
         image_path = SOURCE_1_PATH.joinpath(record).with_suffix(".jpeg")
         mask = cv2.imread(str(mask_path))
-        image = cv2.imread(str(image_path))
-        image = cv2.resize(image, dsize=(IMAGE_SIZE[0], IMAGE_SIZE[1]))
-        to_show = np.hstack([image, mask])
+        # image = cv2.imread(str(image_path))
+        # image = cv2.resize(image, dsize=(IMAGE_SIZE[0], IMAGE_SIZE[1]))
+        # to_show = np.hstack([image, mask])
+        to_show = mask
         output.write(to_show)
     output.release()
 
