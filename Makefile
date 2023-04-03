@@ -12,7 +12,7 @@ ifneq ($(wildcard $(CONDA_ENV_PATH)),)
 		conda env remove -p $(CONDA_ENV_PATH); \
 	fi
 endif
-	# docker compose needed for deephaven
+	# docker compose needed for database
 	docker compose version || { echo "Please install docker compose first: https://docs.docker.com/desktop/install/ubuntu/"; exit 1; }
 	conda create -y -p $(CONDA_ENV_PATH) -c conda-forge opencv numpy av pyyaml matplotlib pillow \
 		black flake8-black flake8 isort loguru pytest pytest-parallel py pytest-benchmark coverage \
@@ -22,15 +22,9 @@ endif
 	pip3 install git+https://github.com/wyatthuckaby/python-uinput.git
 	pip3 install git+https://github.com/lilohuang/PyTurboJPEG.git
 	pip3 install python-uinput
-	git clone https://github.com/jmao-denver/deephaven-core.git deephaven-clone && \
-		cd deephaven-clone/py/client && \
-		git checkout 3580-pyclient-inputtable && \
-		pip3 install -r requirements-dev.txt && \
-		python3 setup.py bdist_wheel && \
-		pip3 install dist/pydeephaven-0.23.0-py3-none-any.whl && \
-		cd ../../../ && \
-		rm -rf deephaven-clone 
-	# start deephaven server
+	pip3 install "psycopg[binary]"
+	
+	# start database
 	docker compose up -d
 
 run:
