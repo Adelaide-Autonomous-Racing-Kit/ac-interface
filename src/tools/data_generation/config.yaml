@@ -1,0 +1,21 @@
+track_mesh_path: /home/james/Documents/tracks/monza/monza.obj
+recorded_data_path: /home/james/Documents/recordings/monza/audi_r8_lms_2016/test/
+output_path: /home/james/Documents/generated/monza/audi_r8_lms_2016/test-2/
+track_name: monza
+car_name: audi_r8_lms_2016
+start_at_sample: 450
+finish_at_sample: -1
+sample_every: 10
+vertical_fov: 60
+image_size: [1920, 1080]
+n_ray_casting_workers: 6
+n_generation_workers: 4
+generate:
+  segmentation:
+    - data
+    - visuals
+    - overlays
+  depth:
+    - visuals
+  normals:
+    - visuals

@@ -6,7 +6,6 @@ from typing import List, Tuple
 from IPython.display import HTML, display
 from PIL import Image
 from loguru import logger
-import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy

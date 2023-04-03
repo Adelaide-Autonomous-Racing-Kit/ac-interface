@@ -1,7 +1,5 @@
-from abc import ABC, abstractmethod
-import os
+from abc import ABC
 import pathlib
-import re
 from typing import Dict, List, Set, Tuple, Union
 
 import pywavefront
@@ -95,7 +93,8 @@ class Monza(Track):
     """Class representing the Monza track."""
 
     def __init__(
-        self, obj_filename: pathlib.Path = pathlib.Path(TRACK_DATA.get("monza"))
+        self,
+        obj_filename: pathlib.Path = pathlib.Path(TRACK_DATA.get("monza")),
     ) -> None:
         """Initialize a Monza object.
 
@@ -110,7 +109,9 @@ class Monza(Track):
     def _process_group_name(s: str) -> str:
         s = s.replace("MONZA-", "")
         s = "".join(filter(str.isalpha, s))
-        return s.lower()
+        s = s.lower()
+        s = s.replace("monza", "")
+        return s
 
     @property
     def group_names(self) -> set:
