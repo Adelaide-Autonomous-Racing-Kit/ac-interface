@@ -96,5 +96,5 @@ def click_drive():
     """
     Clicks in the AC window on the drive button to start the session
     """
-    top_left_corner = get_application_window_coordinates("AC", [1920, 1080])
+    top_left_corner = get_application_window_coordinates("AC", [1600, 900])
     pyautogui.click(top_left_corner.x + 20, top_left_corner.y + 150)

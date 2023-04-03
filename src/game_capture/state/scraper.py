@@ -7,7 +7,6 @@ from typing import Dict, List, Tuple
 
 from loguru import logger
 import numpy as np
-from src.game_capture.state.shared_memory import SHMStruct
 from src.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
 from src.game_capture.state.shared_memory.ac.graphics import GraphicsSharedMemory
 from src.game_capture.state.shared_memory.ac.physics import PhysicsSharedMemory

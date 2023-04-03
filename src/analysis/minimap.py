@@ -1,18 +1,18 @@
 import glob
 import os
-import scipy
 import pathlib
 from typing import List, Tuple
-from tqdm import tqdm
 
+from IPython.display import HTML, display
 from PIL import Image
 from loguru import logger
 import matplotlib.pyplot as plt
 import numpy as np
-import trimesh
+import scipy
 from src.utils.concavehull import ConcaveHull
 from src.utils.load import load_game_state
-from src.track_gen.track_gen import Monza
+from tqdm import tqdm
+import trimesh
 
 
 def load_sample_file(
@@ -127,6 +127,11 @@ if __name__ == "__main__":
     ffmpeg -r 60 -i foo_%01d.png -vcodec libx264 -crf 20 -s 800x800 -pix_fmt yuv420p -y movie.mp4
     """
     multi_process = True
+
+    import copy
+
+    from src.track_gen.track_gen import Monza
+
     track = Monza("tracks/monza/physics_mesh_object_groups.obj")
     if len(track.group_names) > 0:
         logger.success(f"Loaded: {track.group_names}")

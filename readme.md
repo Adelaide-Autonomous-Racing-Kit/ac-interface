@@ -22,6 +22,7 @@ We will be using a compatability tool called [Crossover](https://www.codeweavers
 
 ![Install Assetto Cora](imgs/crossover_assetto-corsa.png)
 
+Open AC and drive with a car checking that everything is working as expected.
 
 ## Additional Setup
 
@@ -33,18 +34,15 @@ We will be using a compatability tool called [Crossover](https://www.codeweavers
 AC has to run in WINE which means we cannot directly access the game state via shared memory.
 To get around this we use a python script running inside the same WINE instance as the game to access the game state which it then makes available to the host OS via a socket.
 Crossover doesn't come with python so first we need to install that using the `Install an unlisted application` button in the `Install` tab.
-When installing python select to install it for all users.
-Once python is installed, go to your bottle with Python and AC in Crossover and click the `Run Command` button.
-To use python from the command line we need to add it to the bottle's path.
-In the command field type `regedit` and hit `Run`.
-Navigate to `HKEY_LOCAL_MACHINE` > `System` > `CurrentControlSet` > `Control` > `Session Manager` > `Environment`.
-Then modify the data field of `PATH` by appending 
-```
-%SystemRoot%\users\crossover\AppData\Local\Programs\Python\Python311
-```
-*Note: you may need to modify the terminal folder name depending on the version of python you have installed, in this example we used 3.11.*
+When installing python select to install it for all users in the Advanced Menu.
+
+![image](https://user-images.githubusercontent.com/26395770/223075507-2eed5cd2-5ce6-4bcd-a991-a8301265386a.png)
+
 
 Now we should be able to call python and its related packages from the bottle's command line.
+To verify this, in crossover click `Run Commnad` and in the `Command` field type `python`, this should launch your Python (version 3.11 in our example) interactive terminal. 
+
+
 Navigate to the root directory of the package and run:
 ```
 /opt/cxoffice/bin/wine --bottle Assetto_Corsa --cx-app cmd.exe
@@ -52,18 +50,22 @@ Navigate to the root directory of the package and run:
 To access the command line inside the bottle.
 Then install ac interface it into the bottle by running:
 ```
+pip install loguru numpy
 pip install -e .
 ```
+	
+In linux, do this to make sure the python uinput module has access to the kernel uinput module. 
+```bash
+sudo modprobe uinput
+sudo chmod a+r+w /dev/uinput
+```
+
+Additionally, if the game resolution is set to be the same as your windowed resolution, i.e. you have a 1920x1080 screen, and in AC you disable fullscreen mode (enabling windowed mode) and set the resolution to be 1920x1080, AC will ignore your windowed mode request and thus our scripts won't be able to do game capture. So you will need to set the game resolution to something smaller than your display, i.e. 1920x1080 screen, so 1600x900 game resolution. 
+You will need to go into `src/config/capture/game_capture.yaml` and change the resolution to the one chosen in game.
 
 ### Recording
 To write out image files faster we need to make sure an additional package is installed by running `sudo apt-get install libturbojpeg` prior to running `make build`.
 
-
-</details>
-
-
-<details>
-	<summary>Windows</summary>
 
 </details>
 
