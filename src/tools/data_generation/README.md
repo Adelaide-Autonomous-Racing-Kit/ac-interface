@@ -16,3 +16,13 @@ Similarly car specific camera positioning data needs to be registered in the `ca
 The details for camera offset and pitch can be found in the game files for each car.
 Specifically, each car has a `car.ini` file inside a `data.acd` archive that you need to unpack with content manager to access.
 It can be helpful to assemble the data into a video with the raw capture on the left and the generated data on the right using `src/analysis/test_video.py` script.
+
+## Editing Tracks In Blender
+After parsing game kn5 files to a `.obj` file you may need to inspect and adjust certain objects that are semantically different but are textured using the same material.
+First import `<track_name>.obj` into blender.
+![Blender Import Obj](../../../imgs/blender-import-obj.png)
+
+After making any changes to mesh export it using the following settings:
+![Blender Export Obj](../../../imgs/blender-export-obj.png)
+Then open up the exported `.obj` in a text editor and use `Find and replace` to change all the occurrences of `o ` to `g `. 
+(*Note:* This is a bug in blender as vertex groups in obj should have a g prefix)
