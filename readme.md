@@ -69,7 +69,23 @@ To write out image files faster we need to make sure an additional package is in
 
 </details>
 
+<details>
+	<summary>Content Manager and Mods</summary>
+[Content Manager](https://acstuff.ru/app/) (CM) replaces the original game launching menu with a much better one with many additional features. CM gives the ability to easily install mods such as new cars, tracks, visual improvements, and python apps to the game. Although it is possible to do this without CM there is a free version with many features. CM also makes it easy to install two important visual improvement mods [Custom Shaders Patch](https://acstuff.ru/patch/) and [Sol](https://www.racedepartment.com/downloads/sol.24914/). These two mods update the games graphics, textures, and functionality to include more weather and times of day. You can find more information on [Custom Shaders Patch (CSP) discord](https://discord.gg/QwXVEFM) and [Sol-Pure discord](https://discord.gg/m2Vbsgz). There are two versions of CM and CSP, free and paid. Both are relatively cheap for the amount of work that has gone into them only being a few dollars each. You can get away with free CSP but RainFX will not be available.
 
+
+### Installing Content Manager
+I have tested the install in the Assetto Corsa bottle with Windows 10 64-bit. First you will need to install all the dependencies of CM in the crossover bottle. This includes [Visual C++ Redistributable x86](https://www.microsoft.com/en-us/download/details.aspx?id=48145), [DirectX Runtime June 2010](https://www.microsoft.com/en-us/download/confirmation.aspx?id=8109), and [DirectX 10/11 for 3D-related functions](https://www.microsoft.com/en-us/download/details.aspx?id=35). I didn't have any success getting DirectX 10/11 installed but this didn't seem to effect the rest of the installation.
+
+Next we want to download CM from [here](https://acstuff.ru/app/). Extract the .exe file and rename it `Content Manager Safe.exe`. This stops CM from using hardware acceleration for the GUI. In Crossover select the bottle and then `Install Application into Bottle` then `Install unlisted application`. Select `Content Manager Safe.exe` as the installed file and click install. A menu should pop-up, I didn't need to select anything on this menu at all, just click 'OK' down the bottom. Don't click on `Make desktop icon` as this closes the menu without finishing the install. CM should then open up. In CM go to the Settings tab and navigate to `Settings->Content Manager->Appearance->System` and tick 'Disable windows transparency' and 'Disable hardware acceleration for UI'. Once this is done we no longer need to have 'Safe' in the `.exe` file to run. You can now close CM, beware that the install doesn't finish. This is fine you can cancel the install.
+
+Next we want to navigate to the Assetto Corsa root folder which should be something like this: `~/.cxoffice/Assetto_Corsa/drive_c/Program Files (x86)/Steam/steamapps/common/assettocorsa`. Rename the original launcher `AssettoCorsa.exe` to `AssettoCorsa_original.exe`. Then copy in the `Content Manager Safe.exe` and rename it `AssettoCorsa.exe`. Now when launching Assetto Corsa it will launch CM as the default launcher.
+
+We are now ready to install CSP and Sol. Open Crossover and go to the Assetto Corsa bottle. Go to `Control Panels->Wine Configuration->Libraries` and add in `dwrite.dll` (it should be in the drop down menu). This is needed for CSP to work. Open Assetto Corsa (which should open with CM as the launcher now) and go to `Settings->Custom Shaders Patch` and install it. I have tested with both 0.1.79 and [0.1.80-preview115](https://www.patreon.com/x4fab/posts) (paid version). With this installed we can also install [Sol](https://www.racedepartment.com/downloads/sol.24914/), you will need to signup to Racedepartment and download the instructions. Make sure to follow the instructions in the pdf.
+
+To check if this is working go into a practice race and set the time to 22:00. If the track is dark and the time doesn't default to 18:00 all should be good to go.
+
+</details>
 
 # AC Interface
 ## Defining an Agent
