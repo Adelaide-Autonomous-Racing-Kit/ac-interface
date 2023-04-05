@@ -166,3 +166,5 @@ recordings/**/*.bin
 
 # analysis
 src/analysis/imgs
+
+segmentors
