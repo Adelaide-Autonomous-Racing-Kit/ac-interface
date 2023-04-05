@@ -10,6 +10,12 @@ from psycopg.types.json import Jsonb
 from src.utils.load import state_bytes_to_dict
 
 
+
+
+
+
+
+
 def convert_numpy_types(data):
     conversion_dict = {
         np.int32: int,
@@ -23,8 +29,7 @@ def convert_numpy_types(data):
         for k, v in data.items()
     }
     cleaned_data = {
-        k: replace_infinity(remove_null_characters(v))
-        for k, v in converted_data.items()
+        k: replace_infinity(remove_null_characters(v)) for k, v in converted_data.items()
     }
 
     return cleaned_data
