@@ -3,6 +3,7 @@ from pathlib import Path
 import subprocess
 import time
 
+from halo import Halo
 from loguru import logger
 import pyautogui
 from src.config.constants import AC_STEAM_APPID_FILE_PATH, AC_STEAM_PATH, STEAM_APPID
@@ -14,7 +15,7 @@ def launch_assetto_corsa():
     """
     Launches AC in a crossover bottle
     """
-    logger.info(f"Starting Assetto Corsa...")
+    logger.info("Starting Assetto Corsa...")
     original_dir = Path.cwd()
     os.chdir(AC_STEAM_PATH)
     subprocess.Popen(
@@ -39,14 +40,14 @@ def try_until_state_server_is_launched():
     """
     is_running = False
     while not is_running:
-        try:
-            logger.info("Attempting to start State Server")
-            p_state_server = launch_sate_server()
-            time.sleep(2)
-            _ = StateClient()
-            is_running = True
-        except ConnectionRefusedError:
-            p_state_server.terminate()
+        with Halo(text="Starting State Server...", spinner="line"):
+            try:
+                p_state_server = launch_sate_server()
+                time.sleep(2)
+                _ = StateClient()
+                is_running = True
+            except ConnectionRefusedError:
+                p_state_server.terminate()
     logger.info("State Server Started")
 
 

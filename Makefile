@@ -4,6 +4,7 @@ CONDA_ENV_PATH=./envs
 CONDA_ACTIVATE=source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
 
 build:
+	
 ifneq ($(wildcard $(CONDA_ENV_PATH)),)
 	@echo "Environment $(CONDA_ENV_PATH) already exists, do you want to delete it and create a new one? [y/n]"
 	@read ans; \
@@ -11,16 +12,20 @@ ifneq ($(wildcard $(CONDA_ENV_PATH)),)
 		conda env remove -p $(CONDA_ENV_PATH); \
 	fi
 endif
+	# docker compose needed for database
+	docker compose version || { echo "Please install docker compose first: https://docs.docker.com/desktop/install/ubuntu/"; exit 1; }
 	conda create -y -p $(CONDA_ENV_PATH) -c conda-forge opencv numpy av pyyaml matplotlib pillow \
-		black flake8-black flake8 isort loguru pytest pytest-parallel pytest-benchmark coverage \
-		pyautogui python-xlib embree==2.17.7 pyembree tqdm prettytable halo yaml
+		black flake8-black flake8 isort loguru pytest pytest-parallel py pytest-benchmark coverage \
+		pyautogui python-xlib loguru yaml tqdm halo embree==2.17.7 pyembree prettytable
 	$(CONDA_ACTIVATE) $(CONDA_ENV_PATH)
-	pip install trimesh\[all\]
-	pip install PyWaveFront
-	pip install python-uinput
-	pip install git+https://github.com/wyatthuckaby/python-uinput.git
-	pip install git+https://github.com/lilohuang/PyTurboJPEG.git
-	pip install -e .
+	pip3 install -e .
+	pip3 install git+https://github.com/wyatthuckaby/python-uinput.git
+	pip3 install git+https://github.com/lilohuang/PyTurboJPEG.git
+	pip3 install python-uinput
+	pip3 install "psycopg[binary]"
+	
+	# start database
+	docker compose up -d
 
 run:
 	@echo $(CONDA_ENV_PATH)
@@ -28,8 +33,7 @@ run:
 
 test:
 	@echo "Starting all non gpu related tests"
-	# --benchmark-compare 
-	@pytest --benchmark-sort --benchmark-autosave --workers 2 src/ -m "not benchmark and not gpu" 
+	@pytest --workers 4 src/ -m "not benchmark and not gpu" 
 
 lint:
 	@black "src/" 
