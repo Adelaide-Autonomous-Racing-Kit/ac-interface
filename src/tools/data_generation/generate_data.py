@@ -1,25 +1,24 @@
 import ctypes
-import os
-import time
 import multiprocessing as mp
+import os
 from pathlib import Path
+import time
 from typing import List
 
 from halo import Halo
 from loguru import logger
 from prettytable import PrettyTable
-from tqdm import tqdm
-
-from src.utils.load import load_yaml
-from src.utils.save import maybe_create_folders
 from src.tools.data_generation.utils import get_sample_list
 from src.tools.data_generation.workers import (
     BaseWorker,
     DataGenerationWorker,
-    SharedState,
     RayCastingWorker,
+    SharedState,
     WorkerSharedState,
 )
+from src.utils.load import load_yaml
+from src.utils.save import maybe_create_folders
+from tqdm import tqdm
 
 
 class MultiprocessDataGenerator:
@@ -76,7 +75,7 @@ class MultiprocessDataGenerator:
         with Halo(text="Waiting until workers are ready...", spinner="line"):
             while not self._is_worker_pool_ready():
                 time.sleep(0.1)
-        logger.success(f"Workers initialised")
+        logger.success("Workers initialised")
 
     def _is_worker_pool_ready(self):
         return all([worker.is_ready for worker in self.workers])

@@ -1,19 +1,15 @@
 import cv2
+from loguru import logger
 import numpy as np
-import trimesh
-
-from src.utils.load import load_image, load_game_state
+from src.tools.data_generation.tracks import TRACK_DATA
+from src.tools.data_generation.tracks.constants import COLOUR_LIST, TRAIN_ID_LIST
 from src.tools.data_generation.workers.generator.base import DataGenerator
 from src.tools.data_generation.workers.generator.utils import (
     allocate_empty_frame,
     rgb_to_bgr,
 )
-
-from src.tools.data_generation.tracks.constants import (
-    COLOUR_LIST,
-    TRAIN_ID_LIST,
-)
-from src.tools.data_generation.tracks import TRACK_DATA
+from src.utils.load import load_game_state, load_image
+import trimesh
 
 
 class SegmentationGenerator(DataGenerator):
@@ -180,9 +176,6 @@ def get_visualised_semantics(pixel_ids: np.array) -> np.array:
     visualised_map = np.array(COLOUR_LIST[pixel_ids], dtype=np.uint8)
     visualised_map = rgb_to_bgr(visualised_map)
     return visualised_map
-
-
-from loguru import logger
 
 
 def get_overlaid_segmentation_visualisation(

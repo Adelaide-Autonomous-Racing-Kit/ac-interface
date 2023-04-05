@@ -16,13 +16,24 @@ endif
 	docker compose version || { echo "Please install docker compose first: https://docs.docker.com/desktop/install/ubuntu/"; exit 1; }
 	conda create -y -p $(CONDA_ENV_PATH) -c conda-forge opencv numpy av pyyaml matplotlib pillow \
 		black flake8-black flake8 isort loguru pytest pytest-parallel py pytest-benchmark coverage \
-		pyautogui python-xlib loguru yaml tqdm halo embree==2.17.7 pyembree prettytable
+		pyautogui python-xlib loguru yaml tqdm halo embree==2.17.7 pyembree prettytable 
 	$(CONDA_ACTIVATE) $(CONDA_ENV_PATH)
 	pip3 install -e .
-	pip3 install git+https://github.com/wyatthuckaby/python-uinput.git
-	pip3 install git+https://github.com/lilohuang/PyTurboJPEG.git
-	pip3 install python-uinput
-	pip3 install "psycopg[binary]"
+	pip3 install \
+		git+https://github.com/wyatthuckaby/python-uinput.git \
+		git+https://github.com/lilohuang/PyTurboJPEG.git \
+		python-uinput \
+		"psycopg[binary]" \
+		segmentors \
+		pre-commit
+
+	# conda install pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia	
+
+	git clone http://github.com/XDynames/modular-encoder-decoders-segmentation.git segmentors & \ 
+		pip3 install segmentors datasets
+
+	pre-commit install
+
 	
 	# start database
 	docker compose up -d

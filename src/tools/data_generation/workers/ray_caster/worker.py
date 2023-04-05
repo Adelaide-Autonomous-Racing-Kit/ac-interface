@@ -1,8 +1,7 @@
-import numpy as np
 import multiprocessing as mp
 from typing import Dict
 
-from src.utils.load import load_game_state
+import numpy as np
 from src.tools.data_generation.workers.base import BaseWorker
 from src.tools.data_generation.workers.ray_caster.utils import (
     calculate_horizontal_fov,
@@ -10,6 +9,7 @@ from src.tools.data_generation.workers.ray_caster.utils import (
     get_camera_location,
     get_camera_rotation,
 )
+from src.utils.load import load_game_state
 
 
 class RayCastingWorker(BaseWorker):

@@ -1,8 +1,7 @@
 from pathlib import Path
 
-import trimesh
-
 from src.tools.data_generation.tracks import TRACK_DATA
+import trimesh
 
 
 def load_track_mesh(

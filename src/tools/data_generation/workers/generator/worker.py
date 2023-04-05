@@ -2,15 +2,8 @@ import multiprocessing as mp
 import shutil
 from typing import Dict
 
-from src.tools.data_generation.workers.base import (
-    BaseWorker,
-    WorkerSharedState,
-)
-from src.tools.data_generation.workers.generator import (
-    depth,
-    normals,
-    segmentation,
-)
+from src.tools.data_generation.workers.base import BaseWorker, WorkerSharedState
+from src.tools.data_generation.workers.generator import depth, normals, segmentation
 
 DATA_GENERATORS = {
     "depth": depth.DepthMapGenerator,

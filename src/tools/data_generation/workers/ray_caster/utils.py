@@ -1,10 +1,9 @@
 import math
-from scipy.spatial.transform import Rotation
 from typing import Dict, List
 
-import trimesh
-
+from scipy.spatial.transform import Rotation
 from src.tools.data_generation.cars import CAR_DATA
+import trimesh
 
 # Set trimesh's rotation order to extrinsic xyz
 trimesh.transformations.euler_matrix.__defaults__ = ("sxyz",)

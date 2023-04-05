@@ -8,19 +8,13 @@ from tqdm import tqdm
 ROOT = Path.home().joinpath("Documents")
 SOURCE_1_PATH = ROOT.joinpath("generated/monza/audi_r8_lms_2016/test/")
 SOURCE_2_PATH = ROOT.joinpath("generated/monza/audi_r8_lms_2016/test/")
-OUTPUT_VIDEO_PATH = ROOT.joinpath(
-    "generated/monza/audi_r8_lms_2016/test-overlay.avi"
-)
+OUTPUT_VIDEO_PATH = ROOT.joinpath("generated/monza/audi_r8_lms_2016/test-overlay.avi")
 IMAGE_SIZE = (1920, 1080)
 
 
 def main():
     frames = sorted(
-        [
-            frame[:-5]
-            for frame in os.listdir(SOURCE_1_PATH)
-            if frame[-4:] == "jpeg"
-        ],
+        [frame[:-5] for frame in os.listdir(SOURCE_1_PATH) if frame[-4:] == "jpeg"],
         key=lambda x: int(x),
     )
     video_size = (IMAGE_SIZE[0], IMAGE_SIZE[1])

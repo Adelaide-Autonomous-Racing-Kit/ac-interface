@@ -1,13 +1,12 @@
 import numpy as np
-import trimesh
-
 from src.tools.data_generation.workers.generator.base import DataGenerator
 from src.tools.data_generation.workers.generator.utils import (
     allocate_empty_frame,
+    convert_to_uint8,
     noramlise_values,
     reverse_sign_of_values,
-    convert_to_uint8,
 )
+import trimesh
 
 
 class DepthMapGenerator(DataGenerator):

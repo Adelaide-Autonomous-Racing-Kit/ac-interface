@@ -1,15 +1,14 @@
-import cv2
 import os
 from pathlib import Path
-from PIL import Image
 
+from PIL import Image
+import cv2
 import numpy as np
+from segmentors.models import deeplabv3plus, resnet
 import torch
-from tqdm import tqdm
 from torchvision import transforms
 from torchvision.transforms import InterpolationMode
-
-from segmentors.models import resnet, deeplabv3plus
+from tqdm import tqdm
 
 ROOT = Path.home().joinpath("Documents")
 WEIGHTS_PATH = ROOT.joinpath("deeplab-resnet18-OS8-monza-road-1.ckpt")
@@ -36,9 +35,7 @@ def convert_from_lightning():
 
     torch.save(
         state_dict,
-        Path.home().joinpath(
-            "Documents/deeplab-resnet18-OS8-monza-road-1.ckpt"
-        ),
+        Path.home().joinpath("Documents/deeplab-resnet18-OS8-monza-road-1.ckpt"),
     )
 
 
@@ -51,9 +48,7 @@ def main():
     decoder = decoder.cuda()
 
     image_list = [
-        filename
-        for filename in os.listdir(DATA_PATH)
-        if filename[-4:] == "jpeg"
+        filename for filename in os.listdir(DATA_PATH) if filename[-4:] == "jpeg"
     ]
 
     pytorch_transforms = [

@@ -1,0 +1,30 @@
+repos:
+  - repo: local
+    hooks:
+      - id: black-check
+        name: black-check
+        entry: ./envs/bin/python3.9 -m black "src/"
+        language_version: python3.9
+        language: python
+        pass_filenames: false
+
+      - id: flake8-check
+        name: flake8-check
+        entry: ./envs/bin/python3.9 -m flake8 "src/"
+        args: ['--config=linters/flake8.ini']
+        language: python
+        pass_filenames: false
+  
+      - id: isort-check
+        name: isort-check
+        entry: ./envs/bin/python3.9 -m isort "src/"
+        args: ['--settings-path=linters/isort.ini']
+        language: python
+        pass_filenames: false
+
+      - id: pytest-check
+        name: pytest-check
+        entry: ./envs/bin/python3.9 -m pytest "src/"
+        language: system
+        pass_filenames: false
+        always_run: true

@@ -1,12 +1,11 @@
 import numpy as np
-import trimesh
-
 from src.tools.data_generation.workers.generator.base import DataGenerator
 from src.tools.data_generation.workers.generator.utils import (
     allocate_empty_frame,
-    noramlise_values,
     convert_to_uint8,
+    noramlise_values,
 )
+import trimesh
 
 
 class NormalMapGenerator(DataGenerator):
