@@ -24,17 +24,18 @@ endif
 		git+https://github.com/lilohuang/PyTurboJPEG.git \
 		python-uinput \
 		"psycopg[binary]" \
-		segmentors \
 		pre-commit
 
-	# conda install pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia	
-
-	git clone http://github.com/XDynames/modular-encoder-decoders-segmentation.git segmentors & \ 
-		pip3 install segmentors datasets
+	@echo "Do you want to install PyTorch and optional packages? [y/n]"
+	@read ans; \
+	if [ $$ans = 'y' ]; then \
+		conda install -y pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia; \
+		git clone http://github.com/XDynames/modular-encoder-decoders-segmentation.git segmentors && \
+			pip3 install -e segmentors; \
+	fi
 
 	pre-commit install
 
-	
 	# start database
 	docker compose up -d
 
