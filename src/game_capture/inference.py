@@ -159,7 +159,9 @@ class GameCapture(mp.Process):
         return int(np.prod(self._image_shape))
 
     def __setup_shared_state_buffer(self):
-        self._shared_state_buffer = SharedMemory(create=True, size=self.buffer_size)
+        self._shared_state_buffer = SharedMemory(
+            create=True, size=self.buffer_size
+        )
 
     @property
     def buffer_size(self):
@@ -209,7 +211,9 @@ def benchmark_interprocess_communication():
         _ = game_capture.capture
     elapsed_time = time.time() - start_time
     game_capture.stop()
-    logger.info(f"Read {n_captures} in {elapsed_time}s {n_captures/elapsed_time}Hz")
+    logger.info(
+        f"Read {n_captures} in {elapsed_time}s {n_captures/elapsed_time}Hz"
+    )
 
 
 if __name__ == "__main__":

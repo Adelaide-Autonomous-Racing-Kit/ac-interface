@@ -1,5 +1,7 @@
-from typing import Dict
+from pathlib import Path
+from typing import Dict, Union
 
+import cv2
 import numpy as np
 from src.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
 import yaml
@@ -13,19 +15,29 @@ STRING_KEYS = [
 ]
 
 
-def load_yaml(filepath: str) -> Dict:
+def load_yaml(filepath: Union[Path, str]) -> Dict:
     """
-    Loads a yaml file as a dictionary
+    Loads a yaml file as a dictionary.
+
+    :param filepath: Path to yaml file to be loaded.
+    :type filepath: Union[Path,str]
+    :return: Load yaml file as a dictionary.
+    :rtype: Dict
     """
     with open(filepath) as file:
         yaml_dict = yaml.load(file, Loader=yaml.FullLoader)
     return yaml_dict
 
 
-def load_game_state(filepath: str) -> Dict:
+def load_game_state(filepath: Union[Path, str]) -> Dict:
     """
-    Loads recorded game state np.arrays as a dictionary of observations
-        see src.game_capture.state.shared_memory.ac for a list of keys
+    Loads recorded game state as a dictionary of observations see
+        src.game_capture.state.shared_memory.ac for a list of keys.
+
+    :param filepath: Path to game state binary file to be loaded.
+    :type filepath: Union[Path,str]
+    :return: Game state loaded as a dictionary.
+    :rtype: Dict
     """
     with open(filepath, "rb") as file:
         data = file.read()
@@ -34,8 +46,14 @@ def load_game_state(filepath: str) -> Dict:
 
 def state_bytes_to_dict(data: bytes) -> Dict:
     """
-    Converts a game state np.arrays to a dictionary of observations
-        see src.game_capture.state.shared_memory for a list of keys
+    Converts a byte array game state to a dictionary of observations see
+        src.game_capture.state.shared_memory for a list of keys.
+
+
+    :param data: Byte array of game state.
+    :type data: bytes
+    :return: Game state as a dictionary.
+    :rtype: Dict
     """
     state_array = np.frombuffer(data, COMBINED_DATA_TYPES)
     state_dict = {
@@ -44,3 +62,17 @@ def state_bytes_to_dict(data: bytes) -> Dict:
     for string_key in STRING_KEYS:
         state_dict[string_key] = state_dict[string_key].tobytes().decode("utf-8")
     return state_dict
+
+
+def load_image(filepath: Union[Path, str]) -> np.array:
+    """
+    Loads an image from file.
+
+    :param filepath: Path to image file to be loaded.
+    :type filepath: Union[Path,str]
+    :return: Image loaded as a numpy array.
+    :rtype: np.array
+    """
+    if isinstance(filepath, Path):
+        filepath = str(filepath)
+    return cv2.imread(filepath)

@@ -16,7 +16,7 @@ endif
 	docker compose version || { echo "Please install docker compose first: https://docs.docker.com/desktop/install/ubuntu/"; exit 1; }
 	conda create -y -p $(CONDA_ENV_PATH) -c conda-forge opencv numpy av pyyaml matplotlib pillow \
 		black flake8-black flake8 isort loguru pytest pytest-parallel py pytest-benchmark coverage \
-		pyautogui python-xlib loguru yaml tqdm halo 
+		pyautogui python-xlib loguru yaml tqdm halo embree==2.17.7 pyembree prettytable
 	$(CONDA_ACTIVATE) $(CONDA_ENV_PATH)
 	pip3 install -e .
 	pip3 install git+https://github.com/wyatthuckaby/python-uinput.git
