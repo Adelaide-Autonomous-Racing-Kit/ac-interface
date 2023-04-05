@@ -18,7 +18,7 @@ endif
 	docker compose version || { echo "Please install docker compose first: https://docs.docker.com/desktop/install/ubuntu/"; exit 1; }
 
 	# Create conda environment and install packages
-	conda create -y -p $(CONDA_ENV_PATH) -c conda-forge numpy av pyyaml matplotlib pillow python=3.9 \
+	conda create -y -p $(CONDA_ENV_PATH) -c conda-forge opencv numpy av pyyaml matplotlib pillow python=3.9 \
 		black flake8-black flake8 isort loguru pytest pytest-parallel py pytest-benchmark coverage \
 		pyautogui python-xlib loguru yaml tqdm halo
 	$(CONDA_ACTIVATE) $(CONDA_ENV_PATH)
@@ -39,7 +39,7 @@ endif
 		conda install -y pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia; \
 		git clone http://github.com/XDynames/modular-encoder-decoders-segmentation.git segmentors && \
 			pip3 install -e segmentors; \
-		pip3 install opencv embree==2.17.7 pyembree prettytable; \
+		pip3 install embree==2.17.7 pyembree prettytable; \
 	fi
 
 	# Start the database
