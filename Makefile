@@ -41,6 +41,7 @@ endif
 			pip3 install -e segmentors; \
 		pip3 install embree==2.17.7 pyembree prettytable; \
 	fi
+	
 
 	# Start the database
 	docker compose up -d
