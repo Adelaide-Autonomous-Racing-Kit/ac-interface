@@ -3,7 +3,13 @@ SHELL = /bin/zsh
 CONDA_ENV_PATH=./envs
 CONDA_ACTIVATE=source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
 
-build:
+setup-pre-push:
+	@echo "Setting up pre-push hook..."
+	@cp pre_push.sh .git/hooks/pre-push
+	@chmod +x .git/hooks/pre-push
+	@echo "Done!"
+
+build: setup-pre-push
 	ifneq ($(wildcard $(CONDA_ENV_PATH)),)
 		@echo "Environment $(CONDA_ENV_PATH) already exists, do you want to delete it and create a new one? [y/n]"
 		@read ans; \
@@ -37,9 +43,6 @@ build:
 		git clone http://github.com/XDynames/modular-encoder-decoders-segmentation.git segmentors && \
 			pip3 install -e segmentors; \
 	fi
-
-	# Set up pre-commit hooks
-	pre-commit install
 
 	# Start the database
 	docker compose up -d

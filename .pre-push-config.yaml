@@ -1,5 +1,6 @@
-repos:
+default_push_mapping:
   - repo: local
+    rev: HEAD:refs/heads/*
     hooks:
       - id: black
         name: Code Prettifier - Black
