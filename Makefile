@@ -31,18 +31,7 @@ endif
 		python-uinput \
 		"psycopg[binary]" \
 		pre-commit
-
-	# Install PyTorch and optional packages if desired
-	@echo "Do you want to install PyTorch and optional packages? [y/n]"
-	@read ans; \
-	if [ $$ans = 'y' ]; then \
-		conda install -y pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia; \
-		git clone http://github.com/XDynames/modular-encoder-decoders-segmentation.git segmentors && \
-			pip3 install -e segmentors; \
-		pip3 install embree==2.17.7 pyembree prettytable; \
-	fi
 	
-
 	# Start the database
 	docker compose up -d
 

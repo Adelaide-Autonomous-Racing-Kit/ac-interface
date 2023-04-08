@@ -168,3 +168,4 @@ recordings/**/*.bin
 src/analysis/imgs
 
 segmentors
+envs/
