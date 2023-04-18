@@ -94,8 +94,8 @@ class StateClient:
 
 class DatabaseStateClient(StateClient):
     def __init__(self):
-        super().__init__()
         self._database_logger = DatabaseStateLogger()
+        super().__init__()
 
     def _run(self):
         while self.is_running:
