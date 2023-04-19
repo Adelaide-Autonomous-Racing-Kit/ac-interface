@@ -7,7 +7,7 @@ from typing import Dict
 from loguru import logger
 import numpy as np
 from src.config.constants import GAME_CAPTURE_CONFIG_FILE
-from src.game_capture.state.client import DeephavenStateClient
+from src.game_capture.state.client import DatabaseStateClient
 from src.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
 from src.game_capture.video.pyav_capture import ImageStream, display
 from src.utils.load import load_yaml, state_bytes_to_dict
@@ -128,7 +128,7 @@ class GameCapture(mp.Process):
 
     def __setup_capture_process(self):
         self.image_stream = ImageStream()
-        self.state_capture = DeephavenStateClient()
+        self.state_capture = DatabaseStateClient()
 
     def stop(self):
         """
