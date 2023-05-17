@@ -104,3 +104,10 @@ class AssettoCorsaInterface(abc.ABC):
         :return: An array in the format [steering angle, throttle, brake]
         :rtype: np.array
         """
+
+    @abc.abstractmethod
+    def setup(self):
+        """
+        Define this method in your agent class that inherits from this class
+            Setup up any member variables, state and models your agent will need
+        """
