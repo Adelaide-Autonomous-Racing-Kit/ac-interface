@@ -6,8 +6,8 @@ from loguru import logger
 import numpy as np
 import psycopg
 from psycopg.types.json import Jsonb
-from src.utils.load import state_bytes_to_dict
 from src.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
+from src.utils.load import state_bytes_to_dict
 
 NUMPY_TO_SQL_DTYPES = {
     ctypes.c_int: "int4",
@@ -156,11 +156,3 @@ class DatabaseStateLogger:
             rows = cursor.fetchall()
 
         return rows
-
-
-import tempfile
-
-if __name__ == "__main__":
-    table_name = "table" + next(tempfile._get_candidate_names())
-    get_insert_row_sql(table_name)
-    DatabaseStateLogger(table_name=table_name)
