@@ -48,7 +48,7 @@ class Evaluator(mp.Process):
             is_evaluation_lap = self._is_evaluation_lap.value
         return is_evaluation_lap
 
-    @is_running.setter
+    @is_evaluation_lap.setter
     def is_evaluation_lap(self, is_evaluation_lap: bool):
         """
         Sets if the capture process is running
