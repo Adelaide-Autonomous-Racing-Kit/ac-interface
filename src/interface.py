@@ -1,5 +1,6 @@
 import abc
 import subprocess
+import tempfile
 from typing import Dict
 
 from loguru import logger
@@ -8,6 +9,7 @@ from src.config.ac_config import override_launch_configurations
 from src.game_capture.inference import GameCapture
 from src.game_capture.state.client import StateClient
 from src.input.controller import VirtualGamepad
+from src.metrics.database.monitor import Evaluator
 from src.utils.launch import (
     click_drive,
     launch_assetto_corsa,
@@ -28,6 +30,7 @@ class AssettoCorsaInterface(abc.ABC):
     def _setup(self):
         self._initialise_AC()
         self._initialise_capture()
+        self._initialise_evaluation()
 
     def _initialise_AC(self):
         maybe_create_steam_appid_file()
@@ -38,6 +41,17 @@ class AssettoCorsaInterface(abc.ABC):
         self._game_capture = GameCapture()
         self._input_interface = VirtualGamepad()
 
+    def _initialise_evaluation(self):
+        postgres_config = {
+            "dbname": "postgres",
+            "user": "postgres",
+            "password": "postgres",
+            "host": "0.0.0.0",
+            "port": "5432",
+            "table_name": "table" + next(tempfile._get_candidate_names()),
+        }
+        self._evaluator = Evaluator({"test": "test"}, postgres_config)
+
     def _launch_AC(self):
         launch_assetto_corsa()
         state_client = StateClient()
@@ -45,6 +59,9 @@ class AssettoCorsaInterface(abc.ABC):
 
     def _start_capture(self):
         self._game_capture.start()
+
+    def _start_evaluation(self):
+        self._evaluator.start()
 
     def shutdown(self):
         self._game_capture.stop()

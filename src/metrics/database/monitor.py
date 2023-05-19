@@ -7,7 +7,7 @@ from src.metrics.database.postgres import PostgresConnector
 
 
 class Evaluator(mp.Process):
-    def __int__(self, evaluation_config: Dict, postgres_config: Dict):
+    def __init__(self, evaluation_config: Dict, postgres_config: Dict):
         super().__init__()
         self._postgres_db = PostgresConnector(postgres_config)
         self.__setup_processes_shared_memory()

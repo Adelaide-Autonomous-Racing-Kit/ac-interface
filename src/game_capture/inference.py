@@ -2,6 +2,7 @@ import ctypes
 import multiprocessing as mp
 from multiprocessing.shared_memory import SharedMemory
 import time
+import tempfile
 from typing import Dict
 
 from loguru import logger
@@ -128,7 +129,15 @@ class GameCapture(mp.Process):
 
     def __setup_capture_process(self):
         self.image_stream = ImageStream()
-        self.state_capture = DatabaseStateClient()
+        postgres_config = {
+            "dbname": "postgres",
+            "user": "postgres",
+            "password": "postgres",
+            "host": "0.0.0.0",
+            "port": "5432",
+            "table_name": "table" + next(tempfile._get_candidate_names()),
+        }
+        self.state_capture = DatabaseStateClient(postgres_config)
 
     def stop(self):
         """
