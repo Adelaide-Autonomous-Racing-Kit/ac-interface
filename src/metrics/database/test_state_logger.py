@@ -92,9 +92,7 @@ def test_a_query_works_with_database(filled_database_logger, binary_files):
     Test if a query can be executed successfully on the database.
     """
     with filled_database_logger._session.cursor() as cursor:
-        cursor.execute(
-            f"SELECT CAST(data->>'acc_status' AS INTEGER) FROM {filled_database_logger.table_name}"
-        )
+        cursor.execute(f"SELECT acc_status FROM {filled_database_logger.table_name}")
         rows = cursor.fetchall()
 
     assert len(rows) == len(binary_files)

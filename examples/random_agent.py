@@ -27,6 +27,9 @@ class RandomAgent(AssettoCorsaInterface):
         action[0] = (action[0] - 0.5) * 2
         return action
 
+    def setup(self):
+        pass
+
 
 def main():
     agent = RandomAgent()
