@@ -3,7 +3,6 @@ import time
 from typing import Dict
 
 from loguru import logger
-
 from src.metrics.database.postgres import PostgresConnector
 
 
