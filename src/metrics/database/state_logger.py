@@ -1,13 +1,12 @@
 from datetime import datetime
 from functools import partial
 
+from loguru import logger
 import numpy as np
 import psycopg
-from loguru import logger
-
-from src.utils.load import state_bytes_to_dict
 from src.metrics.database.postgres import PostgresConnector
-from src.metrics.database.sql import get_insert_row_sql, get_create_table_sql
+from src.metrics.database.sql import get_create_table_sql, get_insert_row_sql
+from src.utils.load import state_bytes_to_dict
 
 NUMPY_TO_PYTHON_DTYPES = {
     np.int32: int,

@@ -1,5 +1,5 @@
-import psycopg
 from loguru import logger
+import psycopg
 
 
 class PostgresConnector:
