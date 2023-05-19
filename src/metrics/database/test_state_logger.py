@@ -34,7 +34,7 @@ def database_logger():
     table_name = "table" + next(tempfile._get_candidate_names())
     logger = DatabaseStateLogger(table_name=table_name)
     yield logger
-    cleanup_test(logger._session, logger.table_name)
+    cleanup_test(logger._session, logger._table_name)
 
 
 @pytest.fixture
@@ -80,7 +80,7 @@ def test_all_records_are_in_database(filled_database_logger, binary_files):
     Test if all records are stored in the database.
     """
     with filled_database_logger._session.cursor() as cursor:
-        cursor.execute(f"SELECT * FROM {filled_database_logger.table_name}")
+        cursor.execute(f"SELECT * FROM {filled_database_logger._table_name}")
         rows = cursor.fetchall()
 
     assert len(rows) == len(binary_files)
@@ -92,7 +92,7 @@ def test_a_query_works_with_database(filled_database_logger, binary_files):
     Test if a query can be executed successfully on the database.
     """
     with filled_database_logger._session.cursor() as cursor:
-        cursor.execute(f"SELECT acc_status FROM {filled_database_logger.table_name}")
+        cursor.execute(f"SELECT acc_status FROM {filled_database_logger._table_name}")
         rows = cursor.fetchall()
 
     assert len(rows) == len(binary_files)
