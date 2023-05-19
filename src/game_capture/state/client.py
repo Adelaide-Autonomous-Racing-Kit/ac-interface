@@ -1,6 +1,6 @@
-import time
 from multiprocessing.connection import Client
 from threading import Thread
+import time
 from typing import Dict
 
 from loguru import logger

@@ -1,8 +1,8 @@
 import ctypes
 import multiprocessing as mp
 from multiprocessing.shared_memory import SharedMemory
-import time
 import tempfile
+import time
 from typing import Dict
 
 from loguru import logger
