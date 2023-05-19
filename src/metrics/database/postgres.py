@@ -13,9 +13,9 @@ class PostgresConnector:
         table_name=None,
     ):
         self._table_name = table_name
-        self.connect_to_postgres(dbname, user, password, host, port)
+        self._connect_to_postgres(dbname, user, password, host, port)
 
-    def connect_to_postgres(
+    def _connect_to_postgres(
         self,
         dbname: str,
         user: str,
