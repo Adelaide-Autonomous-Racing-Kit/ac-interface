@@ -31,8 +31,15 @@ def read_binary_file(path: pathlib.Path) -> bytes:
 
 @pytest.fixture
 def database_logger():
-    table_name = "table" + next(tempfile._get_candidate_names())
-    logger = DatabaseStateLogger(table_name=table_name)
+    postgres_config = {
+        "dbname": "postgres",
+        "user": "postgres",
+        "password": "postgres",
+        "host": "0.0.0.0",
+        "port": "5432",
+        "table_name": "table" + next(tempfile._get_candidate_names()),
+    }
+    logger = DatabaseStateLogger(postgres_config)
     yield logger
     cleanup_test(logger._session, logger._table_name)
 
