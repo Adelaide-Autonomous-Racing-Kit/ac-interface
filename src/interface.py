@@ -77,6 +77,7 @@ class AssettoCorsaInterface(abc.ABC):
     def run(self):
         self._launch_AC()
         self._start_capture()
+        self._start_evaluation()
         click_drive()
         while self.is_running:
             try:

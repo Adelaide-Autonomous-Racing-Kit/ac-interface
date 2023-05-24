@@ -53,7 +53,7 @@ class Evaluator(mp.Process):
         """
         Sets if the capture process is running
 
-        :is_running: True if tthe agent is counting this lap towards its submission,
+        :is_running: True if the agent is counting this lap towards its submission,
             false if it is not
         :type is_running: bool
         """
