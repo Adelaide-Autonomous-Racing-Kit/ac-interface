@@ -4,12 +4,17 @@ from typing import Dict
 
 from loguru import logger
 from src.metrics.database.postgres import PostgresConnector
+from src.metrics.database.sql import get_select_interval_max_sql
 
 
 class Evaluator(mp.Process):
     def __init__(self, evaluation_config: Dict, postgres_config: Dict):
         super().__init__()
+        self._evaluation_config = evaluation_config
         self._postgres_db = PostgresConnector(postgres_config)
+        self._current_lap = 0
+        self._sql_queries = {}
+        self.__setup_sql_queries()
         self.__setup_processes_shared_memory()
 
     @property
@@ -75,10 +80,37 @@ class Evaluator(mp.Process):
         self.is_running = False
 
     def _evaluate_agent(self):
-        logger.info("Agent is alive")
-        logger.info(f"Is evaluation lap: {self.is_evaluation_lap}")
-        logger.info(f"Is evaluation running: {self.is_running}")
+        for sql_query_name, sql_query in self._sql_queries.items():
+            data = self._query_database(sql_query)
+            logger.info(sql_query_name)
+            logger.info(data)
+
+    def _query_database(self, query: str):
+        data = None
+        with self._postgres_db._session.cursor() as cursor:
+            try:
+                cursor.execute(query)
+                data = cursor.fetchall()
+            except Exception as e:
+                logger.error(f"Monitor database query error: {e}")
+                self._postgres_db._session.rollback()
+        return data
 
     def __setup_processes_shared_memory(self):
         self._is_evaluation_lap = mp.Value("i", False)
         self._is_running = mp.Value("i", True)
+
+    def __setup_sql_queries(self):
+        table_name = self._postgres_db._table_name
+        for monitor_info in self._evaluation_config["monitors"]:
+            for interval_name, interval in monitor_info["intervals"].items():
+                sql_query = get_select_interval_max_sql(
+                    table_name,
+                    [monitor_info["column"]],
+                    monitor_info["interval_column"],
+                    interval,
+                    self._current_lap,
+                )
+                self._sql_queries[interval_name] = sql_query
+                logger.info(interval_name)
+                logger.info(sql_query)

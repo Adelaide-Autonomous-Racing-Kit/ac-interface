@@ -24,6 +24,36 @@ class AssettoCorsaInterface(abc.ABC):
     """
 
     def __init__(self):
+        self._config = {
+            "postgres": {
+                "dbname": "postgres",
+                "user": "postgres",
+                "password": "postgres",
+                "host": "0.0.0.0",
+                "port": "5432",
+                "table_name": "table" + next(tempfile._get_candidate_names()),
+            },
+            "capture": {
+                "use_rgb_images": True,
+                "use_state_dicts": True,
+            },
+            "evaluation": {
+                "monitors": [
+                    {
+                        "name": "time",
+                        "column": "i_current_time",
+                        "interval_column": "normalised_car_position",
+                        "intervals": {
+                            "lap": [0.0, 1.0],
+                            "sector_1": [0.0, 0.3],
+                            "sector_2": [0.3, 0.6],
+                            "sector_3": [0.6, 1.0],
+                        },
+                        "by": "n_completed_laps",
+                    },
+                ]
+            },
+        }
         self._setup()
         self.is_running = True
 
@@ -38,19 +68,13 @@ class AssettoCorsaInterface(abc.ABC):
 
     def _initialise_capture(self):
         try_until_state_server_is_launched()
-        self._game_capture = GameCapture()
+        self._game_capture = GameCapture(self._config)
         self._input_interface = VirtualGamepad()
 
     def _initialise_evaluation(self):
-        postgres_config = {
-            "dbname": "postgres",
-            "user": "postgres",
-            "password": "postgres",
-            "host": "0.0.0.0",
-            "port": "5432",
-            "table_name": "table" + next(tempfile._get_candidate_names()),
-        }
-        self._evaluator = Evaluator({"test": "test"}, postgres_config)
+        postgres_config = self._config["postgres"]
+        evaluation_config = self._config["evaluation"]
+        self._evaluator = Evaluator(evaluation_config, postgres_config)
 
     def _launch_AC(self):
         launch_assetto_corsa()

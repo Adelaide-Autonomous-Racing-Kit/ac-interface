@@ -35,7 +35,7 @@ class DatabaseStateLogger(PostgresConnector):
         python_types_state = convert_numpy_types(state)
         self._insert_dict(python_types_state)
 
-    def _insert_dict(self, data):
+    def _insert_dict(self, data: Dict):
         with self._session.cursor() as cursor:
             try:
                 cursor.execute(self._insert_sql, data)
