@@ -3,11 +3,9 @@ import mmap
 import struct
 from threading import Lock, Thread
 import time
-from typing import Dict, List, Tuple
+from typing import Dict
 
 from loguru import logger
-import numpy as np
-from src.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
 from src.game_capture.state.shared_memory.ac.graphics import GraphicsSharedMemory
 from src.game_capture.state.shared_memory.ac.physics import PhysicsSharedMemory
 
@@ -30,6 +28,7 @@ class AssettoCorsaData:
             "Local\\acpmf_graphics",
             access=mmap.ACCESS_READ,
         )
+        self._unpack_int = struct.Struct("i").unpack
         self.update_lock = Lock()
         self.update_thread = Thread(target=self._run, daemon=True)
         self.update_thread.start()
@@ -50,8 +49,8 @@ class AssettoCorsaData:
         graphics_bytes = read_memory(self._graphics_memory_map, GraphicsSharedMemory)
         physics_bytes = read_memory(self._physics_memory_map, PhysicsSharedMemory)
         with self.update_lock:
-            self.graphics_packet_id = struct.unpack("i", graphics_bytes[0])[0]
-            self.physics_packet_id = struct.unpack("i", physics_bytes[0])[0]
+            self.graphics_packet_id = self._unpack_int(graphics_bytes[0])[0]
+            self.physics_packet_id = self._unpack_int(physics_bytes[0])[0]
             self.combined_byte_string = graphics_bytes[1] + physics_bytes[1]
 
     @property
@@ -66,10 +65,6 @@ class AssettoCorsaData:
 def read_memory(mmap: mmap.mmap, shared_memory_struct: ctypes.Structure) -> bytes:
     packet_id = mmap.read(ctypes.sizeof(ctypes.c_int))
     return packet_id, mmap.read(ctypes.sizeof(shared_memory_struct))
-
-
-def buffer_to_numpy(raw_bytes: bytes, combined_data_types: List[Tuple]) -> np.array:
-    return np.frombuffer(raw_bytes, combined_data_types)
 
 
 # Small test loop for debugging

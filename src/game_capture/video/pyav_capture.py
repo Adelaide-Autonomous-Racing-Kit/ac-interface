@@ -80,7 +80,6 @@ class ImageStream:
         while self._is_running:
             frame = next(self._frame_generator)
             if not self._is_duplicate_frame(frame):
-                # track_ffmpeg_capture_time(frame)
                 bgr0_image = self._get_BGR0_image_from_frame(frame)
                 self._latest_image = bgr0_image
                 self._latest_dts = frame.dts

@@ -12,6 +12,7 @@ NUMPY_TO_SQL_DTYPES = {
 
 def get_create_table_sql(table_name: str) -> str:
     sql = f"CREATE TABLE {table_name} (\n"
+    sql += "id SERIAL PRIMARY KEY,\n"
     for name, dtype in COMBINED_DATA_TYPES:
         sql_dtype = NUMPY_TO_SQL_DTYPES[dtype]
         if name == "current_time":
@@ -35,3 +36,6 @@ def get_insert_row_sql(table_name: str) -> str:
 
 def modify_sql_ending(string: str) -> str:
     return string[:-2] + ")"
+
+
+"SELECT acc_status FROM {filled_database_logger._table_name}"
