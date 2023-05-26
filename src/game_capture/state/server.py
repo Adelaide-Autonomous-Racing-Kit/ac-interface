@@ -1,11 +1,10 @@
+from multiprocessing.connection import Listener
 import socket
 import struct
-from multiprocessing.connection import Listener
 from threading import Thread
 from typing import Dict, Tuple
 
 from loguru import logger
-
 from src.game_capture.state.scraper import AssettoCorsaData
 
 ADDRESS = "localhost"
