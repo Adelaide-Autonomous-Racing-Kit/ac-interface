@@ -39,6 +39,7 @@ class AssettoCorsaInterface(abc.ABC):
             },
             "evaluation": {
                 "monitors": [
+                    # Lap time and sectors monitor
                     {
                         "name": "time",
                         "column": "i_current_time",
@@ -51,6 +52,16 @@ class AssettoCorsaInterface(abc.ABC):
                         },
                         "by": "n_completed_laps",
                     },
+                    # 5 lap average monitor
+                    # {
+                    #    "name": "time",
+                    #    "column": "i_current_time",
+                    #    "interval_column": "n_completed_laps",
+                    #    "intervals": {
+                    #        "last_5_laps": [0, 5],
+                    #    },
+                    #    "by": "n_completed_laps",
+                    # },
                 ]
             },
         }
@@ -65,6 +76,7 @@ class AssettoCorsaInterface(abc.ABC):
     def _initialise_AC(self):
         maybe_create_steam_appid_file()
         override_launch_configurations()
+        launch_assetto_corsa()
 
     def _initialise_capture(self):
         try_until_state_server_is_launched()
@@ -77,7 +89,6 @@ class AssettoCorsaInterface(abc.ABC):
         self._evaluator = Evaluator(evaluation_config, postgres_config)
 
     def _launch_AC(self):
-        launch_assetto_corsa()
         state_client = StateClient()
         state_client.wait_until_AC_is_ready()
 

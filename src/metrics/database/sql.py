@@ -47,23 +47,19 @@ def get_select_sql(table_name: str, column_names: List[str]) -> str:
     return sql
 
 
-def get_max_sql(table_name: str, column_names: List[str]) -> str:
-    sql = "SELECT MAX("
-    for column_name in column_names:
-        sql += column_name + ", "
-    sql = sql[:-2] + f") FROM {table_name}"
+def get_max_sql(table_name: str, column_name: str) -> str:
+    sql = f"SELECT MAX({column_name}) FROM {table_name}"
     return sql
 
 
 def get_select_interval_max_sql(
-    table_name: str,
-    column_names: List[str],
-    interval_column_name: str,
     interval: List[float],
-    lap: int,
+    interval_column_name: str,
+    table_name: str,
+    column_name: List[str],
 ) -> str:
-    sql = get_max_sql(table_name, column_names)
-    sql += f" WHERE completed_laps={lap} AND {interval_column_name}"
+    sql = get_max_sql(table_name, column_name)
+    sql += f" WHERE completed_laps=0 AND {interval_column_name}"
     sql += f" BETWEEN {interval[0]} AND {interval[1]}"
     return sql
 

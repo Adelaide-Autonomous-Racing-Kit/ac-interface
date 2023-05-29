@@ -66,7 +66,7 @@ class StateClient:
         """
         Blocks execution until the game is ready for the session to be started
         """
-        self._wait_for_packet_id_reset()
+        # self._wait_for_packet_id_reset()
         while not self.is_AC_ready:
             continue
 

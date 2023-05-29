@@ -3,8 +3,10 @@ import time
 from typing import Dict
 
 from loguru import logger
+import psycopg
+
 from src.metrics.database.postgres import PostgresConnector
-from src.metrics.database.sql import get_select_interval_max_sql
+from src.metrics.database.tracker import IntervalMaxTracker
 
 
 class Evaluator(mp.Process):
@@ -14,7 +16,7 @@ class Evaluator(mp.Process):
         self._postgres_db = PostgresConnector(postgres_config)
         self._current_lap = 0
         self._sql_queries = {}
-        self.__setup_sql_queries()
+        self.__setup_trackers()
         self.__setup_processes_shared_memory()
 
     @property
@@ -79,38 +81,53 @@ class Evaluator(mp.Process):
         """
         self.is_running = False
 
-    def _evaluate_agent(self):
-        for sql_query_name, sql_query in self._sql_queries.items():
-            data = self._query_database(sql_query)
-            logger.info(sql_query_name)
-            logger.info(data)
+    @property
+    def _db_connection(self) -> psycopg.Connection:
+        return self._postgres_db._session
 
-    def _query_database(self, query: str):
-        data = None
-        with self._postgres_db._session.cursor() as cursor:
-            try:
-                cursor.execute(query)
-                data = cursor.fetchall()
-            except Exception as e:
-                logger.error(f"Monitor database query error: {e}")
-                self._postgres_db._session.rollback()
+    def _evaluate_agent(self):
+        data = self._maybe_query_database()
+        for interval_name, value in data.items():
+            logger.info(f"{interval_name}: {value}")
+
+    def _maybe_query_database(self):
+        data = {}
+        try:
+            self._query_database(data)
+        except Exception as e:
+            logger.error(f"Monitor database query error: {e}")
+            self._db_connection.rollback()
         return data
+
+    def _query_database(self, data: Dict):
+        with self._db_connection.pipeline():
+            with self._db_connection.cursor() as cursor:
+                self._submit_queries(cursor)
+                self._get_results(cursor, data)
+
+    def _submit_queries(self, cursor: psycopg.ServerCursor):
+        for tracker in self._trackers.values():
+            query = tracker.get_sql_query()
+            cursor.execute(query["query"], query["to_bind"])
+
+    def _get_results(self, cursor: psycopg.ServerCursor, data: Dict):
+        for query_name, _ in self._trackers.items():
+            data[query_name] = cursor.fetchall()
+            cursor.nextset()
 
     def __setup_processes_shared_memory(self):
         self._is_evaluation_lap = mp.Value("i", False)
         self._is_running = mp.Value("i", True)
 
-    def __setup_sql_queries(self):
+    def __setup_trackers(self):
+        self._trackers = {}
         table_name = self._postgres_db._table_name
         for monitor_info in self._evaluation_config["monitors"]:
             for interval_name, interval in monitor_info["intervals"].items():
-                sql_query = get_select_interval_max_sql(
-                    table_name,
-                    [monitor_info["column"]],
-                    monitor_info["interval_column"],
+                tracker = IntervalMaxTracker(
                     interval,
-                    self._current_lap,
+                    monitor_info["interval_column"],
+                    table_name,
+                    monitor_info["column"],
                 )
-                self._sql_queries[interval_name] = sql_query
-                logger.info(interval_name)
-                logger.info(sql_query)
+                self._trackers[interval_name] = tracker
