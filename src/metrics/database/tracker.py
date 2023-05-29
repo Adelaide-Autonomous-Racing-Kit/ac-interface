@@ -17,6 +17,14 @@ class Tracker(abc.ABC):
         self._table_name = table_name
         self._tracked_column_name = tracked_column_name
         self.current_lap = 0
+        self._setup()
+
+    @abc.abstractmethod
+    def _setup(self):
+        """
+        Implements any setup logic required by the base class.
+        """
+        pass
 
     @abc.abstractmethod
     def get_sql_query(self) -> Dict:
@@ -31,19 +39,7 @@ class Tracker(abc.ABC):
 
 
 class IntervalMaxTracker(Tracker):
-    def __init__(
-        self,
-        interval: List,
-        interval_column_name: str,
-        table_name: str,
-        tracked_column_name: str,
-    ):
-        super().__init__(
-            interval,
-            interval_column_name,
-            table_name,
-            tracked_column_name,
-        )
+    def _setup(self):
         self._sql_query = get_select_interval_max_sql(
             self._interval,
             self._interval_column_name,

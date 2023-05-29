@@ -22,6 +22,8 @@ class DatabaseStateLogger(PostgresConnector):
         super().__init__(postgres_config)
         self._maybe_create_database_table()
         self._insert_sql = get_insert_row_sql(self._table_name)
+        self._previous_timestamp = 0
+        self._total_previous_lap_times = 0
 
     def _maybe_create_database_table(self):
         if self._table_name is None:
@@ -30,10 +32,24 @@ class DatabaseStateLogger(PostgresConnector):
 
     def log_state(self, state: bytes):
         state = state_bytes_to_dict(state)
-        # Avoid using current_time, which is a protected phrase in SQL
-        state["current_laptime"] = state.pop("current_time")
+        self._format_dictionary(state)
+        self._update_timestamps(state)
+        self._add_cumulative_time(state)
         python_types_state = convert_numpy_types(state)
         self._insert_dict(python_types_state)
+
+    def _format_dictionary(self, state: Dict):
+        # Avoid using current_time, which is a protected phrase in SQL
+        state["current_laptime"] = state.pop("current_time")
+
+    def _update_timestamps(self, state: Dict):
+        if self._previous_timestamp > state["i_current_time"]:
+            self._total_previous_lap_times += state["i_last_time"]
+            self._previous_timestamp = 0
+        self._previous_timestamp = state["i_current_time"]
+
+    def _add_cumulative_time(self, state: Dict):
+        state["i_total_time"] = state["i_current_time"] + self._total_previous_lap_times
 
     def _insert_dict(self, data: Dict):
         with self._session.cursor() as cursor:

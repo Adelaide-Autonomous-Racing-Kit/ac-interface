@@ -14,6 +14,7 @@ NUMPY_TO_SQL_DTYPES = {
 def get_create_table_sql(table_name: str) -> str:
     sql = f"CREATE TABLE {table_name} (\n"
     sql += "id SERIAL PRIMARY KEY,\n"
+    sql += "i_total_time BIGSERIAL,\n"
     for name, dtype in COMBINED_DATA_TYPES:
         sql_dtype = NUMPY_TO_SQL_DTYPES[dtype]
         if name == "current_time":
@@ -23,8 +24,8 @@ def get_create_table_sql(table_name: str) -> str:
 
 
 def get_insert_row_sql(table_name: str) -> str:
-    sql_1 = f"INSERT INTO {table_name} ("
-    sql_2 = "VALUES ("
+    sql_1 = f"INSERT INTO {table_name} (i_total_time, "
+    sql_2 = "VALUES (%(i_total_time)s, "
     for name, _ in COMBINED_DATA_TYPES:
         if name == "current_time":
             name = "current_laptime"
