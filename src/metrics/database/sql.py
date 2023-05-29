@@ -66,19 +66,14 @@ def get_select_interval_max_sql(
 
 
 # Example time weighted average SQL query
+
 """
 WITH setup AS (
-    SELECT lag(temperature) OVER (PARTITION BY freezer_id ORDER BY ts) as prev_temp, 
-        extract('epoch' FROM ts) as ts_e, 
-        extract('epoch' FROM lag(ts) OVER (PARTITION BY freezer_id ORDER BY ts)) as prev_ts_e, 
-        * 
-    FROM  freezer_temps), 
+    SELECT LAG(i_total_time) OVER (ORDER BY id) as i_previous_timestamp, LAG(throttle) OVER (ORDER BY id) as previous_reading, * FROM tablepg5_vqas),
 nextstep AS (
-    SELECT CASE WHEN prev_temp is NULL THEN NULL 
-        ELSE (prev_temp + temperature) / 2 * (ts_e - prev_ts_e) END as weighted_sum, 
+    SELECT CASE WHEN previous_reading is NULL THEN NULL 
+        ELSE (previous_reading + throttle) / 2 * (i_total_time - i_previous_timestamp) END as weighted_sum, 
         * 
     FROM setup)
-SELECT freezer_id,
-    avg(temperature), -- the regular average
-    sum(weighted_sum) / (max(ts_e) - min(ts_e)) as time_weighted_average 
+SELECT sum(weighted_sum) / (max(i_total_time) - min(i_total_time)) as time_weighted_average FROM nextstep
 """
