@@ -52,7 +52,7 @@ class IntervalMaxTracker(Tracker):
         )
 
     def __repr__(self) -> str:
-        string = f"A tracker configured to get the maximum value of "
+        string = "A tracker configured to get the maximum value of "
         string += f"{self._tracked_column_name} between {self._interval[0]} and "
         string += f"{self._interval[1]} of {self._interval_column_name}"
 

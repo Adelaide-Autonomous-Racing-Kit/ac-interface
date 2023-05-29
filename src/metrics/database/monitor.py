@@ -4,7 +4,6 @@ from typing import Dict
 
 from loguru import logger
 import psycopg
-
 from src.metrics.database.postgres import PostgresConnector
 from src.metrics.database.tracker import IntervalMaxTracker
 
