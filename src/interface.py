@@ -43,6 +43,7 @@ class AssettoCorsaInterface(abc.ABC):
                     # Lap time and sectors monitor
                     {
                         "name": "time",
+                        "type": "maximum_interval",
                         "column": "i_current_time",
                         "interval_column": "normalised_car_position",
                         "intervals": {
@@ -51,7 +52,32 @@ class AssettoCorsaInterface(abc.ABC):
                             "sector_2": [0.3, 0.6],
                             "sector_3": [0.6, 1.0],
                         },
-                        "by": "n_completed_laps",
+                    },
+                    # Average Speed monitor
+                    {
+                        "name": "speed",
+                        "type": "average_interval",
+                        "column": "speed_kmh",
+                        "interval_column": "normalised_car_position",
+                        "intervals": {
+                            "lap": [0.0, 1.0],
+                            "sector_1": [0.0, 0.3],
+                            "sector_2": [0.3, 0.6],
+                            "sector_3": [0.6, 1.0],
+                        },
+                    },
+                    # Minimum fuel monitor
+                    {
+                        "name": "fuel",
+                        "type": "minimum_interval",
+                        "column": "fuel",
+                        "interval_column": "normalised_car_position",
+                        "intervals": {
+                            "lap": [0.0, 1.0],
+                            "sector_1": [0.0, 0.3],
+                            "sector_2": [0.3, 0.6],
+                            "sector_3": [0.6, 1.0],
+                        },
                     },
                     # 5 lap average monitor
                     # {

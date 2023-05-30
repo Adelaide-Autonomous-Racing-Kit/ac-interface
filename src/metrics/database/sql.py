@@ -48,35 +48,61 @@ def get_select_sql(table_name: str, column_names: List[str]) -> str:
     return sql
 
 
-def get_max_sql(table_name: str, column_name: str) -> str:
-    sql = f"SELECT MAX({column_name}) FROM {table_name}"
-    return sql
-
-
-def get_select_interval_max_sql(
+def get_interval_max_sql(
     interval: List[float],
     interval_column_name: str,
     table_name: str,
     column_name: List[str],
 ) -> str:
     sql = get_max_sql(table_name, column_name)
-    sql += f" WHERE completed_laps=0 AND {interval_column_name}"
+    sql += f" WHERE completed_laps=%(lap)s AND {interval_column_name}"
     sql += f" BETWEEN {interval[0]} AND {interval[1]}"
     return sql
 
 
-# Example time weighted average SQL query
+def get_max_sql(table_name: str, column_name: str) -> str:
+    sql = f"SELECT MAX({column_name}) FROM {table_name}"
+    return sql
 
-"""
-WITH setup AS (
-    SELECT LAG(i_total_time) OVER (ORDER BY id) as i_previous_timestamp,
-        LAG(throttle) OVER (ORDER BY id) as previous_reading,
-        throttle, i_total_time
-    FROM tablepg5_vqas WHERE completed_laps=0 AND normalised_car_position BETWEEN 0.0 AND 1.0),
-nextstep AS (
-    SELECT CASE WHEN previous_reading is NULL THEN NULL
-        ELSE (previous_reading + throttle) / 2 * (i_total_time - i_previous_timestamp) END as weighted_sum,
-        i_total_time
-    FROM setup)
-SELECT sum(weighted_sum) / (max(i_total_time) - min(i_total_time)) as time_weighted_average FROM nextstep
-"""
+
+def get_interval_min_sql(
+    interval: List[float],
+    interval_column_name: str,
+    table_name: str,
+    column_name: List[str],
+) -> str:
+    sql = get_min_sql(table_name, column_name)
+    sql += f" WHERE completed_laps=%(lap)s AND {interval_column_name}"
+    sql += f" BETWEEN {interval[0]} AND {interval[1]}"
+    return sql
+
+
+def get_min_sql(table_name: str, column_name: str) -> str:
+    sql = f"SELECT MIN({column_name}) FROM {table_name}"
+    return sql
+
+
+def get_time_weighted_average_sql(
+    interval: List[float],
+    interval_column_name: str,
+    table_name: str,
+    column_name: List[str],
+):
+    sql = (
+        f"WITH SETUP AS ("
+        "SELECT LAG(i_total_time) OVER (ORDER BY i_total_time) AS previous_timestamp, "
+        f"LAG({column_name}) OVER (ORDER BY i_total_time) AS previous_reading, "
+        f"{column_name}, i_total_time "
+        f"FROM {table_name} WHERE completed_laps=%(lap)s AND {interval_column_name} "
+        f"BETWEEN {interval[0]} AND {interval[1]}"
+        "),"
+        "nextstep AS ("
+        "SELECT CASE WHEN previous_reading is NULL THEN NULL "
+        f"ELSE (previous_reading + {column_name}) / 2 * "
+        "(i_total_time - previous_timestamp) END AS weighted_sum, i_total_time "
+        "FROM setup"
+        ")"
+        "SELECT SUM(weighted_sum) / (MAX(i_total_time) - MIN(i_total_time)) AS "
+        "time_weighted_average FROM nextstep"
+    )
+    return sql

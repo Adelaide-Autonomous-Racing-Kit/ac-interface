@@ -5,7 +5,7 @@ from typing import Dict
 from loguru import logger
 import psycopg
 from src.metrics.database.postgres import PostgresConnector
-from src.metrics.database.tracker import IntervalMaxTracker
+from src.metrics.database.trackers import TRACKER_TYPES
 
 
 class Evaluator(mp.Process):
@@ -123,10 +123,11 @@ class Evaluator(mp.Process):
         table_name = self._postgres_db._table_name
         for monitor_info in self._evaluation_config["monitors"]:
             for interval_name, interval in monitor_info["intervals"].items():
-                tracker = IntervalMaxTracker(
+                tracker = TRACKER_TYPES[monitor_info["type"]](
                     interval,
                     monitor_info["interval_column"],
                     table_name,
                     monitor_info["column"],
                 )
-                self._trackers[interval_name] = tracker
+                tracker_name = "-".join([monitor_info["name"], interval_name])
+                self._trackers[tracker_name] = tracker
