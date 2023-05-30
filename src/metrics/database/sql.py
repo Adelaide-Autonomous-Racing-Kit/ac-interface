@@ -69,11 +69,14 @@ def get_select_interval_max_sql(
 
 """
 WITH setup AS (
-    SELECT LAG(i_total_time) OVER (ORDER BY id) as i_previous_timestamp, LAG(throttle) OVER (ORDER BY id) as previous_reading, * FROM tablepg5_vqas),
+    SELECT LAG(i_total_time) OVER (ORDER BY id) as i_previous_timestamp,
+		LAG(throttle) OVER (ORDER BY id) as previous_reading,
+		throttle, i_total_time
+	FROM tablepg5_vqas WHERE completed_laps=0 AND normalised_car_position BETWEEN 0.0 AND 1.0),
 nextstep AS (
-    SELECT CASE WHEN previous_reading is NULL THEN NULL 
-        ELSE (previous_reading + throttle) / 2 * (i_total_time - i_previous_timestamp) END as weighted_sum, 
-        * 
+    SELECT CASE WHEN previous_reading is NULL THEN NULL
+        ELSE (previous_reading + throttle) / 2 * (i_total_time - i_previous_timestamp) END as weighted_sum,
+		i_total_time
     FROM setup)
 SELECT sum(weighted_sum) / (max(i_total_time) - min(i_total_time)) as time_weighted_average FROM nextstep
 """
