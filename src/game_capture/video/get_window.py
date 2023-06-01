@@ -1,5 +1,5 @@
-import time
 from dataclasses import dataclass
+import time
 from typing import List, Union
 
 from Xlib.display import Display
