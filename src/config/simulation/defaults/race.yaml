@@ -2,6 +2,9 @@ RACE:
   TRACK: monza
   MODEL: ks_audi_r8_lms_2016
 
+CAR_0:
+  SKIN: 23_racing_224
+
 TEMPERATURE:
   AMBIENT: 26
   ROAD: 36
@@ -10,4 +13,7 @@ WEATHER:
   NAME: 4_mid_clear
 
 SESSION_0:
-  NAME: Quick Race
+  NAME: Qualifying
+  TYPE: 1
+  DURATION_MINUTES: 0
+  SPAWN_SET: START

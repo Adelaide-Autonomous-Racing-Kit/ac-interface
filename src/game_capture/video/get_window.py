@@ -1,7 +1,10 @@
+import time
 from dataclasses import dataclass
 from typing import List, Union
 
 from Xlib.display import Display
+
+N_MAX_RETRIES = 5
 
 
 @dataclass
@@ -39,11 +42,16 @@ def get_window_location_linux(name: str, resolution: List[int]) -> List[int]:
     """
     display = Display()
     root = display.screen().root
-    location = get_window_location_linux_recurse(root, name, resolution)
-    if location is None:
-        raise WindowNotFoundError(
-            f"Unable to find a window named {name} with resolution {resolution[0]}x{resolution[1]}"
-        )
+    location, n_retries = None, 0
+    while location is None:
+        location = get_window_location_linux_recurse(root, name, resolution)
+        if location is None:
+            if n_retries == N_MAX_RETRIES:
+                raise WindowNotFoundError(
+                    f"Unable to find a window named {name} with resolution {resolution[0]}x{resolution[1]}"
+                )
+            n_retries += 1
+            time.sleep(0.5)
     return location
 
 

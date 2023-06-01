@@ -1,7 +1,6 @@
 import abc
 import subprocess
 import tempfile
-import time
 from typing import Dict
 
 from loguru import logger
@@ -35,7 +34,7 @@ class AssettoCorsaInterface(abc.ABC):
                 "table_name": "table" + next(tempfile._get_candidate_names()),
             },
             "capture": {
-                "use_rgb_images": True,
+                "use_rgb_images": False,
                 "use_state_dicts": True,
             },
             "evaluation": {
