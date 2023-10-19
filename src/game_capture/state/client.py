@@ -1,6 +1,7 @@
 from multiprocessing.connection import Client
 from threading import Thread
 import time
+from typing import Dict
 
 from loguru import logger
 import numpy as np
@@ -65,7 +66,7 @@ class StateClient:
         """
         Blocks execution until the game is ready for the session to be started
         """
-        self._wait_for_packet_id_reset()
+        # self._wait_for_packet_id_reset()
         while not self.is_AC_ready:
             continue
 
@@ -93,8 +94,8 @@ class StateClient:
 
 
 class DatabaseStateClient(StateClient):
-    def __init__(self):
-        self._database_logger = DatabaseStateLogger()
+    def __init__(self, postgres_config: Dict):
+        self._database_logger = DatabaseStateLogger(postgres_config)
         super().__init__()
 
     def _run(self):

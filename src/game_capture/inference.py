@@ -1,6 +1,7 @@
 import ctypes
 import multiprocessing as mp
 from multiprocessing.shared_memory import SharedMemory
+import tempfile
 import time
 from typing import Dict
 
@@ -21,11 +22,9 @@ class GameCapture(mp.Process):
         To cleanly exit call game_capture.stop()
     """
 
-    def __init__(self, use_RGB_images=True, use_state_dicts=True):
+    def __init__(self, config: Dict):
         super().__init__()
-        self._use_RGB_images = use_RGB_images
-        self._use_state_dicts = use_state_dicts
-        self.__setup_configuration()
+        self.__setup_configuration(config)
         self.__setup_processes_shared_memory()
 
     @property
@@ -128,7 +127,7 @@ class GameCapture(mp.Process):
 
     def __setup_capture_process(self):
         self.image_stream = ImageStream()
-        self.state_capture = DatabaseStateClient()
+        self.state_capture = DatabaseStateClient(self._postgres_config)
 
     def stop(self):
         """
@@ -137,7 +136,11 @@ class GameCapture(mp.Process):
         self.is_running = False
         self._shared_state_buffer.unlink()
 
-    def __setup_configuration(self):
+    def __setup_configuration(self, config: dict):
+        self._capture_config = config["capture"]
+        self._postgres_config = config["postgres"]
+        self._use_RGB_images = self._capture_config["use_rgb_images"]
+        self._use_state_dicts = self._capture_config["use_state_dicts"]
         width, height = load_yaml(GAME_CAPTURE_CONFIG_FILE)["game_resolution"]
         n_channels = 3 if self._use_RGB_images else 4
         self._image_shape = (height, width, n_channels)

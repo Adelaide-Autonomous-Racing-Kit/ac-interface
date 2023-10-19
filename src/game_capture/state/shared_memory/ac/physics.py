@@ -61,7 +61,7 @@ class PhysicsSharedMemory(ctypes.Structure):
         ("suspension_travel_rear_right", ctypes.c_float),
         ("is_drag_reduction_system_active", ctypes.c_float),
         ("traction_control_1", ctypes.c_float),  # Investigate
-        ("heading", ctypes.c_float),  # Investigate units
+        ("heading", ctypes.c_float),
         ("pitch", ctypes.c_float),
         ("roll", ctypes.c_float),
         ("centre_of_gravity_height", ctypes.c_float),  # Investigate units
@@ -103,7 +103,6 @@ class PhysicsSharedMemory(ctypes.Structure):
         ("brake_temperature_rear_left", ctypes.c_float),
         ("brake_temperature_rear_right", ctypes.c_float),
         ("clutch", ctypes.c_float),
-        # Investigate I,M,O
         ("tyre_temperature_I_front_left", ctypes.c_float),
         ("tyre_temperature_I_front_right", ctypes.c_float),
         ("tyre_temperature_I_rear_left", ctypes.c_float),
