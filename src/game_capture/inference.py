@@ -1,8 +1,8 @@
 import ctypes
 import multiprocessing as mp
 from multiprocessing.shared_memory import SharedMemory
-import tempfile
 import time
+import tempfile
 from typing import Dict
 
 from loguru import logger
@@ -10,7 +10,7 @@ import numpy as np
 from src.config.constants import GAME_CAPTURE_CONFIG_FILE
 from src.game_capture.state.client import DatabaseStateClient
 from src.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
-from src.game_capture.video.pyav_capture import ImageStream, display
+from src.game_capture.video.pyav_capture import ImageStream
 from src.utils.load import load_yaml, state_bytes_to_dict
 
 
@@ -174,18 +174,33 @@ class GameCapture(mp.Process):
 
 
 def main():
-    test_object_store()
-    benchmark_interprocess_communication()
+    config = {
+        "postgres": {
+            "dbname": "postgres",
+            "user": "postgres",
+            "password": "postgres",
+            "host": "0.0.0.0",
+            "port": "5432",
+            "table_name": "table" + next(tempfile._get_candidate_names()),
+        },
+        "capture": {
+            "use_rgb_images": False,
+            "use_state_dicts": False,
+        },
+    }
+    test_object_store(config)
+    benchmark_interprocess_communication(config)
 
 
-def test_object_store():
-    n_captures = 1
-    game_capture = GameCapture()
+def test_object_store(config):
+    n_captures = 1000
+    game_capture = GameCapture(config)
     game_capture.start()
     # Wait until first image has been received
     _ = game_capture.capture
     for _ in range(n_captures):
         state = game_capture.capture["state"]
+        # logger.info(state)
         state = np.frombuffer(state, COMBINED_DATA_TYPES)
         for element, dtype in zip(state[0], COMBINED_DATA_TYPES):
             if dtype[0] in [
@@ -196,14 +211,18 @@ def test_object_store():
                 "current_time",
             ]:
                 element = element.tostring().decode()
-            logger.info(f"{dtype[0]} : {element}")
+
+            if dtype[0] in [
+                "speed_kmh",
+            ]:
+                logger.info(f"{dtype[0]} : {element}")
     game_capture.stop()
 
 
-def benchmark_interprocess_communication():
+def benchmark_interprocess_communication(config):
     n_captures = 900
     logger.info("Benchmarking game capture reading from capture process")
-    game_capture = GameCapture()
+    game_capture = GameCapture(config)
     game_capture.start()
     # Wait until first image has been received
     _ = game_capture.capture

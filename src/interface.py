@@ -1,6 +1,7 @@
 import abc
 import subprocess
 import tempfile
+import time
 from typing import Dict
 
 from loguru import logger
@@ -37,59 +38,58 @@ class AssettoCorsaInterface(abc.ABC):
                 "use_rgb_images": False,
                 "use_state_dicts": True,
             },
-            "evaluation": {
-                "monitors": [
-                    # Lap time and sectors monitor
-                    {
-                        "name": "time",
-                        "type": "maximum_interval",
-                        "column": "i_current_time",
-                        "interval_column": "normalised_car_position",
-                        "intervals": {
-                            "lap": [0.0, 1.0],
-                            "sector_1": [0.0, 0.3],
-                            "sector_2": [0.3, 0.6],
-                            "sector_3": [0.6, 1.0],
-                        },
-                    },
-                    # Average Speed monitor
-                    {
-                        "name": "speed",
-                        "type": "average_interval",
-                        "column": "speed_kmh",
-                        "interval_column": "normalised_car_position",
-                        "intervals": {
-                            "lap": [0.0, 1.0],
-                            "sector_1": [0.0, 0.3],
-                            "sector_2": [0.3, 0.6],
-                            "sector_3": [0.6, 1.0],
-                        },
-                    },
-                    # Minimum fuel monitor
-                    {
-                        "name": "fuel",
-                        "type": "minimum_interval",
-                        "column": "fuel",
-                        "interval_column": "normalised_car_position",
-                        "intervals": {
-                            "lap": [0.0, 1.0],
-                            "sector_1": [0.0, 0.3],
-                            "sector_2": [0.3, 0.6],
-                            "sector_3": [0.6, 1.0],
-                        },
-                    },
-                    # 5 lap average monitor
-                    # {
-                    #    "name": "time",
-                    #    "column": "i_current_time",
-                    #    "interval_column": "n_completed_laps",
-                    #    "intervals": {
-                    #        "last_5_laps": [0, 5],
-                    #    },
-                    #    "by": "n_completed_laps",
-                    # },
-                ]
-            },
+            "evaluation": {"monitors": []}
+            #         # Lap time and sectors monitor
+            #         {
+            #             "name": "time",
+            #             "type": "maximum_interval",
+            #             "column": "i_current_time",
+            #             "interval_column": "normalised_car_position",
+            #             "intervals": {
+            #                 "lap": [0.0, 1.0],
+            #                 "sector_1": [0.0, 0.3],
+            #                 "sector_2": [0.3, 0.6],
+            #                 "sector_3": [0.6, 1.0],
+            #             },
+            #         },
+            #         # Average Speed monitor
+            #         {
+            #             "name": "speed",
+            #             "type": "average_interval",
+            #             "column": "speed_kmh",
+            #             "interval_column": "normalised_car_position",
+            #             "intervals": {
+            #                 "lap": [0.0, 1.0],
+            #                 "sector_1": [0.0, 0.3],
+            #                 "sector_2": [0.3, 0.6],
+            #                 "sector_3": [0.6, 1.0],
+            #             },
+            #         },
+            #         # Minimum fuel monitor
+            #         {
+            #             "name": "fuel",
+            #             "type": "minimum_interval",
+            #             "column": "fuel",
+            #             "interval_column": "normalised_car_position",
+            #             "intervals": {
+            #                 "lap": [0.0, 1.0],
+            #                 "sector_1": [0.0, 0.3],
+            #                 "sector_2": [0.3, 0.6],
+            #                 "sector_3": [0.6, 1.0],
+            #             },
+            #         },
+            #         # 5 lap average monitor
+            #         # {
+            #         #    "name": "time",
+            #         #    "column": "i_current_time",
+            #         #    "interval_column": "n_completed_laps",
+            #         #    "intervals": {
+            #         #        "last_5_laps": [0, 5],
+            #         #    },
+            #         #    "by": "n_completed_laps",
+            #         # },
+            #     ]
+            # },
         }
         self._setup()
         self.is_running = True
@@ -140,9 +140,10 @@ class AssettoCorsaInterface(abc.ABC):
         self._start_capture()
         self._start_evaluation()
         click_drive()
+        time.sleep(2)
         while self.is_running:
             try:
-                logger.info("Agent Action Loop")
+                # logger.info("Agent Action Loop")
                 observation = self.get_observation()
                 action = self.behaviour(observation)
                 self.act(action)
