@@ -12,7 +12,7 @@ NUMPY_TO_SQL_DTYPES = {
 
 
 def get_create_table_sql(table_name: str) -> str:
-    sql = f"CREATE TABLE {table_name} (\n"
+    sql = f"CREATE UNLOGGED TABLE {table_name} (\n"
     sql += "id SERIAL PRIMARY KEY,\n"
     sql += "i_total_time BIGSERIAL,\n"
     for name, dtype in COMBINED_DATA_TYPES:

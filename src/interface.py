@@ -11,6 +11,7 @@ from src.game_capture.inference import GameCapture
 from src.game_capture.state.client import StateClient
 from src.input.controller import VirtualGamepad
 from src.metrics.database.monitor import Evaluator
+from src.metrics.database.state_logger import DatabaseStateLogger
 from src.utils.launch import (
     click_drive,
     launch_assetto_corsa,
@@ -111,6 +112,7 @@ class AssettoCorsaInterface(abc.ABC):
     def _initialise_evaluation(self):
         postgres_config = self._config["postgres"]
         evaluation_config = self._config["evaluation"]
+        self._database_logger = DatabaseStateLogger(self._game_capture, postgres_config)
         self._evaluator = Evaluator(evaluation_config, postgres_config)
 
     def _launch_AC(self):
@@ -122,10 +124,13 @@ class AssettoCorsaInterface(abc.ABC):
         self._game_capture.start()
 
     def _start_evaluation(self):
+        self._database_logger.start()
         self._evaluator.start()
 
     def shutdown(self):
         self._game_capture.stop()
+        self._evaluator.stop()
+        self._database_logger.stop()
         self._shutdown_AC()
         self._shutdown_python()
 

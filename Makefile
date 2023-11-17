@@ -18,7 +18,7 @@ endif
 	docker compose version || { echo "Please install docker compose first: https://docs.docker.com/desktop/install/ubuntu/"; exit 1; }
 
 	# Create conda environment and install packages
-	conda create -y -p $(CONDA_ENV_PATH) -c conda-forge opencv numpy av pyyaml matplotlib pillow python=3.9 \
+	conda create -y -p $(CONDA_ENV_PATH) -c conda-forge opencv numpy av=10.0.0 pyyaml matplotlib pillow python=3.9 \
 		black flake8-black flake8 isort loguru pytest pytest-parallel py pytest-benchmark coverage \
 		pyautogui python-xlib loguru yaml tqdm halo pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
 	$(CONDA_ACTIVATE) $(CONDA_ENV_PATH)
