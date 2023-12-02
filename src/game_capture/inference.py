@@ -2,6 +2,7 @@ import ctypes
 import multiprocessing as mp
 from multiprocessing.shared_memory import SharedMemory
 import time
+import tempfile
 from typing import Dict
 
 from loguru import logger
@@ -191,6 +192,13 @@ def main():
         "capture": {
             "use_rgb_images": False,
             "use_state_dicts": True,
+        "postgres": {
+            "dbname": "postgres",
+            "user": "postgres",
+            "password": "postgres",
+            "host": "0.0.0.0",
+            "port": "5432",
+            "table_name": "table" + next(tempfile._get_candidate_names()),
         },
     }
     test_object_store(config)

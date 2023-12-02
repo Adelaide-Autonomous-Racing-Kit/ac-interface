@@ -8,7 +8,7 @@ from loguru import logger
 from src.game_capture.state.scraper import AssettoCorsaData
 
 ADDRESS = "localhost"
-PORT = 6003
+PORT = 6002
 
 
 class StateServer:
