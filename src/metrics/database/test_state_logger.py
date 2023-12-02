@@ -39,7 +39,7 @@ def database_logger():
         "port": "5432",
         "table_name": "table" + next(tempfile._get_candidate_names()),
     }
-    logger = DatabaseStateLogger(postgres_config)
+    logger = DatabaseStateLogger(None, postgres_config)
     yield logger
     cleanup_test(logger._session, logger._table_name)
 
