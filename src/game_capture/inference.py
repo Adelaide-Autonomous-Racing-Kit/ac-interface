@@ -192,14 +192,15 @@ def main():
         "capture": {
             "use_rgb_images": False,
             "use_state_dicts": True,
-        "postgres": {
-            "dbname": "postgres",
-            "user": "postgres",
-            "password": "postgres",
-            "host": "0.0.0.0",
-            "port": "5432",
-            "table_name": "table" + next(tempfile._get_candidate_names()),
-        },
+            "postgres": {
+                "dbname": "postgres",
+                "user": "postgres",
+                "password": "postgres",
+                "host": "0.0.0.0",
+                "port": "5432",
+                "table_name": "table" + next(tempfile._get_candidate_names()),
+            },
+        }
     }
     test_object_store(config)
     benchmark_interprocess_communication(config)
