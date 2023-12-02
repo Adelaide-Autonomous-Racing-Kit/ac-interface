@@ -4,7 +4,7 @@ import time
 
 import psycopg
 import pytest
-from src.metrics.database.state_logger import DatabaseStateLogger
+from src.metrics.database.state_logger import DatabaseStateInterface
 
 
 def cleanup_test(session: psycopg.Connection, table_name: str):
@@ -39,7 +39,7 @@ def database_logger():
         "port": "5432",
         "table_name": "table" + next(tempfile._get_candidate_names()),
     }
-    logger = DatabaseStateLogger(None, postgres_config)
+    logger = DatabaseStateInterface(postgres_config)
     yield logger
     cleanup_test(logger._session, logger._table_name)
 
