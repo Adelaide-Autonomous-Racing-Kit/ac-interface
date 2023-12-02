@@ -1,5 +1,6 @@
 from datetime import datetime
 from functools import partial
+import multiprocessing as mp
 from typing import Dict
 
 from loguru import logger
@@ -17,7 +18,32 @@ NUMPY_TO_PYTHON_DTYPES = {
 }
 
 
-class DatabaseStateLogger(PostgresConnector):
+class DatabaseStateLogger(mp.Process):
+    def __init__(self, game_capture: mp.Process, postgres_config: Dict):
+        super().__init__()
+        self._game_capture = game_capture
+        self._database_state_logger = DatabaseStateInterface(postgres_config)
+        self.__setup_processes_shared_memory()
+
+    def run(self):
+        """
+        Called on DatabaseStateLogger.start()
+        """
+        while self._is_running:
+            state = self._game_capture.state_bytes
+            self._database_state_logger.log_state(state)
+
+    def stop(self):
+        """
+        Stops the evaluation process
+        """
+        self.is_running = False
+
+    def __setup_processes_shared_memory(self):
+        self._is_running = mp.Value("i", True)
+
+
+class DatabaseStateInterface(PostgresConnector):
     def __init__(self, postgres_config: Dict):
         super().__init__(postgres_config)
         self._maybe_create_database_table()

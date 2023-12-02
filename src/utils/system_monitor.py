@@ -6,19 +6,6 @@ from loguru import logger
 import numpy as np
 
 
-def track_runtime(function):
-    @wraps(function)
-    def wrapper(*args, **kwargs):
-        t1 = time.time()
-        result = function(*args, **kwargs)
-        t2 = time.time()
-        name = f"{function.__module__}.{function.__name__}"
-        System_Monitor.add_function_runtime(name, (t2 - t1) * 10e3)
-        return result
-
-    return wrapper
-
-
 class SystemMonitor:
     def __init__(self):
         self.runtimes = defaultdict(list)
@@ -40,3 +27,16 @@ class SystemMonitor:
 
 
 System_Monitor = SystemMonitor()
+
+
+def track_runtime(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        t1 = time.time()
+        result = function(*args, **kwargs)
+        t2 = time.time()
+        name = f"{function.__module__}.{function.__name__}"
+        System_Monitor.add_function_runtime(name, (t2 - t1) * 10e3)
+        return result
+
+    return wrapper

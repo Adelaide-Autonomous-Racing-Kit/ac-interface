@@ -8,7 +8,7 @@ from typing import Dict
 from loguru import logger
 import numpy as np
 from src.config.constants import GAME_CAPTURE_CONFIG_FILE
-from src.game_capture.state.client import DatabaseStateClient
+from src.game_capture.state.client import StateClient
 from src.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
 from src.game_capture.video.pyav_capture import ImageStream
 from src.utils.load import load_yaml, state_bytes_to_dict
@@ -65,6 +65,20 @@ class GameCapture(mp.Process):
             image_np_array[:] = capture["image"]
             mp_buffer.buf[:] = capture["state"]["state"]
         self.is_stale = False
+
+    @property
+    def state_bytes(self) -> bytes:
+        """
+        Access to game state bytes for database logging
+
+        :return: state: raw game state bytes that can be decoded
+        :rtype: bytes
+        """
+        image_mp_array, _ = self._shared_image_buffer
+        mp_buffer = self._shared_state_buffer
+        with image_mp_array.get_lock():
+            state = mp_buffer.buf[:].tobytes()
+        return state
 
     @property
     def is_stale(self) -> bool:
@@ -127,7 +141,7 @@ class GameCapture(mp.Process):
 
     def __setup_capture_process(self):
         self.image_stream = ImageStream()
-        self.state_capture = DatabaseStateClient(self._postgres_config)
+        self.state_capture = StateClient()
 
     def stop(self):
         """
@@ -175,6 +189,9 @@ class GameCapture(mp.Process):
 
 def main():
     config = {
+        "capture": {
+            "use_rgb_images": False,
+            "use_state_dicts": True,
         "postgres": {
             "dbname": "postgres",
             "user": "postgres",
@@ -183,39 +200,20 @@ def main():
             "port": "5432",
             "table_name": "table" + next(tempfile._get_candidate_names()),
         },
-        "capture": {
-            "use_rgb_images": False,
-            "use_state_dicts": False,
-        },
     }
     test_object_store(config)
     benchmark_interprocess_communication(config)
 
 
 def test_object_store(config):
-    n_captures = 1000
+    n_captures = 100
     game_capture = GameCapture(config)
     game_capture.start()
     # Wait until first image has been received
     _ = game_capture.capture
     for _ in range(n_captures):
         state = game_capture.capture["state"]
-        # logger.info(state)
-        state = np.frombuffer(state, COMBINED_DATA_TYPES)
-        for element, dtype in zip(state[0], COMBINED_DATA_TYPES):
-            if dtype[0] in [
-                "tyre_compound",
-                "last_time",
-                "best_time",
-                "split",
-                "current_time",
-            ]:
-                element = element.tostring().decode()
-
-            if dtype[0] in [
-                "speed_kmh",
-            ]:
-                logger.info(f"{dtype[0]} : {element}")
+        logger.info(state)
     game_capture.stop()
 
 
