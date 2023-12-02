@@ -1,6 +1,6 @@
-import multiprocessing as mp
 from datetime import datetime
 from functools import partial
+import multiprocessing as mp
 from typing import Dict
 
 from loguru import logger
