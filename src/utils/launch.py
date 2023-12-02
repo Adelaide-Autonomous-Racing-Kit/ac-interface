@@ -66,7 +66,9 @@ def launch_sate_server():
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
     )
-    p_state_server.stdin.write("python ./src/game_capture/state/server.py\n".encode())
+    p_state_server.stdin.write(
+        "python ../ac-interface/src/game_capture/state/server.py\n".encode()
+    )
     return p_state_server
 
 
