@@ -39,7 +39,7 @@ AC_USER_PATH = Path(BOTTLE_C_DRIVE_PATH, "users/crossover/Documents/Assetto Cors
 # Default AC config paths
 DEFAULT_RACE_INI_PATH = Path(AC_STEAM_PATH, "cfg/race.ini")
 DEFAULT_CAMERA_MANAGER_INI_PATH = Path(AC_STEAM_PATH, "cfg/camera_manager.ini")
-DEFAULT_VIDEO_INI_PATH = Path(AC_STEAM_PATH, "cfg/video.ini")
+DEFAULT_VIDEO_INI_PATH = Path(AC_STEAM_PATH, "cfg/camera_video.ini")
 
 # User AC config paths
 AC_USER_RACE_INI_PATH = Path(AC_USER_PATH, "cfg/race.ini")
