@@ -1,0 +1,15 @@
+opencv-python
+numpy
+av
+pyyaml
+pillow
+loguru
+pyautogui
+python-xlib
+loguru
+tqdm
+halo
+git+https://github.com/wyatthuckaby/python-uinput.git
+git+https://github.com/lilohuang/PyTurboJPEG.git
+python-uinput
+psycopg[binary]

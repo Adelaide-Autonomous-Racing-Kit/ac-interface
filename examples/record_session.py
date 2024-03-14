@@ -1,4 +1,4 @@
-from src.recorder import AssettoCorsaRecorder
+from aci.recorder import AssettoCorsaRecorder
 
 
 def main():
