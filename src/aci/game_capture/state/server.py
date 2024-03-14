@@ -4,8 +4,8 @@ import struct
 from threading import Thread
 from typing import Dict, Tuple
 
-from loguru import logger
 from aci.game_capture.state.scraper import AssettoCorsaData
+from loguru import logger
 
 ADDRESS = "localhost"
 PORT = 6002

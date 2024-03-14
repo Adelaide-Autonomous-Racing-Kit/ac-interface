@@ -2,9 +2,9 @@ import pathlib
 import tempfile
 import time
 
+from aci.metrics.database.state_logger import DatabaseStateInterface
 import psycopg
 import pytest
-from aci.metrics.database.state_logger import DatabaseStateInterface
 
 
 def cleanup_test(session: psycopg.Connection, table_name: str):
@@ -46,7 +46,7 @@ def database_logger():
 
 @pytest.fixture
 def binary_files(
-    test_recordings_dir=pathlib.Path("aci/metrics/database/test_recording/"),
+    test_recordings_dir=pathlib.Path("src/aci/metrics/database/test_recording/"),
     num_files_to_test: int = 60,
 ):
     binary_filepaths = test_recordings_dir.glob("*.bin")

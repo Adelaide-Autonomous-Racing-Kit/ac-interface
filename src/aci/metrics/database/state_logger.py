@@ -3,12 +3,12 @@ from functools import partial
 import multiprocessing as mp
 from typing import Dict
 
-from loguru import logger
-import numpy as np
-import psycopg
 from aci.metrics.database.postgres import PostgresConnector
 from aci.metrics.database.sql import get_create_table_sql, get_insert_row_sql
 from aci.utils.load import state_bytes_to_dict
+from loguru import logger
+import numpy as np
+import psycopg
 
 NUMPY_TO_PYTHON_DTYPES = {
     np.int32: int,

@@ -1,10 +1,10 @@
 from typing import Dict
 
-from loguru import logger
 from aci.game_capture.inference import GameCapture
 from aci.interface import AssettoCorsaInterface
 from aci.utils.launch import click_drive, try_until_state_server_is_launched
 from aci.utils.save import maybe_create_folders, save_bgr0_as_jpeg, save_bytes
+from loguru import logger
 
 
 class AssettoCorsaRecorder(AssettoCorsaInterface):

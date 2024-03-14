@@ -1,6 +1,5 @@
 import time
 
-import numpy as np
 from aci.input.constants import (
     ABS_MAX,
     DEVICE_NAME,
@@ -9,6 +8,7 @@ from aci.input.constants import (
     VERSION_CODE,
     VIRTUAL_BUTTONS,
 )
+import numpy as np
 import uinput
 
 

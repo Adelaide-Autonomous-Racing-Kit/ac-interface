@@ -2,9 +2,9 @@ from multiprocessing.connection import Client
 from threading import Thread
 import time
 
+from aci.game_capture.state.server import ADDRESS, PORT
 from loguru import logger
 import numpy as np
-from aci.game_capture.state.server import ADDRESS, PORT
 
 
 class StateClient:

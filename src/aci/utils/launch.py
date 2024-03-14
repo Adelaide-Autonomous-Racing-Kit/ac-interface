@@ -3,12 +3,12 @@ from pathlib import Path
 import subprocess
 import time
 
-from halo import Halo
-from loguru import logger
-import pyautogui
 from aci.config.constants import AC_STEAM_APPID_FILE_PATH, AC_STEAM_PATH, STEAM_APPID
 from aci.game_capture.state.client import StateClient
 from aci.utils.os import get_application_window_coordinates
+from halo import Halo
+from loguru import logger
+import pyautogui
 
 
 def launch_assetto_corsa():

@@ -5,9 +5,9 @@ from threading import Lock, Thread
 import time
 from typing import Dict
 
-from loguru import logger
 from aci.game_capture.state.shared_memory.ac.graphics import GraphicsSharedMemory
 from aci.game_capture.state.shared_memory.ac.physics import PhysicsSharedMemory
+from loguru import logger
 
 
 class AssettoCorsaData:

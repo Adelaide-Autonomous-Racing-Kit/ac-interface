@@ -2,10 +2,10 @@ import multiprocessing as mp
 import time
 from typing import Dict
 
-from loguru import logger
-import psycopg
 from aci.metrics.database.postgres import PostgresConnector
 from aci.metrics.database.trackers import TRACKER_TYPES
+from loguru import logger
+import psycopg
 
 
 class Evaluator(mp.Process):

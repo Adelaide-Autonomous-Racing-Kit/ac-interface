@@ -1,9 +1,9 @@
 from pathlib import Path
 from typing import Dict, Union
 
+from aci.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
 import cv2
 import numpy as np
-from aci.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
 import yaml
 
 STRING_KEYS = [

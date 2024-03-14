@@ -1,14 +1,14 @@
 from threading import Thread
 import time
 
-import av
-from loguru import logger
-import numpy as np
 from aci.config.constants import FFMPEG_CONFIG_FILE, GAME_CAPTURE_CONFIG_FILE
 from aci.utils import display
 from aci.utils.load import load_yaml
 from aci.utils.os import get_display_input, get_file_format, get_sanitised_os_name
 from aci.utils.system_monitor import System_Monitor, track_runtime
+import av
+from loguru import logger
+import numpy as np
 
 
 class ImageStream:

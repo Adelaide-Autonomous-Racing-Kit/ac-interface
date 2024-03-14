@@ -4,8 +4,6 @@ import tempfile
 import time
 from typing import Dict
 
-from loguru import logger
-import numpy as np
 from aci.config.ac_config import override_launch_configurations
 from aci.game_capture.inference import GameCapture
 from aci.game_capture.state.client import StateClient
@@ -18,6 +16,8 @@ from aci.utils.launch import (
     maybe_create_steam_appid_file,
     try_until_state_server_is_launched,
 )
+from loguru import logger
+import numpy as np
 
 
 class AssettoCorsaInterface(abc.ABC):
@@ -39,7 +39,7 @@ class AssettoCorsaInterface(abc.ABC):
                 "use_rgb_images": False,
                 "use_state_dicts": True,
             },
-            "evaluation": {"monitors": []}
+            "evaluation": {"monitors": []},
             #         # Lap time and sectors monitor
             #         {
             #             "name": "time",
