@@ -9,6 +9,7 @@ from aci.game_capture.state.shared_memory.ac.graphics import GraphicsSharedMemor
 from aci.game_capture.state.shared_memory.ac.physics import PhysicsSharedMemory
 from loguru import logger
 
+RATE_LIMIT_HZ = 100.0
 
 class AssettoCorsaData:
     """
@@ -36,6 +37,7 @@ class AssettoCorsaData:
     def _run(self):
         while True:
             self._update()
+            time.sleep(1.0 / RATE_LIMIT_HZ)
 
     def _update(self):
         self._reset_buffer_positions()

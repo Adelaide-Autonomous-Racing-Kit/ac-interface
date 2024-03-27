@@ -27,15 +27,19 @@ class ImageStream:
         self.__start_update_thread()
 
     @property
-    def latest_image(self) -> np.array:
-        self.wait_for_new_frame()
+    def image(self) -> np.array:
+        self._is_new_frame = False
         # Slice off padded zeros to give BGR image
         return self._latest_image[:, :, :3]
 
     @property
-    def latest_bgr0_image(self) -> np.array:
-        self.wait_for_new_frame()
+    def bgr0_image(self) -> np.array:
+        self._is_new_frame = False
         return self._latest_image
+    
+    @property
+    def is_stale(self) -> bool:
+        return not self._is_new_frame
 
     def wait_for_new_frame(self):
         """
@@ -43,7 +47,6 @@ class ImageStream:
         """
         while not self._is_new_frame:
             pass
-        self._is_new_frame = False
 
     def __load_configurations(self):
         self._game_capture_config = load_yaml(GAME_CAPTURE_CONFIG_FILE)

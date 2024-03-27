@@ -4,7 +4,10 @@ import tempfile
 import time
 from typing import Dict
 
-from aci.config.ac_config import override_launch_configurations
+from aci.config.ac_config import (
+    set_default_launch_configurations,
+    override_race_configuration,
+)
 from aci.game_capture.inference import GameCapture
 from aci.game_capture.state.client import StateClient
 from aci.input.controller import VirtualGamepad
@@ -25,7 +28,8 @@ class AssettoCorsaInterface(abc.ABC):
     Abstract base class to inherit from when creating vehicle control agents
     """
 
-    def __init__(self):
+    def __init__(self, user_config: Dict):
+        self._user_config = user_config
         self._config = {
             "postgres": {
                 "dbname": "postgres",
@@ -102,7 +106,8 @@ class AssettoCorsaInterface(abc.ABC):
 
     def _initialise_AC(self):
         maybe_create_steam_appid_file()
-        override_launch_configurations()
+        set_default_launch_configurations()
+        override_race_configuration(self._user_config["race"])
 
     def _initialise_capture(self):
         try_until_state_server_is_launched()
@@ -148,7 +153,6 @@ class AssettoCorsaInterface(abc.ABC):
         time.sleep(2)
         while self.is_running:
             try:
-                # logger.info("Agent Action Loop")
                 observation = self.get_observation()
                 action = self.behaviour(observation)
                 self.act(action)

@@ -1,5 +1,6 @@
 from configparser import ConfigParser
 from pathlib import Path
+from typing import Dict
 
 from aci.config.constants import CONFIG_OVERRIDE_PATHS
 from aci.utils.load import load_yaml
@@ -34,7 +35,7 @@ def combine_configurations(default_path: Path, override_path: Path):
     return config
 
 
-def override_launch_configurations():
+def set_default_launch_configurations():
     """
     An example of combining thr steam default race.ini with a yaml and writing
         it so AC launches with the set options
@@ -47,5 +48,23 @@ def override_launch_configurations():
     logger.info("Launch configurations now set to package defaults")
 
 
+def override_race_configuration(race_configuration: Dict):
+    override_paths = CONFIG_OVERRIDE_PATHS["race.ini"]
+    logger.info(f"User defined race config used: {race_configuration}")
+    race_configuration = {"RACE": race_configuration}
+    config = override_configuration_with_dict(override_paths.user, race_configuration)
+    write_ini(config, override_paths.user)
+
+
+def override_configuration_with_dict(default_path: Path, override_config: Dict):
+    """
+    Combines a .ini with a python dictionary that overrides the .ini
+    """
+    config = create_ini_parser()
+    config.read(default_path)
+    config.read_dict(override_config)
+    return config
+
+
 if __name__ == "__main__":
-    override_launch_configurations()
+    set_default_launch_configurations()
