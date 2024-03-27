@@ -5,8 +5,8 @@ import time
 from typing import Dict
 
 from aci.config.ac_config import (
-    set_default_launch_configurations,
     override_race_configuration,
+    set_default_launch_configurations,
 )
 from aci.game_capture.inference import GameCapture
 from aci.game_capture.state.client import StateClient

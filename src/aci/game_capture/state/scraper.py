@@ -11,6 +11,7 @@ from loguru import logger
 
 RATE_LIMIT_HZ = 100.0
 
+
 class AssettoCorsaData:
     """
     Continuously copies the shared memory buffer state from Assetto Corsa

@@ -36,7 +36,7 @@ class ImageStream:
     def bgr0_image(self) -> np.array:
         self._is_new_frame = False
         return self._latest_image
-    
+
     @property
     def is_stale(self) -> bool:
         return not self._is_new_frame
