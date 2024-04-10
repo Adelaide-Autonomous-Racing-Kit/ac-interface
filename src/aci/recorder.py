@@ -12,6 +12,10 @@ class AssettoCorsaRecorder(AssettoCorsaInterface):
     Class that records game sessions
     """
 
+    def __init__(self, config: Dict):
+        super().__init__(config)
+        self._save_path = config["recording"]["save_path"]
+
     def _initialise_capture(self):
         try_until_state_server_is_launched()
         self._game_capture = GameCapture(self._config)
@@ -22,13 +26,13 @@ class AssettoCorsaRecorder(AssettoCorsaInterface):
     def setup(self):
         pass
 
-    def run(self, save_path: str):
+    def run(self):
         """
         Saves frames and state to disk as .jpeg, .npy file pairs
             Each sequential capture is stamped with a logical clock
             indicating their order
         """
-        self.__setup_recording(save_path)
+        self.__setup_recording()
         self._launch_AC()
         self._start_capture()
         click_drive()
@@ -41,10 +45,9 @@ class AssettoCorsaRecorder(AssettoCorsaInterface):
         logger.info("Finished recording")
         self.shutdown()
 
-    def __setup_recording(self, save_path: str):
-        self._save_path = save_path
+    def __setup_recording(self):
         self.frame_count = 0
-        maybe_create_folders(save_path)
+        maybe_create_folders(self._save_path)
 
     def _write_capture_to_file(self):
         observation = self.get_observation()

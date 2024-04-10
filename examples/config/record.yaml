@@ -1,0 +1,10 @@
+capture:
+  use_rgb_images: False
+  use_state_dicts: False
+  wait_for_new_frames: True
+race.ini:
+  RACE:
+    TRACK: ks_vallelunga
+    CONFIG_TRACK: extended_circuit
+recording:
+  save_path: ../recordings/silverstone_2/audi_r8_lms_2016/sillybois

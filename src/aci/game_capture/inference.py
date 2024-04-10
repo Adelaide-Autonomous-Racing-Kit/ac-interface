@@ -132,7 +132,9 @@ class GameCapture(mp.Process):
         """
         self.__setup_capture_process()
         while self.is_running:
-            # TDOD: Shift this into pyav config
+            # TODO: Shift this into pyav config
+            if self._wait_for_new_frames:
+                self.image_stream.wait_for_new_frame()
             if self._use_RGB_images:
                 image = self.image_stream.image
             else:
@@ -156,6 +158,7 @@ class GameCapture(mp.Process):
         self._postgres_config = config["postgres"]
         self._use_RGB_images = self._capture_config["use_rgb_images"]
         self._use_state_dicts = self._capture_config["use_state_dicts"]
+        self._wait_for_new_frames = self._capture_config["wait_for_new_frames"]
         width, height = load_yaml(GAME_CAPTURE_CONFIG_FILE)["game_resolution"]
         n_channels = 3 if self._use_RGB_images else 4
         self._image_shape = (height, width, n_channels)

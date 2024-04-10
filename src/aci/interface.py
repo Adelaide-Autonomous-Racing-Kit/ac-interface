@@ -28,74 +28,68 @@ class AssettoCorsaInterface(abc.ABC):
     Abstract base class to inherit from when creating vehicle control agents
     """
 
-    def __init__(self, user_config: Dict):
-        self._user_config = user_config
-        self._config = {
-            "postgres": {
-                "dbname": "postgres",
-                "user": "postgres",
-                "password": "postgres",
-                "host": "0.0.0.0",
-                "port": "5432",
-                "table_name": "table" + next(tempfile._get_candidate_names()),
-            },
-            "capture": {
-                "use_rgb_images": False,
-                "use_state_dicts": True,
-            },
-            "evaluation": {"monitors": []},
-            #         # Lap time and sectors monitor
-            #         {
-            #             "name": "time",
-            #             "type": "maximum_interval",
-            #             "column": "i_current_time",
-            #             "interval_column": "normalised_car_position",
-            #             "intervals": {
-            #                 "lap": [0.0, 1.0],
-            #                 "sector_1": [0.0, 0.3],
-            #                 "sector_2": [0.3, 0.6],
-            #                 "sector_3": [0.6, 1.0],
-            #             },
-            #         },
-            #         # Average Speed monitor
-            #         {
-            #             "name": "speed",
-            #             "type": "average_interval",
-            #             "column": "speed_kmh",
-            #             "interval_column": "normalised_car_position",
-            #             "intervals": {
-            #                 "lap": [0.0, 1.0],
-            #                 "sector_1": [0.0, 0.3],
-            #                 "sector_2": [0.3, 0.6],
-            #                 "sector_3": [0.6, 1.0],
-            #             },
-            #         },
-            #         # Minimum fuel monitor
-            #         {
-            #             "name": "fuel",
-            #             "type": "minimum_interval",
-            #             "column": "fuel",
-            #             "interval_column": "normalised_car_position",
-            #             "intervals": {
-            #                 "lap": [0.0, 1.0],
-            #                 "sector_1": [0.0, 0.3],
-            #                 "sector_2": [0.3, 0.6],
-            #                 "sector_3": [0.6, 1.0],
-            #             },
-            #         },
-            #         # 5 lap average monitor
-            #         # {
-            #         #    "name": "time",
-            #         #    "column": "i_current_time",
-            #         #    "interval_column": "n_completed_laps",
-            #         #    "intervals": {
-            #         #        "last_5_laps": [0, 5],
-            #         #    },
-            #         #    "by": "n_completed_laps",
-            #         # },
-            #     ]
-            # },
+    def __init__(self, config: Dict):
+        self._config = config
+        self._config["postgres"] = {
+            "dbname": "postgres",
+            "user": "postgres",
+            "password": "postgres",
+            "host": "0.0.0.0",
+            "port": "5432",
+            "table_name": "table" + next(tempfile._get_candidate_names()),
         }
+        self._config["evaluation"] = {"monitors": []}
+        #         # Lap time and sectors monitor
+        #         {
+        #             "name": "time",
+        #             "type": "maximum_interval",
+        #             "column": "i_current_time",
+        #             "interval_column": "normalised_car_position",
+        #             "intervals": {
+        #                 "lap": [0.0, 1.0],
+        #                 "sector_1": [0.0, 0.3],
+        #                 "sector_2": [0.3, 0.6],
+        #                 "sector_3": [0.6, 1.0],
+        #             },
+        #         },
+        #         # Average Speed monitor
+        #         {
+        #             "name": "speed",
+        #             "type": "average_interval",
+        #             "column": "speed_kmh",
+        #             "interval_column": "normalised_car_position",
+        #             "intervals": {
+        #                 "lap": [0.0, 1.0],
+        #                 "sector_1": [0.0, 0.3],
+        #                 "sector_2": [0.3, 0.6],
+        #                 "sector_3": [0.6, 1.0],
+        #             },
+        #         },
+        #         # Minimum fuel monitor
+        #         {
+        #             "name": "fuel",
+        #             "type": "minimum_interval",
+        #             "column": "fuel",
+        #             "interval_column": "normalised_car_position",
+        #             "intervals": {
+        #                 "lap": [0.0, 1.0],
+        #                 "sector_1": [0.0, 0.3],
+        #                 "sector_2": [0.3, 0.6],
+        #                 "sector_3": [0.6, 1.0],
+        #             },
+        #         },
+        #         # 5 lap average monitor
+        #         # {
+        #         #    "name": "time",
+        #         #    "column": "i_current_time",
+        #         #    "interval_column": "n_completed_laps",
+        #         #    "intervals": {
+        #         #        "last_5_laps": [0, 5],
+        #         #    },
+        #         #    "by": "n_completed_laps",
+        #         # },
+        #     ]
+        # },
         self._setup()
         self.is_running = True
 
@@ -107,7 +101,7 @@ class AssettoCorsaInterface(abc.ABC):
     def _initialise_AC(self):
         maybe_create_steam_appid_file()
         set_default_launch_configurations()
-        override_race_configuration(self._user_config["race"])
+        override_race_configuration(self._config["race.ini"])
 
     def _initialise_capture(self):
         try_until_state_server_is_launched()
@@ -155,7 +149,7 @@ class AssettoCorsaInterface(abc.ABC):
             try:
                 observation = self.get_observation()
                 action = self.behaviour(observation)
-                self.act(action)
+                # self.act(action)
             except KeyboardInterrupt:
                 self.is_running = False
         self.shutdown()
