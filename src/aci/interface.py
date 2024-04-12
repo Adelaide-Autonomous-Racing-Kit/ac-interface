@@ -149,7 +149,7 @@ class AssettoCorsaInterface(abc.ABC):
             try:
                 observation = self.get_observation()
                 action = self.behaviour(observation)
-                # self.act(action)
+                self.act(action)
             except KeyboardInterrupt:
                 self.is_running = False
         self.shutdown()
