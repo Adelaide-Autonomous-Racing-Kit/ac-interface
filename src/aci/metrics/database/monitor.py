@@ -1,5 +1,6 @@
 import multiprocessing as mp
 import time
+import signal
 from typing import Dict
 
 from aci.metrics.database.postgres import PostgresConnector
@@ -70,6 +71,7 @@ class Evaluator(mp.Process):
         """
         Called on Evaluator.start()
         """
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
         while self._is_running:
             self._evaluate_agent()
             time.sleep(0.5)

@@ -1,14 +1,16 @@
+import multiprocessing as mp
+import signal
 from datetime import datetime
 from functools import partial
-import multiprocessing as mp
 from typing import Dict
+
+from loguru import logger
+import numpy as np
+import psycopg
 
 from aci.metrics.database.postgres import PostgresConnector
 from aci.metrics.database.sql import get_create_table_sql, get_insert_row_sql
 from aci.utils.load import state_bytes_to_dict
-from loguru import logger
-import numpy as np
-import psycopg
 
 NUMPY_TO_PYTHON_DTYPES = {
     np.int32: int,
@@ -29,6 +31,7 @@ class DatabaseStateLogger(mp.Process):
         """
         Called on DatabaseStateLogger.start()
         """
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
         while self._is_running:
             state = self._game_capture.state_bytes
             self._database_state_logger.log_state(state)

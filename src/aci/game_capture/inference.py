@@ -1,17 +1,19 @@
 import ctypes
 import multiprocessing as mp
-from multiprocessing.shared_memory import SharedMemory
 import tempfile
 import time
+import signal
+from multiprocessing.shared_memory import SharedMemory
 from typing import Dict
+
+import numpy as np
+from loguru import logger
 
 from aci.config.constants import GAME_CAPTURE_CONFIG_FILE
 from aci.game_capture.state.client import StateClient
 from aci.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
 from aci.game_capture.video.pyav_capture import ImageStream
 from aci.utils.load import load_yaml, state_bytes_to_dict
-from loguru import logger
-import numpy as np
 
 
 class GameCapture(mp.Process):
@@ -143,6 +145,7 @@ class GameCapture(mp.Process):
             self.capture = {"state": state, "image": image}
 
     def __setup_capture_process(self):
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
         self.image_stream = ImageStream()
         self.state_capture = StateClient()
 

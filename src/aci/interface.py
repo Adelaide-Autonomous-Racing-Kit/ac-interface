@@ -126,7 +126,7 @@ class AssettoCorsaInterface(abc.ABC):
         self._database_logger.start()
         self._evaluator.start()
 
-    def shutdown(self):
+    def _shutdown(self):
         self._game_capture.stop()
         self._evaluator.stop()
         self._database_logger.stop()
@@ -152,7 +152,8 @@ class AssettoCorsaInterface(abc.ABC):
                 self.act(action)
             except KeyboardInterrupt:
                 self.is_running = False
-        self.shutdown()
+        self.teardown()
+        self._shutdown()
 
     def get_observation(self) -> Dict:
         """
@@ -193,4 +194,11 @@ class AssettoCorsaInterface(abc.ABC):
         """
         Define this method in your agent class that inherits from this class
             Setup up any member variables, state and models your agent will need
+        """
+
+    @abc.abstractmethod
+    def teardown(self):
+        """
+        Define this method in your agent class that inherits from this class
+            Teardown any running processes or write out final logs here
         """
