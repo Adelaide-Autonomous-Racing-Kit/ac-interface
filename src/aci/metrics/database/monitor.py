@@ -1,6 +1,6 @@
 import multiprocessing as mp
-import time
 import signal
+import time
 from typing import Dict
 
 from aci.metrics.database.postgres import PostgresConnector
