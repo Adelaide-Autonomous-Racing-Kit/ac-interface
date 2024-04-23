@@ -19,7 +19,6 @@ from aci.utils.launch import (
     maybe_create_steam_appid_file,
     try_until_state_server_is_launched,
 )
-from loguru import logger
 import numpy as np
 
 
