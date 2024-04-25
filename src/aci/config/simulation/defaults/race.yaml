@@ -1,0 +1,30 @@
+RACE:
+  TRACK: monza
+  CONFIG_TRACK: ""
+  MODEL: ks_audi_r8_lms_2016
+
+CAR_0:
+  SKIN: 23_racing_224
+
+TEMPERATURE:
+  AMBIENT: 26
+  ROAD: 36
+
+GHOST_CAR:
+  RECORDING: 0
+  PLAYING: 0
+
+LIGHTING:
+  SUN_ANGLE: -48
+  TIME_MULT: 1
+  CLOUD_SPEED: 0.2
+
+
+WEATHER:
+  NAME: 3_clear
+
+SESSION_0:
+  NAME: Qualifying
+  TYPE: 1
+  DURATION_MINUTES: 0
+  SPAWN_SET: START

@@ -1,0 +1,10 @@
+py
+pytest
+pytest-parallel
+pytest-benchmark
+coverage
+black
+flake8-black
+flake8
+isort
+pre-commit

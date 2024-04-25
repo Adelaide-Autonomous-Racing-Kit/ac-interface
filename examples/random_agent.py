@@ -3,8 +3,8 @@ from typing import Dict
 import numpy as np
 from loguru import logger
 
-from src.interface import AssettoCorsaInterface
-from src.utils import display
+from aci.interface import AssettoCorsaInterface
+from aci.utils import display
 
 
 class RandomAgent(AssettoCorsaInterface):

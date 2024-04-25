@@ -18,19 +18,13 @@ endif
 	docker compose version || { echo "Please install docker compose first: https://docs.docker.com/desktop/install/ubuntu/"; exit 1; }
 
 	# Create conda environment and install packages
-	conda create -y -p $(CONDA_ENV_PATH) -c conda-forge opencv numpy av=10.0.0 pyyaml matplotlib pillow python=3.9 \
-		black flake8-black flake8 isort loguru pytest pytest-parallel py pytest-benchmark coverage \
-		pyautogui python-xlib loguru yaml tqdm halo pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+	conda create -y -p $(CONDA_ENV_PATH) -c conda-forge python=3.9 
 	$(CONDA_ACTIVATE) $(CONDA_ENV_PATH)
 
 	# Install packages using pip
+	pip3 install -r requirements.txt
+	pip3 install -r requirements-dev.txt
 	pip3 install -e .
-	pip3 install \
-		git+https://github.com/wyatthuckaby/python-uinput.git \
-		git+https://github.com/lilohuang/PyTurboJPEG.git \
-		python-uinput \
-		"psycopg[binary]" \
-		pre-commit
 	
 	# Start the database
 	docker compose up -d
@@ -47,12 +41,12 @@ run:
 
 test:
 	@echo "Starting all non gpu related tests"
-	@pytest --workers 4 src/ -m "not benchmark and not gpu" 
+	@pytest --workers 4 src/aci/ -m "not benchmark and not gpu" 
 
 lint:
-	@black "src/" 
-	@isort --settings-file=linters/isort.ini "src/"
-	@flake8 --config=linters/flake8.ini "src/"
+	@black "src/aci/" 
+	@isort --settings-file=linters/isort.ini "src/aci/"
+	@flake8 --config=linters/flake8.ini "src/aci/"
 	@echo "all done"
 
 jupyter:
