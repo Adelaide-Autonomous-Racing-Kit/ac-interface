@@ -1,14 +1,16 @@
 import os
-from pathlib import Path
 import subprocess
 import time
+from pathlib import Path
+from typing import Union
+
+from halo import Halo
+from loguru import logger
+import pyautogui
 
 from aci.config.constants import AC_STEAM_APPID_FILE_PATH, AC_STEAM_PATH, STEAM_APPID
 from aci.game_capture.state.client import StateClient
 from aci.utils.os import get_application_window_coordinates
-from halo import Halo
-from loguru import logger
-import pyautogui
 
 
 def launch_assetto_corsa():
@@ -33,25 +35,33 @@ def launch_assetto_corsa():
     os.chdir(original_dir)
 
 
-def try_until_state_server_is_launched():
+def try_until_state_server_is_launched() -> Union[subprocess.Popen, None]:
     """
     Continues to start state server subprocesses until a client is able to
         bind to one
     """
-    is_running = False
+    is_running, p_state_server = False, None
+    try:
+        # Is a state server already active
+        state_client = StateClient()
+        is_running = True
+    except ConnectionRefusedError:
+        pass
     while not is_running:
         with Halo(text="Starting State Server...", spinner="line"):
             try:
                 p_state_server = launch_sate_server()
                 time.sleep(2)
-                _ = StateClient()
+                state_client = StateClient()
                 is_running = True
             except ConnectionRefusedError:
                 p_state_server.terminate()
+    state_client.stop()
     logger.info("State Server Started")
+    return p_state_server
 
 
-def launch_sate_server():
+def launch_sate_server() -> subprocess.Popen:
     """
     Launches a state server in the crossover bottle
     """

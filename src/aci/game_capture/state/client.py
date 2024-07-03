@@ -21,6 +21,12 @@ class StateClient:
         self._is_stale = True
         self.is_running = True
 
+    def stop(self):
+        """
+        Terminates execution of state client
+        """
+        self.is_running = False
+
     @property
     def new_state(self) -> np.array:
         """
@@ -64,9 +70,10 @@ class StateClient:
         """
         Blocks execution until the game is ready for the session to be started
         """
-        # self._wait_for_packet_id_reset()
+        self._wait_for_packet_id_reset()
         while not self.is_AC_ready:
             continue
+        self.stop()
 
     def _wait_for_packet_id_reset(self):
         """

@@ -29,15 +29,15 @@ class AssettoCorsaInterface(abc.ABC):
 
     def __init__(self, config: Dict):
         self._config = config
-        self._config["postgres"] = {
-            "dbname": "postgres",
-            "user": "postgres",
-            "password": "postgres",
-            "host": "0.0.0.0",
-            "port": "5432",
-            "table_name": "table" + next(tempfile._get_candidate_names()),
-        }
-        self._config["evaluation"] = {"monitors": []}
+        # self._config["postgres"] = {
+        #    "dbname": "postgres",
+        #    "user": "postgres",
+        #    "password": "postgres",
+        #    "host": "0.0.0.0",
+        #    "port": "5432",
+        #    "table_name": "table" + next(tempfile._get_candidate_names()),
+        # }
+        # self._config["evaluation"] = {"monitors": [
         #         # Lap time and sectors monitor
         #         {
         #             "name": "time",
@@ -89,6 +89,7 @@ class AssettoCorsaInterface(abc.ABC):
         #         # },
         #     ]
         # },
+        # ]}
         self._setup()
         self.is_running = True
 
@@ -108,10 +109,23 @@ class AssettoCorsaInterface(abc.ABC):
         self._input_interface = VirtualGamepad()
 
     def _initialise_evaluation(self):
-        postgres_config = self._config["postgres"]
-        evaluation_config = self._config["evaluation"]
-        self._database_logger = DatabaseStateLogger(self._game_capture, postgres_config)
-        self._evaluator = Evaluator(evaluation_config, postgres_config)
+        self._setup_database_logger()
+        self._setup_evaluator()
+
+    def _setup_database_logger(self):
+        if "postgres" in self._config:
+            config = self._config["postgres"]
+            self._database_logger = DatabaseStateLogger(self._game_capture, config)
+        else:
+            self._database_logger = None
+
+    def _setup_evaluator(self):
+        if "evaluation" in self._config:
+            evaluation_config = self._config["evaluation"]
+            postgres_config = self._config["postgres"]
+            self._evaluator = Evaluator(evaluation_config, postgres_config)
+        else:
+            self._evaluator = None
 
     def _launch_AC(self):
         launch_assetto_corsa()
@@ -122,21 +136,27 @@ class AssettoCorsaInterface(abc.ABC):
         self._game_capture.start()
 
     def _start_evaluation(self):
-        self._database_logger.start()
-        self._evaluator.start()
+        if self._database_logger is not None:
+            self._database_logger.start()
+        if self._evaluator is not None:
+            self._evaluator.start()
 
     def _shutdown(self):
         self._game_capture.stop()
-        self._evaluator.stop()
-        self._database_logger.stop()
+        self._stop_evaluator()
+        self._stop_database_logger()
         self._shutdown_AC()
-        self._shutdown_python()
+
+    def _stop_database_logger(self):
+        if self._database_logger is not None:
+            self._database_logger.stop()
+
+    def _stop_evaluator(self):
+        if self._evaluator is not None:
+            self._evaluator.stop()
 
     def _shutdown_AC(self):
         subprocess.run(["pkill", "acs.exe"])
-
-    def _shutdown_python(self):
-        subprocess.run(["pkill", "python"])
 
     def run(self):
         self._launch_AC()
@@ -153,6 +173,12 @@ class AssettoCorsaInterface(abc.ABC):
                 self.is_running = False
         self.teardown()
         self._shutdown()
+
+    def stop(self):
+        """
+        Signal the interface to stop running and clean up any processes
+        """
+        self.is_running = False
 
     def get_observation(self) -> Dict:
         """

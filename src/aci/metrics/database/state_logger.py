@@ -31,9 +31,32 @@ class DatabaseStateLogger(mp.Process):
         Called on DatabaseStateLogger.start()
         """
         signal.signal(signal.SIGINT, signal.SIG_IGN)
-        while self._is_running:
+        while self.is_running:
             state = self._game_capture.state_bytes
             self._database_state_logger.log_state(state)
+
+    @property
+    def is_running(self) -> bool:
+        """
+        Checks if the database logging process is running
+
+        :return: True if the database logging process is running, false if it is not
+        :rtype: bool
+        """
+        with self._is_running.get_lock():
+            is_running = self._is_running.value
+        return is_running
+
+    @is_running.setter
+    def is_running(self, is_running: bool):
+        """
+        Sets whether the database logging processes is running or noe
+
+        :is_running: True if the database logging process is running, false if it is not
+        :type is_running: bool
+        """
+        with self._is_running.get_lock():
+            self._is_running.value = is_running
 
     def stop(self):
         """

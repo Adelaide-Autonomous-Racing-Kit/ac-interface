@@ -28,7 +28,7 @@ class StateServer:
         self._unpack_int = struct.Struct("i").unpack
         logger.info(f"State server created, listing on {ADDRESS}:{PORT}")
 
-    def send_state(self, connection):
+    def send_state(self, connection: socket):
         last_packet_id = (-1, -1)
         is_connected = True
         while is_connected:
@@ -44,14 +44,14 @@ class StateServer:
         i_current_time = self._unpack_int(state_bytes[136:140])[0]
         return (n_completed_laps, i_current_time)
 
-    def _send_state(self, connection: socket, game_state: Dict):
+    def _send_state(self, connection: socket, game_state: Dict) -> bool:
+        is_sent = False
         try:
             connection.send(game_state)
-            return True
+            is_sent = True
         except Exception as e:
-            logger.info((f"Connection Closed: {e}"))
             connection.close()
-            return False
+        return is_sent
 
     def run(self):
         while self.is_running:

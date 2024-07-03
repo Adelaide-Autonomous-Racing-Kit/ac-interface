@@ -157,7 +157,6 @@ class GameCapture(mp.Process):
 
     def __setup_configuration(self, config: dict):
         self._capture_config = config["capture"]
-        self._postgres_config = config["postgres"]
         self._use_RGB_images = self._capture_config["use_rgb_images"]
         self._use_state_dicts = self._capture_config["use_state_dicts"]
         self._wait_for_new_frames = self._capture_config["wait_for_new_frames"]

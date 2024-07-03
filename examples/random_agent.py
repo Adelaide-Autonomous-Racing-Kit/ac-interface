@@ -4,7 +4,7 @@ import numpy as np
 from loguru import logger
 
 from aci.interface import AssettoCorsaInterface
-from aci.utils import display
+from aci.utils.config import load_config
 
 
 class RandomAgent(AssettoCorsaInterface):
@@ -32,7 +32,8 @@ class RandomAgent(AssettoCorsaInterface):
 
 
 def main():
-    agent = RandomAgent()
+    config = load_config()
+    agent = RandomAgent(config)
     agent.run()
 
 
