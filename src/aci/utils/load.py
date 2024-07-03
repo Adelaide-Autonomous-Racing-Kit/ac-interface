@@ -1,11 +1,10 @@
 from pathlib import Path
 from typing import Dict, Union
 
+from aci.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
 import cv2
 import numpy as np
 import yaml
-
-from aci.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
 
 STRING_KEYS = [
     "tyre_compound",
