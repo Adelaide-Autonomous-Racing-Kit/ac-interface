@@ -1,7 +1,11 @@
 capture:
-  use_rgb_images: False
   use_state_dicts: False
-  wait_for_new_frames: True
+  ffmpeg:
+    framerate: "30"
+  images:
+    use_rgb_images: False
+    wait_for_new_frames: True
+    resolution: [1600, 900]
 race.ini:
   RACE:
     TRACK: monza

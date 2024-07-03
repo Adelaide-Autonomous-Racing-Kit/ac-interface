@@ -6,7 +6,7 @@ import tempfile
 import time
 from typing import Dict
 
-from aci.config.constants import GAME_CAPTURE_CONFIG_FILE
+from aci.config.constants import CAPTURE_CONFIG_FILE
 from aci.game_capture.state.client import StateClient
 from aci.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
 from aci.game_capture.video.pyav_capture import ImageStream
@@ -145,7 +145,7 @@ class GameCapture(mp.Process):
 
     def __setup_capture_process(self):
         signal.signal(signal.SIGINT, signal.SIG_IGN)
-        self.image_stream = ImageStream()
+        self.image_stream = ImageStream(self._capture_config)
         self.state_capture = StateClient()
 
     def stop(self):
@@ -157,10 +157,14 @@ class GameCapture(mp.Process):
 
     def __setup_configuration(self, config: dict):
         self._capture_config = config["capture"]
-        self._use_RGB_images = self._capture_config["use_rgb_images"]
-        self._use_state_dicts = self._capture_config["use_state_dicts"]
-        self._wait_for_new_frames = self._capture_config["wait_for_new_frames"]
-        width, height = load_yaml(GAME_CAPTURE_CONFIG_FILE)["game_resolution"]
+        self._image_stream_config = load_yaml(CAPTURE_CONFIG_FILE)
+        if "images" in self._capture_config:
+            self._image_stream_config.update(self._capture_config["images"])
+            self._capture_config["images"] = self._image_stream_config
+        self._use_RGB_images = self._image_stream_config["use_rgb_images"]
+        self._use_state_dicts = self._capture_config["state"]["use_state_dicts"]
+        self._wait_for_new_frames = self._image_stream_config["wait_for_new_frames"]
+        width, height = self._image_stream_config["resolution"]
         n_channels = 3 if self._use_RGB_images else 4
         self._image_shape = (height, width, n_channels)
 

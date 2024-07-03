@@ -24,7 +24,7 @@ CAMERA_POSITION_TO_MODE = {
 STEAM_APPID = "244210"
 CONFIG_ROOT = os.path.dirname(__file__)
 # Capture configuration files
-GAME_CAPTURE_CONFIG_FILE = Path(CONFIG_ROOT, "capture/game_capture.yaml")
+CAPTURE_CONFIG_FILE = Path(CONFIG_ROOT, "capture/capture.yaml")
 FFMPEG_CONFIG_FILE = Path(CONFIG_ROOT, "capture/ffmpeg.yaml")
 RECORD_CONFIG_FILE = Path(CONFIG_ROOT, "capture/record.yaml")
 

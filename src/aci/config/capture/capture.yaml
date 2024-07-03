@@ -1,0 +1,2 @@
+resolution: [1600, 900] # What is the resolution of the game we're trying to look for and capture.
+window_name: "AC"
