@@ -2,7 +2,7 @@ from threading import Thread
 import time
 from typing import Dict
 
-from aci.config.constants import FFMPEG_CONFIG_FILE, CAPTURE_CONFIG_FILE
+from aci.config.constants import CAPTURE_CONFIG_FILE, FFMPEG_CONFIG_FILE
 from aci.utils import display
 from aci.utils.load import load_yaml
 from aci.utils.os import get_display_input, get_file_format, get_sanitised_os_name
