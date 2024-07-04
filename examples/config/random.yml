@@ -1,10 +1,7 @@
 capture:
   state:
     use_dicts: True
-  ffmpeg:
-    framerate: "30"
   images:
-    image_format: "BGR"
     wait_for_new_frames: True
 race.ini:
   RACE:
