@@ -7,8 +7,8 @@ from typing import List, Union
 from aci.config.constants import (
     AC_STEAM_APPID_FILE_PATH,
     AC_STEAM_PATH,
-    STEAM_APPID,
     GAME_NAME_TO_WINDOW_NAME,
+    STEAM_APPID,
 )
 from aci.game_capture.state.client import StateClient
 from aci.utils.os import get_application_window_coordinates
