@@ -1,4 +1,3 @@
-from email.mime import image
 from threading import Thread
 import time
 from typing import Dict
