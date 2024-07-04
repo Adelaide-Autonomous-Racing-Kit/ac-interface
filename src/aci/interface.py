@@ -19,8 +19,8 @@ from aci.utils.launch import (
     try_until_state_server_is_launched,
 )
 from aci.utils.os import get_default_window_location
-import numpy as np
 from loguru import logger
+import numpy as np
 
 
 class AssettoCorsaInterface(abc.ABC):
