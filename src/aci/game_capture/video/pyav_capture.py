@@ -1,15 +1,33 @@
+from email.mime import image
 from threading import Thread
 import time
 from typing import Dict
 
-from aci.config.constants import CAPTURE_CONFIG_FILE, FFMPEG_CONFIG_FILE
 from aci.utils import display
-from aci.utils.load import load_yaml
 from aci.utils.os import get_display_input, get_file_format, get_sanitised_os_name
 from aci.utils.system_monitor import System_Monitor
 import av
 from loguru import logger
 import numpy as np
+
+
+def bgr0_to_bgr0(image: np.array) -> np.array:
+    return image
+
+
+def bgr0_to_bgr(image: np.array) -> np.array:
+    return image[:, :, :3]
+
+
+def bgr0_to_rgb(image: np.array) -> np.array:
+    return bgr0_to_bgr(image)[:, :, ::-1]
+
+
+IMAGE_FORMAT_CONVERSION = {
+    "BGR0": bgr0_to_bgr0,
+    "BGR": bgr0_to_bgr,
+    "RGB": bgr0_to_rgb,
+}
 
 
 class ImageStream:
@@ -29,20 +47,16 @@ class ImageStream:
 
     @property
     def image(self) -> np.array:
+        if self._wait_for_new_frames:
+            self._wait_for_new_frame()
         self._is_new_frame = False
-        # Slice off padded zeros to give BGR image
-        return self._latest_image[:, :, :3]
-
-    @property
-    def bgr0_image(self) -> np.array:
-        self._is_new_frame = False
-        return self._latest_image
+        return IMAGE_FORMAT_CONVERSION[self._image_format](self._latest_image)
 
     @property
     def is_stale(self) -> bool:
         return not self._is_new_frame
 
-    def wait_for_new_frame(self):
+    def _wait_for_new_frame(self):
         """
         Blocking call that waits until a new image from the game is received
         """
@@ -51,9 +65,9 @@ class ImageStream:
 
     def __setup_configuration(self, config: Dict):
         self._capture_config = config["images"]
-        self._ffmpeg_config = load_yaml(FFMPEG_CONFIG_FILE)
-        if "ffmpeg" in config:
-            self._ffmpeg_config.update(config["ffmpeg"])
+        self._image_format = self._capture_config["image_format"]
+        self._wait_for_new_frames = self._capture_config["wait_for_new_frames"]
+        self._ffmpeg_config = config["ffmpeg"]
         self.__add_dynamic_configuration_options()
 
     def __add_dynamic_configuration_options(self):

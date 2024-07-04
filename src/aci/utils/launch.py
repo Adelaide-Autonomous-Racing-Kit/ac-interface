@@ -2,9 +2,14 @@ import os
 from pathlib import Path
 import subprocess
 import time
-from typing import Union
+from typing import List, Union
 
-from aci.config.constants import AC_STEAM_APPID_FILE_PATH, AC_STEAM_PATH, STEAM_APPID
+from aci.config.constants import (
+    AC_STEAM_APPID_FILE_PATH,
+    AC_STEAM_PATH,
+    STEAM_APPID,
+    GAME_NAME_TO_WINDOW_NAME,
+)
 from aci.game_capture.state.client import StateClient
 from aci.utils.os import get_application_window_coordinates
 from halo import Halo
@@ -102,11 +107,11 @@ def create_steam_appid_file():
         file.write(STEAM_APPID)
 
 
-def click_drive():
+def click_drive(window_resolution: List[int]):
     """
     Clicks in the AC window on the drive button to start the session
     """
-    top_left_corner = get_application_window_coordinates("AC", [1600, 900])
+    top_left_corner = get_application_window_coordinates("AC", window_resolution)
     cursor_location = pyautogui.position()
     pyautogui.click(top_left_corner.x + 20, top_left_corner.y + 150)
     pyautogui.moveTo(cursor_location)

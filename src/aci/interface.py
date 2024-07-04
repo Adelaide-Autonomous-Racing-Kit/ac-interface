@@ -1,13 +1,11 @@
 import abc
+import copy
 import subprocess
 import tempfile
 import time
-from typing import Dict
+from typing import Dict, List
 
-from aci.config.ac_config import (
-    override_race_configuration,
-    set_default_launch_configurations,
-)
+from aci.config.ac_config import configure_simulation
 from aci.game_capture.inference import GameCapture
 from aci.game_capture.state.client import StateClient
 from aci.input.controller import VirtualGamepad
@@ -28,7 +26,6 @@ class AssettoCorsaInterface(abc.ABC):
     """
 
     def __init__(self, config: Dict):
-        self._config = config
         # self._config["postgres"] = {
         #    "dbname": "postgres",
         #    "user": "postgres",
@@ -57,10 +54,7 @@ class AssettoCorsaInterface(abc.ABC):
         #             "type": "average_interval",
         #             "column": "speed_kmh",
         #             "interval_column": "normalised_car_position",
-        #             "intervals": {
-        #                 "lap": [0.0, 1.0],
-        #                 "sector_1": [0.0, 0.3],
-        #                 "sector_2": [0.3, 0.6],
+        #             "intervals": {configure_simulation],
         #                 "sector_3": [0.6, 1.0],
         #             },
         #         },
@@ -90,18 +84,19 @@ class AssettoCorsaInterface(abc.ABC):
         #     ]
         # },
         # ]}
-        self._setup()
+        self._setup(config)
         self.is_running = True
 
-    def _setup(self):
+    def _setup(self, config: Dict):
+        self._config = copy.deepcopy(config)
         self._initialise_AC()
         self._initialise_capture()
         self._initialise_evaluation()
 
     def _initialise_AC(self):
         maybe_create_steam_appid_file()
-        set_default_launch_configurations()
-        override_race_configuration(self._config["race.ini"])
+        simulation_config = configure_simulation(self._config)
+        self._config.update(simulation_config)
 
     def _initialise_capture(self):
         try_until_state_server_is_launched()
@@ -141,6 +136,11 @@ class AssettoCorsaInterface(abc.ABC):
         if self._evaluator is not None:
             self._evaluator.start()
 
+    @property
+    def _window_resolution(self) -> List[int]:
+        display_config = self._config["video.ini"]["VIDEO"]
+        return [int(display_config["WIDTH"]), int(display_config["HEIGHT"])]
+
     def _shutdown(self):
         self._game_capture.stop()
         self._stop_evaluator()
@@ -162,7 +162,7 @@ class AssettoCorsaInterface(abc.ABC):
         self._launch_AC()
         self._start_capture()
         self._start_evaluation()
-        click_drive()
+        click_drive(self._window_resolution)
         time.sleep(2)
         while self.is_running:
             try:

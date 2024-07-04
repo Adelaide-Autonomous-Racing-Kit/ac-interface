@@ -1,5 +1,0 @@
-framerate: "30"
-c:v: "copy"
-preset: "ultrafast"
-tune: "zerolatency"
-use_wallclock_as_timestamps: "1"

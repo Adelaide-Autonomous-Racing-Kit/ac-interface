@@ -26,6 +26,9 @@ class AssettoCorsaRecorder(AssettoCorsaInterface):
     def setup(self):
         pass
 
+    def teardown(self):
+        pass
+
     def run(self):
         """
         Saves frames and state to disk as .jpeg, .npy file pairs
