@@ -4,20 +4,16 @@ import subprocess
 import time
 from typing import List, Union
 
-from aci.config.constants import (
-    AC_STEAM_APPID_FILE_PATH,
-    AC_STEAM_PATH,
-    GAME_NAME_TO_WINDOW_NAME,
-    STEAM_APPID,
-)
+from aci.utils.data import Point
+from aci.config.constants import AC_STEAM_APPID_FILE_PATH, AC_STEAM_PATH, STEAM_APPID
 from aci.game_capture.state.client import StateClient
-from aci.utils.os import get_application_window_coordinates
+from aci.utils.os import get_application_window_coordinates, move_application_window
 from halo import Halo
 from loguru import logger
 import pyautogui
 
 
-def launch_assetto_corsa():
+def launch_assetto_corsa(window_position: Point, window_resolution: List[int]):
     """
     Launches AC in a crossover bottle
     """
@@ -37,6 +33,7 @@ def launch_assetto_corsa():
         stderr=subprocess.PIPE,
     )
     os.chdir(original_dir)
+    move_application_window("AC", window_resolution, window_position)
 
 
 def try_until_state_server_is_launched() -> Union[subprocess.Popen, None]:

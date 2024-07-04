@@ -17,6 +17,8 @@ from aci.utils.launch import (
     maybe_create_steam_appid_file,
     try_until_state_server_is_launched,
 )
+from aci.utils.os import get_default_window_location
+from aci.utils.data import Point
 import numpy as np
 
 
@@ -123,7 +125,7 @@ class AssettoCorsaInterface(abc.ABC):
             self._evaluator = None
 
     def _launch_AC(self):
-        launch_assetto_corsa()
+        launch_assetto_corsa(self._window_location, self._window_resolution)
         state_client = StateClient()
         state_client.wait_until_AC_is_ready()
 
@@ -140,6 +142,23 @@ class AssettoCorsaInterface(abc.ABC):
     def _window_resolution(self) -> List[int]:
         display_config = self._config["video.ini"]["VIDEO"]
         return [int(display_config["WIDTH"]), int(display_config["HEIGHT"])]
+
+    @property
+    def _window_location(self) -> Point:
+        if self._is_dynamic_window_location:
+            window_location = self._config["capture"]["images"]["window_location"]
+            window_location = Point(x=window_location[0], y=window_location[1])
+        else:
+            window_location = get_default_window_location(self._window_resolution)
+        return window_location
+
+    @property
+    def _is_dynamic_window_location(self) -> bool:
+        try:
+            self._config["capture"]["images"]["window_location"]
+        except KeyError:
+            return False
+        return True
 
     def _shutdown(self):
         self._game_capture.stop()
