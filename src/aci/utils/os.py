@@ -2,14 +2,14 @@ import os
 import platform
 from typing import List, Tuple
 
+from Xlib.display import Display
 from aci.config.constants import GAME_NAME_TO_WINDOW_NAME
 from aci.game_capture.video.get_window import (
-    get_window_location_linux,
     get_window_linux,
+    get_window_location_linux,
 )
 from aci.utils.data import Point
 from pywinctl import Window
-from Xlib.display import Display
 
 
 def get_sanitised_os_name() -> str:

@@ -11,6 +11,7 @@ from aci.game_capture.state.client import StateClient
 from aci.input.controller import VirtualGamepad
 from aci.metrics.database.monitor import Evaluator
 from aci.metrics.database.state_logger import DatabaseStateLogger
+from aci.utils.data import Point
 from aci.utils.launch import (
     click_drive,
     launch_assetto_corsa,
@@ -18,7 +19,6 @@ from aci.utils.launch import (
     try_until_state_server_is_launched,
 )
 from aci.utils.os import get_default_window_location
-from aci.utils.data import Point
 import numpy as np
 
 
