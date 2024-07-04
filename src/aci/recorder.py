@@ -23,11 +23,11 @@ class AssettoCorsaRecorder(AssettoCorsaInterface):
     def behaviour(self, observation: Dict):
         pass
 
-    def setup(self):
-        pass
-
     def teardown(self):
         pass
+
+    def termination_condition(self, observation: Dict) -> bool:
+        return False
 
     def run(self):
         """

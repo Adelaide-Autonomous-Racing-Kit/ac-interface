@@ -20,6 +20,7 @@ from aci.utils.launch import (
 )
 from aci.utils.os import get_default_window_location
 import numpy as np
+from loguru import logger
 
 
 class AssettoCorsaInterface(abc.ABC):
@@ -94,6 +95,15 @@ class AssettoCorsaInterface(abc.ABC):
         self._initialise_AC()
         self._initialise_capture()
         self._initialise_evaluation()
+        self._setup_termination_check()
+
+    def _setup_termination_check(self):
+        self._n_steps_since_last_check = 0
+        termination_config = self._config.get("termination", {})
+        self._n_steps_between_checks = termination_config.get("check_every_n", -1)
+        self._n_consecutive_failures = 0
+        max_consecutive_failures = termination_config.get("max_consecutive_failures", 0)
+        self._n_max_consecutive_failures = max_consecutive_failures
 
     def _initialise_AC(self):
         maybe_create_steam_appid_file()
@@ -186,12 +196,40 @@ class AssettoCorsaInterface(abc.ABC):
         while self.is_running:
             try:
                 observation = self.get_observation()
+                if self._is_termination_condition_met(observation):
+                    self.is_running = False
                 action = self.behaviour(observation)
                 self.act(action)
             except KeyboardInterrupt:
                 self.is_running = False
+            except Exception as e:
+                self._log_exception(e)
+                self.is_running = False
         self.teardown()
         self._shutdown()
+
+    def _is_termination_condition_met(self, observation: Dict) -> bool:
+        if self._n_steps_between_checks < 0:
+            return False
+        if self._n_steps_between_checks > self._n_steps_since_last_check:
+            self._n_steps_since_last_check += 1
+            return False
+        self._n_steps_since_last_check = 0
+        if self.termination_condition(observation):
+            self._n_consecutive_failures += 1
+        else:
+            self._n_consecutive_failures = 0
+        if self._n_consecutive_failures >= self._n_max_consecutive_failures:
+            message = "Agent has met the termination condition "
+            message += f"{self._n_consecutive_failures} times. Terminating execution"
+            logger.error(message)
+            return True
+        return False
+
+    def _log_exception(self, exception: Exception):
+        message = "Agent has thrown an exception and will now terminate. "
+        message += f"Exception: {exception}"
+        logger.error(message)
 
     def stop(self):
         """
@@ -234,15 +272,20 @@ class AssettoCorsaInterface(abc.ABC):
         """
 
     @abc.abstractmethod
-    def setup(self):
-        """
-        Define this method in your agent class that inherits from this class
-            Setup up any member variables, state and models your agent will need
-        """
-
-    @abc.abstractmethod
     def teardown(self):
         """
         Define this method in your agent class that inherits from this class
             Teardown any running processes or write out final logs here
+        """
+
+    @abc.abstractmethod
+    def termination_condition(self, observation: Dict) -> bool:
+        """
+        Implement a condition based on simulation observation that is met will cause
+            the current experiment to terminate
+
+        :observation: {Dictionary image: BGR image as np.array, state: Dict{str: float}}
+        :type: Dict[str: np.array]
+        :return: True to terminate agent execution, False to continue
+        :rtype: bool
         """
