@@ -6,8 +6,6 @@ from aci.config.constants import CONFIG_OVERRIDE_PATHS
 from aci.utils.load import load_yaml
 from loguru import logger
 
-AC_CONFIG_FILES = ["race.ini", "video.ini", "camera_manager.ini"]
-
 
 def configure_simulation(dynamic_configuration: Dict):
     """
@@ -54,7 +52,7 @@ def override_default_configurations(dynamic_configuration: Dict) -> Dict:
     Overwrites any options specified by the user dynamically in the default settings
     """
     configs = {}
-    for key in AC_CONFIG_FILES:
+    for key in CONFIG_OVERRIDE_PATHS:
         if key in dynamic_configuration:
             configs[key] = override_configuration(dynamic_configuration[key], key)
         else:
