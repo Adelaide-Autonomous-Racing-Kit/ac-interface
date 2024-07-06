@@ -13,9 +13,9 @@ from aci.metrics.database.monitor import Evaluator
 from aci.metrics.database.state_logger import DatabaseStateLogger
 from aci.utils.data import Point
 from aci.utils.launch import (
-    click_drive,
     launch_assetto_corsa,
     maybe_create_steam_appid_file,
+    start_session,
     try_until_state_server_is_launched,
 )
 from aci.utils.os import get_default_window_location
@@ -191,7 +191,7 @@ class AssettoCorsaInterface(abc.ABC):
         self._launch_AC()
         self._start_capture()
         self._start_evaluation()
-        click_drive(self._window_resolution)
+        start_session(self._window_resolution)
         time.sleep(2)
         while self.is_running:
             try:

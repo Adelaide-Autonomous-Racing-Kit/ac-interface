@@ -12,6 +12,11 @@ from halo import Halo
 from loguru import logger
 import pyautogui
 
+LEFT_MENU_WIDTH = 100
+BAR_TO_SETUP_NORMALISED_WIDTH = 0.078
+SETUP_TO_FILE_WIDTH = 315
+SETUP_TO_LOAD_WIDTH = 40
+
 
 def launch_assetto_corsa(window_position: Point, window_resolution: List[int]):
     """
@@ -104,11 +109,40 @@ def create_steam_appid_file():
         file.write(STEAM_APPID)
 
 
+def start_session(window_resolution: List[int]):
+    """
+    Loads a vehicle setup and begins the simulation session
+    """
+    load_vehicle_setup(window_resolution)
+    click_drive(window_resolution)
+
+
 def click_drive(window_resolution: List[int]):
     """
     Clicks in the AC window on the drive button to start the session
     """
-    top_left_corner = get_application_window_coordinates("AC", window_resolution)
     cursor_location = pyautogui.position()
+    top_left_corner = get_application_window_coordinates("AC", window_resolution)
     pyautogui.click(top_left_corner.x + 20, top_left_corner.y + 150)
     pyautogui.moveTo(cursor_location)
+
+
+def load_vehicle_setup(window_resolution: List[int]):
+    """
+    Clicks in the AC window to load the vehicle setup in the top position of the UI
+    """
+    top_left_corner = get_application_window_coordinates("AC", window_resolution)
+    cursor_location = pyautogui.position()
+    bar_to_setup_width = BAR_TO_SETUP_NORMALISED_WIDTH * window_resolution[0]
+    base_x_offset = LEFT_MENU_WIDTH + bar_to_setup_width
+    # Click setup menu
+    pyautogui.click(top_left_corner.x + 20, top_left_corner.y + 275)
+    # Click setup in top position (alphabetical)
+    x_offset = base_x_offset + SETUP_TO_FILE_WIDTH
+    pyautogui.click(top_left_corner.x + x_offset, top_left_corner.y + 180)
+    # Click load setup
+    x_offset = base_x_offset + SETUP_TO_LOAD_WIDTH
+    pyautogui.click(top_left_corner.x + x_offset, top_left_corner.y + 500)
+    pyautogui.moveTo(cursor_location)
+    # Wait for setup to validate
+    time.sleep(2)
