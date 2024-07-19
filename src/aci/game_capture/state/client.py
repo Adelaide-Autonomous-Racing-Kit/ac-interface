@@ -73,7 +73,8 @@ class StateClient:
         Blocks execution until the game is ready for the session to be started
         """
         is_started = True
-        self._wait_for_packet_id_reset()
+        if not self._wait_for_packet_id_reset():
+            return False
         start_time = time.time()
         while not self.is_AC_ready:
             elapsed_time = time.time() - start_time
@@ -88,8 +89,14 @@ class StateClient:
         Block until a packet ID close to zero is observed indicating the a new
             game session has started.
         """
+        is_reset = True
+        start_time = time.time()
         while not self.latest_state["physics_packet_id"] < 500:
-            continue
+            elapsed_time = time.time() - start_time
+            if elapsed_time > LAUNCH_TIMEOUT_S:
+                is_reset = False
+                break
+        return is_reset
 
     def __start_update_thread(self):
         """
