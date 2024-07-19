@@ -135,9 +135,13 @@ class AssettoCorsaInterface(abc.ABC):
             self._evaluator = None
 
     def _launch_AC(self):
-        launch_assetto_corsa(self._window_location, self._window_resolution)
-        state_client = StateClient()
-        state_client.wait_until_AC_is_ready()
+        is_started = False
+        while not is_started:
+            launch_assetto_corsa(self._window_location, self._window_resolution)
+            state_client = StateClient()
+            is_started = state_client.wait_until_AC_is_ready()
+            if not is_started:
+                self._shutdown_AC()
 
     def _start_capture(self):
         self._game_capture.start()
