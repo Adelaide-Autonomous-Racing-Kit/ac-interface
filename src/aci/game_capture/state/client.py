@@ -8,6 +8,7 @@ import numpy as np
 
 LAUNCH_TIMEOUT_S = 20
 
+
 class StateClient:
     """
     Socket client that receives game state updates from a StateServer
