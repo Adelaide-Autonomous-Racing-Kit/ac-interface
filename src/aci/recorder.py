@@ -23,8 +23,11 @@ class AssettoCorsaRecorder(AssettoCorsaInterface):
     def behaviour(self, observation: Dict):
         pass
 
-    def setup(self):
+    def teardown(self):
         pass
+
+    def termination_condition(self, observation: Dict) -> bool:
+        return False
 
     def run(self):
         """
@@ -35,7 +38,7 @@ class AssettoCorsaRecorder(AssettoCorsaInterface):
         self.__setup_recording()
         self._launch_AC()
         self._start_capture()
-        click_drive()
+        click_drive(self._window_resolution)
         logger.info("Starting to record game session")
         while self.is_running:
             try:
@@ -43,7 +46,7 @@ class AssettoCorsaRecorder(AssettoCorsaInterface):
             except KeyboardInterrupt:
                 self.is_running = False
         logger.info("Finished recording")
-        self.shutdown()
+        self._shutdown()
 
     def __setup_recording(self):
         self.frame_count = 0

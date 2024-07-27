@@ -6,6 +6,8 @@ from aci.game_capture.state.server import ADDRESS, PORT
 from loguru import logger
 import numpy as np
 
+LAUNCH_TIMEOUT_S = 20
+
 
 class StateClient:
     """
@@ -20,6 +22,12 @@ class StateClient:
         self._latest_state = None
         self._is_stale = True
         self.is_running = True
+
+    def stop(self):
+        """
+        Terminates execution of state client
+        """
+        self.is_running = False
 
     @property
     def new_state(self) -> np.array:
@@ -60,21 +68,35 @@ class StateClient:
         """
         return self.latest_state["physics_packet_id"] > 500
 
-    def wait_until_AC_is_ready(self):
+    def wait_until_AC_is_ready(self) -> bool:
         """
         Blocks execution until the game is ready for the session to be started
         """
-        # self._wait_for_packet_id_reset()
+        is_started = True
+        if not self._wait_for_packet_id_reset():
+            return False
+        start_time = time.time()
         while not self.is_AC_ready:
-            continue
+            elapsed_time = time.time() - start_time
+            if elapsed_time > LAUNCH_TIMEOUT_S:
+                is_started = False
+                break
+        self.stop()
+        return is_started
 
     def _wait_for_packet_id_reset(self):
         """
         Block until a packet ID close to zero is observed indicating the a new
             game session has started.
         """
+        is_reset = True
+        start_time = time.time()
         while not self.latest_state["physics_packet_id"] < 500:
-            continue
+            elapsed_time = time.time() - start_time
+            if elapsed_time > LAUNCH_TIMEOUT_S:
+                is_reset = False
+                break
+        return is_reset
 
     def __start_update_thread(self):
         """

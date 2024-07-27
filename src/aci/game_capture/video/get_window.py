@@ -1,35 +1,32 @@
-from dataclasses import dataclass
 import time
 from typing import List, Union
 
 from Xlib.display import Display
+from aci.utils.data import Point
 
 N_MAX_RETRIES = 5
-
-
-@dataclass
-class Point:
-    """
-    A class representing a point in 2D space
-    """
-
-    x: int
-    y: int
-
-    def __add__(self, point):
-        x = self.x + point.x
-        y = self.y + point.y
-        return Point(x, y)
-
-    def __repr__(self) -> str:
-        return f"(x={self.x}, y={self.y})"
 
 
 class WindowNotFoundError(Exception):
     pass
 
 
-def get_window_location_linux(name: str, resolution: List[int]) -> List[int]:
+def get_window_location_linux(name: str, resolution: List[int]) -> Point:
+    """
+    This function is used to get the location of a specific window with the given name on a Linux system.
+
+    :param name: The name of the window you are trying to find.
+    :type name: str
+    :param resolution: The resolution of the window.
+    :type resolution: List[int]
+    :return: A tuple of integers representing the x and y coordinates of the top-left corner of the window.
+    :rtype: List[int]
+    """
+    window = get_window_linux(name, resolution)
+    return get_window_absolute_location(window)
+
+
+def get_window_linux(name: str, resolution: List[int]) -> Display:
     """
     This function is used to get the location of a specific window with the given name on a Linux system.
 
@@ -42,22 +39,22 @@ def get_window_location_linux(name: str, resolution: List[int]) -> List[int]:
     """
     display = Display()
     root = display.screen().root
-    location, n_retries = None, 0
-    while location is None:
-        location = get_window_location_linux_recurse(root, name, resolution)
-        if location is None:
+    window, n_retries = None, 0
+    while window is None:
+        window = get_window_linux_recurse(root, name, resolution)
+        if window is None:
             if n_retries == N_MAX_RETRIES:
                 raise WindowNotFoundError(
                     f"Unable to find a window named {name} with resolution {resolution[0]}x{resolution[1]}"
                 )
             n_retries += 1
             time.sleep(0.5)
-    return location
+    return window
 
 
-def get_window_location_linux_recurse(
+def get_window_linux_recurse(
     window: Display, name: str, resolution: List[int]
-) -> Union[Point, None]:
+) -> Union[Display, None]:
     """
     This function recurses the active displays finding the location of a specific window with a given name on a Linux system.
 
@@ -74,10 +71,10 @@ def get_window_location_linux_recurse(
     for w in children:
         if w.get_wm_class():
             if is_named_match(w, name) and is_correct_resolution(w, resolution):
-                return get_window_absolute_location(w)
-        window_location = get_window_location_linux_recurse(w, name, resolution)
-        if window_location is not None:
-            return window_location
+                return w
+        w = get_window_linux_recurse(w, name, resolution)
+        if w is not None:
+            return w
     return None
 
 

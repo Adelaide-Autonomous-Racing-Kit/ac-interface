@@ -6,7 +6,7 @@ import tempfile
 import time
 from typing import Dict
 
-from aci.config.constants import GAME_CAPTURE_CONFIG_FILE
+from aci.config.constants import CAPTURE_CONFIG_FILE
 from aci.game_capture.state.client import StateClient
 from aci.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
 from aci.game_capture.video.pyav_capture import ImageStream
@@ -133,19 +133,13 @@ class GameCapture(mp.Process):
         """
         self.__setup_capture_process()
         while self.is_running:
-            # TODO: Shift this into pyav config
-            if self._wait_for_new_frames:
-                self.image_stream.wait_for_new_frame()
-            if self._use_RGB_images:
-                image = self.image_stream.image
-            else:
-                image = self.image_stream.bgr0_image
+            image = self.image_stream.image
             state = self.state_capture.latest_state
             self.capture = {"state": state, "image": image}
 
     def __setup_capture_process(self):
         signal.signal(signal.SIGINT, signal.SIG_IGN)
-        self.image_stream = ImageStream()
+        self.image_stream = ImageStream(self._capture_config)
         self.state_capture = StateClient()
 
     def stop(self):
@@ -156,14 +150,38 @@ class GameCapture(mp.Process):
         self._shared_state_buffer.unlink()
 
     def __setup_configuration(self, config: dict):
-        self._capture_config = config["capture"]
-        self._postgres_config = config["postgres"]
-        self._use_RGB_images = self._capture_config["use_rgb_images"]
-        self._use_state_dicts = self._capture_config["use_state_dicts"]
-        self._wait_for_new_frames = self._capture_config["wait_for_new_frames"]
-        width, height = load_yaml(GAME_CAPTURE_CONFIG_FILE)["game_resolution"]
-        n_channels = 3 if self._use_RGB_images else 4
+        self._load_configuration(config)
+        self._use_state_dicts = self._state_config["use_dicts"]
+        width, height = self._image_stream_config["resolution"]
+        n_channels = 4 if self._image_stream_config["image_format"] == "BGR0" else 3
         self._image_shape = (height, width, n_channels)
+
+    def _load_configuration(self, config: Dict):
+        self._capture_config = load_yaml(CAPTURE_CONFIG_FILE)
+        if self._is_dynamic_config(config):
+            self._override_default_configs(config["capture"])
+        self._add_display_resolution(config)
+        self._image_stream_config = self._capture_config["images"]
+        self._state_config = self._capture_config["state"]
+
+    def _is_dynamic_config(self, config: Dict) -> bool:
+        return "capture" in config
+
+    def _override_default_configs(self, config: Dict):
+        if "images" in config:
+            self._override_default_config(config, "images")
+        if "state" in config:
+            self._override_default_config(config, "state")
+        if "ffmpeg" in config:
+            self._override_default_config(config, "ffmpeg")
+
+    def _override_default_config(self, config: Dict, config_name: str):
+        self._capture_config[config_name].update(config[config_name])
+
+    def _add_display_resolution(self, config: Dict):
+        display_config = config["video.ini"]["VIDEO"]
+        resolution = [int(display_config["WIDTH"]), int(display_config["HEIGHT"])]
+        self._capture_config["images"]["resolution"] = resolution
 
     def __setup_processes_shared_memory(self):
         self.__setup_shared_image_buffer()

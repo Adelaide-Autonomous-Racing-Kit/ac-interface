@@ -1,0 +1,9 @@
+capture:
+  state:
+    use_dicts: True
+  images:
+    wait_for_new_frames: True
+race.ini:
+  RACE:
+    TRACK: monza
+    CONFIG_TRACK: ""
