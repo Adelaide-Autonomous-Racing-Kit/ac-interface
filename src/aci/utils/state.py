@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from aci.utils.ins import SimulatedINS
 from aci.utils.load import state_bytes_to_dict
 
 
