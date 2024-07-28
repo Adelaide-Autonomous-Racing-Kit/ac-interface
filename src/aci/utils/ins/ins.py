@@ -2,10 +2,9 @@ import math
 import time
 from typing import Dict
 
+from aci.utils.ins.models.imu import IMU as SimulatedIMU
 import numpy as np
 from scipy import constants
-
-from aci.utils.ins.models.imu import IMU as SimulatedIMU
 
 
 class SimulatedINS:
