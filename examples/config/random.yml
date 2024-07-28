@@ -1,6 +1,7 @@
 capture:
   state:
     use_dicts: True
+    simulate_ins: True
   images:
     wait_for_new_frames: True
 race.ini:
