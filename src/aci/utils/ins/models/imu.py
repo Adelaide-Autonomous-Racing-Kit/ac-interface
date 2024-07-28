@@ -158,19 +158,20 @@ class IMU(object):
             raise ValueError("axis should be either 6 or 9.")
 
         # built-in imu error model
-        self.gyro_err = gyro_low_accuracy  #   default is low accuracy
+        #   default is low accuracy
+        self.gyro_err = gyro_low_accuracy
         self.accel_err = accel_low_accuracy
         self.mag_err = mag_low_accuracy
 
         # accuracy is a string, use built-in models
         if isinstance(accuracy, str):
-            if accuracy == "low-accuracy":  # 'low-accuracy'
+            if accuracy == "low-accuracy":
                 pass
-            elif accuracy == "mid-accuracy":  # 'mid-accuracy'
+            elif accuracy == "mid-accuracy":
                 self.gyro_err = gyro_mid_accuracy
                 self.accel_err = accel_mid_accuracy
                 self.mag_err = mag_mid_accuracy
-            elif accuracy == "high-accuracy":  # 'high-accuracy'
+            elif accuracy == "high-accuracy":
                 self.gyro_err = gyro_high_accuracy
                 self.accel_err = accel_high_accuracy
                 self.mag_err = mag_high_accuracy
@@ -281,11 +282,11 @@ class IMU(object):
                     'b_corr': gyro bias isntability correlation time, sec
         """
         if isinstance(gyro_error, str):
-            if gyro_error == "low-accuracy":  # 'low-accuracy'
+            if gyro_error == "low-accuracy":
                 self.gyro_err = gyro_low_accuracy
-            elif gyro_error == "mid-accuracy":  # 'mid-accuracy'
+            elif gyro_error == "mid-accuracy":
                 self.gyro_err = gyro_mid_accuracy
-            elif gyro_error == "high-accuracy":  # 'high-accuracy'
+            elif gyro_error == "high-accuracy":
                 self.gyro_err = gyro_high_accuracy
             else:  # not a valid string
                 raise ValueError("gyro_error is not a valid string.")
@@ -315,11 +316,11 @@ class IMU(object):
                     'b_corr': accel bias isntability correlation time, sec
         """
         if isinstance(accel_error, str):
-            if accel_error == "low-accuracy":  # 'low-accuracy'
+            if accel_error == "low-accuracy":
                 self.accel_err = accel_low_accuracy
-            elif accel_error == "mid-accuracy":  # 'mid-accuracy'
+            elif accel_error == "mid-accuracy":
                 self.accel_err = accel_mid_accuracy
-            elif accel_error == "high-accuracy":  # 'high-accuracy'
+            elif accel_error == "high-accuracy":
                 self.accel_err = accel_high_accuracy
             else:  # not a valid string
                 raise ValueError("accel_error is not a valid string.")
@@ -392,11 +393,11 @@ class IMU(object):
         if not self.magnetometer:
             return
         if isinstance(mag_error, str):
-            if mag_error == "low-accuracy":  # 'low-accuracy'
+            if mag_error == "low-accuracy":
                 self.mag_err = mag_low_accuracy
-            elif mag_error == "mid-accuracy":  # 'mid-accuracy'
+            elif mag_error == "mid-accuracy":
                 self.mag_err = mag_mid_accuracy
-            elif mag_error == "high-accuracy":  # 'high-accuracy'
+            elif mag_error == "high-accuracy":
                 self.mag_err = mag_high_accuracy
             else:  # not a valid string
                 raise ValueError("mag_error is not a valid string.")
