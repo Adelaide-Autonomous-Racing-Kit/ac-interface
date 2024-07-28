@@ -35,7 +35,7 @@ import numpy as np
 
 D2R = math.pi / 180
 
-## default IMU, magnetometer and GPS error profiles.
+# default IMU, magnetometer and GPS error profiles.
 # low accuracy, from AHRS380
 # http://www.memsic.cn/userfiles/files/Datasheets/Inertial-System-Datasheets/AHRS380SA_Datasheet.pdf
 gyro_low_accuracy = {
@@ -93,14 +93,14 @@ mag_high_accuracy = {
     "std": np.array([0.001, 0.001, 0.001]),
 }
 
-## built-in GPS error profiles
+# built-in GPS error profiles
 gps_low_accuracy = {
     # Assetto Corsa uses y-up frame
     "stdp": np.array([5.0, 7.0, 5.0]),
     "stdv": np.array([0.05, 0.05, 0.05]),
 }
 
-## built-in odometer error profiles
+# built-in odometer error profiles
 odo_low_accuracy = {"scale": 0.99, "stdv": 0.1}
 
 
