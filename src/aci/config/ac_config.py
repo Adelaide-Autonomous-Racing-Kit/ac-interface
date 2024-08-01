@@ -12,16 +12,19 @@ def configure_simulation(dynamic_configuration: Dict):
     Sets Assetto Corsa configuration files to interface defaults then overrides any options
         the user has configured dynamically
     """
-    set_default_launch_configurations()
+    is_recording = "recording" in dynamic_configuration
+    set_default_launch_configurations(is_recording)
     return override_default_configurations(dynamic_configuration)
 
 
-def set_default_launch_configurations():
+def set_default_launch_configurations(is_recording: bool):
     """
     Combines the steam default race.ini with a yaml and writing it so AC launches
         with the set options
     """
     for override_file_name in CONFIG_OVERRIDE_PATHS:
+        if override_file_name == "controls.ini" and is_recording:
+            continue
         logger.info(f"Overriding {override_file_name} with package defaults")
         override_paths = CONFIG_OVERRIDE_PATHS[override_file_name]
         config = combine_configurations(override_paths.default, override_paths.override)
