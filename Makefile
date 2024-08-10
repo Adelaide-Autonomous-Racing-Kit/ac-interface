@@ -29,9 +29,16 @@ endif
 	# Start the database
 	docker compose up -d
 
+setup-execution-pipes:
+	mkdir $(HOME)/named_pipes
+	mkfifo $(HOME)/named_pipes/ac_launch_pipe
+	mkfifo $(HOME)/named_pipes/state_server_pipe
+	(crontab -l 2>/dev/null; echo "@reboot ./scripts/launch_ac_pipe.sh") | crontab -
+	(crontab -l 2>/dev/null; echo "@reboot ./scripts/state_server_pipe.sh") | crontab -
+
 setup-pre-push:
 	@echo "Setting up pre-push hook..."
-	@cp pre_push.sh .git/hooks/pre-push
+	@cp scripts/pre_push.sh .git/hooks/pre-push
 	@chmod +x .git/hooks/pre-push
 	@echo "Done!"
 

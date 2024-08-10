@@ -23,21 +23,22 @@ def launch_assetto_corsa(window_position: Point, window_resolution: List[int]):
     Launches AC in a crossover bottle
     """
     logger.info("Starting Assetto Corsa...")
-    original_dir = Path.cwd()
-    os.chdir(AC_STEAM_PATH)
-    subprocess.Popen(
-        [
-            "/opt/cxoffice/bin/wine",
-            "--bottle",
-            "Assetto_Corsa",
-            "--cx-app",
-            "acs.exe",
-        ],
-        stdin=subprocess.PIPE,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.PIPE,
-    )
-    os.chdir(original_dir)
+    subprocess.Popen("echo 'launch' > /home/james/named_pipes/ac_launch_pipe")
+    # original_dir = Path.cwd()
+    # os.chdir(AC_STEAM_PATH)
+    # subprocess.Popen(
+    #     [
+    #         "/opt/cxoffice/bin/wine",
+    #         "--bottle",
+    #         "Assetto_Corsa",
+    #         "--cx-app",
+    #         "acs.exe",
+    #     ],
+    #     stdin=subprocess.PIPE,
+    #     stdout=subprocess.DEVNULL,
+    #     stderr=subprocess.PIPE,
+    # )
+    # os.chdir(original_dir)
     move_application_window("AC", window_resolution, window_position)
 
 
