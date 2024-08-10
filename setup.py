@@ -17,10 +17,10 @@ setup(
         "loguru",
         "tqdm",
         "halo",
-        "git+https://github.com/wyatthuckaby/python-uinput.git",
-        "git+https://github.com/lilohuang/PyTurboJPEG.git",
         "python-uinput",
-        "psycopg[binary]",
+        "PyTurboJPEG",
+        "python-uinput",
+        "psycopg",
         "PyWinCtl",
     ],
 )
