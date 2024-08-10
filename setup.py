@@ -23,4 +23,5 @@ setup(
         "psycopg",
         "PyWinCtl",
     ],
+    package_data={"src": ["*.yaml"]},
 )
