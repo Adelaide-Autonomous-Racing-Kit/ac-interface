@@ -14,8 +14,8 @@ from aci.metrics.database.state_logger import DatabaseStateLogger
 from aci.utils.data import Point
 from aci.utils.launch import (
     launch_assetto_corsa,
-    shutdown_assetto_corsa,
     maybe_create_steam_appid_file,
+    shutdown_assetto_corsa,
     start_session,
     try_until_state_server_is_launched,
 )
