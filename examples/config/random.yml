@@ -4,6 +4,7 @@ capture:
     simulate_ins: True
   images:
     wait_for_new_frames: True
+  is_docker: False
 race.ini:
   RACE:
     TRACK: monza
