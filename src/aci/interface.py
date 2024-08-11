@@ -14,8 +14,10 @@ from aci.metrics.database.state_logger import DatabaseStateLogger
 from aci.utils.data import Point
 from aci.utils.launch import (
     launch_assetto_corsa,
+    launch_assetto_corsa_docker,
     maybe_create_steam_appid_file,
     shutdown_assetto_corsa,
+    shutdown_assetto_corsa_docker,
     start_session,
     try_until_state_server_is_launched,
 )
@@ -112,7 +114,7 @@ class AssettoCorsaInterface(abc.ABC):
         self._config.update(simulation_config)
 
     def _initialise_capture(self):
-        try_until_state_server_is_launched()
+        try_until_state_server_is_launched(self._config["capture"]["is_docker"])
         self._game_capture = GameCapture(self._config)
         self._input_interface = VirtualGamepad()
 
@@ -138,7 +140,11 @@ class AssettoCorsaInterface(abc.ABC):
     def _launch_AC(self):
         is_started = False
         while not is_started:
-            launch_assetto_corsa(self._window_location, self._window_resolution)
+            location, resolution = self._window_location, self._window_resolution
+            if self._config["capture"]["is_docker"]:
+                launch_assetto_corsa_docker(location, resolution)
+            else:
+                launch_assetto_corsa(location, resolution)
             state_client = StateClient()
             is_started = state_client.wait_until_AC_is_ready()
             if not is_started:
@@ -190,7 +196,10 @@ class AssettoCorsaInterface(abc.ABC):
             self._evaluator.stop()
 
     def _shutdown_AC(self):
-        shutdown_assetto_corsa()
+        if self._config["capture"]["is_docker"]:
+            shutdown_assetto_corsa_docker()
+        else:
+            shutdown_assetto_corsa()
 
     def run(self):
         self._launch_AC()

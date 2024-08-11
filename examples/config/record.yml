@@ -1,3 +1,5 @@
+capture:
+  is_docker: False
 race.ini:
   RACE:
     TRACK: monza
