@@ -23,8 +23,9 @@ def launch_assetto_corsa(window_position: Point, window_resolution: List[int]):
     Launches AC in a crossover bottle
     """
     logger.info("Starting Assetto Corsa...")
-    with open("/execution_pipes/ac_launch_pipe", "w") as f:
-        f.write("launch\n")
+    # TODO: Make this work in and out of docker
+    with open("/execution_pipes/aci_execution_pipe", "w") as f:
+        f.write("launch_assetto_corsa\n")
     # original_dir = Path.cwd()
     # os.chdir(AC_STEAM_PATH)
     # subprocess.Popen(
@@ -43,6 +44,11 @@ def launch_assetto_corsa(window_position: Point, window_resolution: List[int]):
     move_application_window("AC", window_resolution, window_position)
 
 
+def shutdown_assetto_corsa():
+    with open("/execution_pipes/aci_execution_pipe", "w") as f:
+        f.write("shutdown_assetto_corsa\n")
+
+
 def try_until_state_server_is_launched() -> Union[subprocess.Popen, None]:
     """
     Continues to start state server subprocesses until a client is able to
@@ -58,34 +64,42 @@ def try_until_state_server_is_launched() -> Union[subprocess.Popen, None]:
     while not is_running:
         with Halo(text="Starting State Server...", spinner="line"):
             try:
-                p_state_server = launch_sate_server()
+                launch_sate_server()
                 time.sleep(2)
                 state_client = StateClient()
                 is_running = True
             except ConnectionRefusedError:
-                p_state_server.terminate()
+                shutdown_state_server()
+                # p_state_server.terminate()
     state_client.stop()
     logger.info("State Server Started")
     return p_state_server
 
 
-def launch_sate_server() -> subprocess.Popen:
+def launch_sate_server() -> Union[subprocess.Popen, None]:
     """
     Launches a state server in the crossover bottle
     """
-    p_state_server = subprocess.Popen(
-        [
-            "/opt/cxoffice/bin/wine",
-            "--bottle",
-            "Assetto_Corsa",
-            "--cx-app",
-            "cmd.exe",
-        ],
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-    )
-    p_state_server.stdin.write("python -m aci.game_capture.state.server\n".encode())
-    return p_state_server
+    with open("/execution_pipes/aci_execution_pipe", "w") as f:
+        f.write("launch_state_server\n")
+    # p_state_server = subprocess.Popen(
+    #     [
+    #         "/opt/cxoffice/bin/wine",
+    #         "--bottle",
+    #         "Assetto_Corsa",
+    #         "--cx-app",
+    #         "cmd.exe",
+    #     ],
+    #     stdin=subprocess.PIPE,
+    #     stdout=subprocess.PIPE,
+    # )
+    # p_state_server.stdin.write("python -m aci.game_capture.state.server\n".encode())
+    # return p_state_server
+
+
+def shutdown_state_server():
+    with open("/execution_pipes/aci_execution_pipe", "w") as f:
+        f.write("shutdown_state_server\n")
 
 
 def maybe_create_steam_appid_file():

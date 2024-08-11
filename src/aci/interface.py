@@ -14,6 +14,7 @@ from aci.metrics.database.state_logger import DatabaseStateLogger
 from aci.utils.data import Point
 from aci.utils.launch import (
     launch_assetto_corsa,
+    shutdown_assetto_corsa,
     maybe_create_steam_appid_file,
     start_session,
     try_until_state_server_is_launched,
@@ -189,7 +190,7 @@ class AssettoCorsaInterface(abc.ABC):
             self._evaluator.stop()
 
     def _shutdown_AC(self):
-        subprocess.run(["pkill", "acs.exe"])
+        shutdown_assetto_corsa()
 
     def run(self):
         self._launch_AC()
