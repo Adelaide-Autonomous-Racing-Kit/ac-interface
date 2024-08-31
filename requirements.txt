@@ -2,12 +2,14 @@ opencv-python
 numpy
 av
 pyyaml
+ruamel.yaml
 pillow
 loguru
 pyautogui
 python-xlib
 loguru
 tqdm
+scipy
 halo
 git+https://github.com/wyatthuckaby/python-uinput.git
 git+https://github.com/lilohuang/PyTurboJPEG.git

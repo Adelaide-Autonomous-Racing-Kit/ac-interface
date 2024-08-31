@@ -114,7 +114,7 @@ def launch_sate_server() -> subprocess.Popen:
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
     )
-    p_state_server.stdin.write("python -m aci.game_capture.state.server\n".encode())
+    p_state_server.stdin.write("python -m acs.server\n".encode())
     return p_state_server
 
 

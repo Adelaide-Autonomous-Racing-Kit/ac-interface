@@ -14,7 +14,7 @@ while true;
         killall "acs.exe";
         echo "Shutdown Assetto Corsa"
     elif [ "$READ" = "launch_state_server" ]; then
-        bash -c "echo python -m aci.game_capture.state.server | /opt/cxoffice/bin/wine --bottle Assetto_Corsa --cx-app cmd.exe" &
+        bash -c "echo python -m acs.server | /opt/cxoffice/bin/wine --bottle Assetto_Corsa --cx-app cmd.exe" &
         SERVER_PID=$!;
     elif [ "$READ" = "shutdown_state_server" ]; then
         # This gets the wrong PID currently
