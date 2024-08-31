@@ -2,11 +2,11 @@ import threading
 import time
 
 from aci.config.constants import RECORD_CONFIG_FILE
-from aci.game_capture.state.client import StateClient
 from aci.game_capture.video.pyav_capture import ImageStream
 from aci.utils.load import load_yaml
 from aci.utils.save import save_bgr0_as_jpeg, save_bytes, save_state
 from aci.utils.system_monitor import System_Monitor, track_runtime
+from acs.client import StateClient
 from loguru import logger
 import numpy as np
 

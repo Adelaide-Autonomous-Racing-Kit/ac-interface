@@ -22,6 +22,7 @@ setup(
         "python-uinput",
         "psycopg",
         "PyWinCtl",
+        "git+https://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@github.com/Adelaide-Autonomous-Racing-Challenge/ac-extras.git"
     ],
     package_data={"aci": ["**/*.yaml"]},
 )

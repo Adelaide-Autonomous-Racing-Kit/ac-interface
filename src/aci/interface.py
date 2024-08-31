@@ -7,7 +7,6 @@ from typing import Dict, List
 
 from aci.config.ac_config import configure_simulation
 from aci.game_capture.inference import GameCapture
-from aci.game_capture.state.client import StateClient
 from aci.input.controller import VirtualGamepad
 from aci.metrics.database.monitor import Evaluator
 from aci.metrics.database.state_logger import DatabaseStateLogger
@@ -22,6 +21,7 @@ from aci.utils.launch import (
     try_until_state_server_is_launched,
 )
 from aci.utils.os import get_default_window_location
+from acs.client import StateClient
 from loguru import logger
 import numpy as np
 

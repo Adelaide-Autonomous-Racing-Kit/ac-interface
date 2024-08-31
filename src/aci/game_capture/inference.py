@@ -5,12 +5,12 @@ import signal
 from typing import Dict
 
 from aci.config.constants import CAPTURE_CONFIG_FILE
-from aci.game_capture.state.client import StateClient
-from aci.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
 from aci.game_capture.video.pyav_capture import ImageStream
 from aci.utils.ins import SimulatedINS
 from aci.utils.load import load_yaml
 from aci.utils.state import identity, process_state, simulate_ins_readings
+from acs.client import StateClient
+from acs.shared_memory.ac.combined import COMBINED_DATA_TYPES
 import numpy as np
 
 
