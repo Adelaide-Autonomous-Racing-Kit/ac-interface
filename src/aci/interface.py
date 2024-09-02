@@ -3,24 +3,15 @@ import copy
 import subprocess
 import tempfile
 import time
-from typing import Dict, List
+from typing import Dict
 
 from aci.config.ac_config import configure_simulation
 from aci.game_capture.inference import GameCapture
 from aci.input.controller import VirtualGamepad
 from aci.metrics.database.monitor import Evaluator
 from aci.metrics.database.state_logger import DatabaseStateLogger
-from aci.utils.data import Point
-from aci.utils.launch import (
-    launch_assetto_corsa,
-    launch_assetto_corsa_docker,
-    maybe_create_steam_appid_file,
-    shutdown_assetto_corsa,
-    shutdown_assetto_corsa_docker,
-    start_session,
-    try_until_state_server_is_launched,
-)
-from aci.utils.os import get_default_window_location
+from aci.utils.launch import maybe_create_steam_appid_file
+from aci.launchers import get_ac_launcher
 from acs.client import StateClient
 from loguru import logger
 import numpy as np
@@ -112,9 +103,13 @@ class AssettoCorsaInterface(abc.ABC):
         maybe_create_steam_appid_file()
         simulation_config = configure_simulation(self._config)
         self._config.update(simulation_config)
+        self._setup_AC_launcher()
+
+    def _setup_AC_launcher(self):
+        self._ac_launcher = get_ac_launcher(self._config)
 
     def _initialise_capture(self):
-        try_until_state_server_is_launched(self._config["capture"]["is_docker"])
+        self._ac_launcher.launch_sate_server()
         self._game_capture = GameCapture(self._config)
         self._input_interface = VirtualGamepad()
 
@@ -138,17 +133,7 @@ class AssettoCorsaInterface(abc.ABC):
             self._evaluator = None
 
     def _launch_AC(self):
-        is_started = False
-        while not is_started:
-            location, resolution = self._window_location, self._window_resolution
-            if self._config["capture"]["is_docker"]:
-                launch_assetto_corsa_docker(location, resolution)
-            else:
-                launch_assetto_corsa(location, resolution)
-            state_client = StateClient()
-            is_started = state_client.wait_until_AC_is_ready()
-            if not is_started:
-                self._shutdown_AC()
+        self._ac_launcher.launch_assetto_corsa()
 
     def _start_capture(self):
         self._game_capture.start()
@@ -158,28 +143,6 @@ class AssettoCorsaInterface(abc.ABC):
             self._database_logger.start()
         if self._evaluator is not None:
             self._evaluator.start()
-
-    @property
-    def _window_resolution(self) -> List[int]:
-        display_config = self._config["video.ini"]["VIDEO"]
-        return [int(display_config["WIDTH"]), int(display_config["HEIGHT"])]
-
-    @property
-    def _window_location(self) -> Point:
-        if self._is_dynamic_window_location:
-            window_location = self._config["capture"]["images"]["window_location"]
-            window_location = Point(x=window_location[0], y=window_location[1])
-        else:
-            window_location = get_default_window_location(self._window_resolution)
-        return window_location
-
-    @property
-    def _is_dynamic_window_location(self) -> bool:
-        try:
-            self._config["capture"]["images"]["window_location"]
-        except KeyError:
-            return False
-        return True
 
     def _shutdown(self):
         self._game_capture.stop()
@@ -196,16 +159,13 @@ class AssettoCorsaInterface(abc.ABC):
             self._evaluator.stop()
 
     def _shutdown_AC(self):
-        if self._config["capture"]["is_docker"]:
-            shutdown_assetto_corsa_docker()
-        else:
-            shutdown_assetto_corsa()
+        self._ac_launcher.shutdown_assetto_corsa()
 
     def run(self):
         self._launch_AC()
         self._start_capture()
         self._start_evaluation()
-        start_session(self._window_resolution)
+        self._ac_launcher.start_session()
         time.sleep(2)
         while self.is_running:
             try:

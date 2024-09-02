@@ -5,6 +5,7 @@ capture:
   images:
     wait_for_new_frames: True
   is_docker: False
+  is_proton: True
 race.ini:
   RACE:
     TRACK: monza

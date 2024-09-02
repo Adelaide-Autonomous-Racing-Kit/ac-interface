@@ -4,8 +4,8 @@ from pathlib import Path
 
 GAME_NAME_TO_WINDOW_NAME = {
     "linux": {
-        "ACC": "ac2-win64-shipping.exe",
-        "AC": "acs.exe",
+        "ACC": {"ac2-win64-shipping.exe"},
+        "AC": {"acs.exe", "steam_app_244210"},
     },
     "windows": {},
     "darwin": {},
