@@ -40,28 +40,24 @@ When installing python select to install it for all users in the Advanced Menu.
 
 
 Now we should be able to call python and its related packages from the bottle's command line.
-To verify this, in crossover click `Run Commnad` and in the `Command` field type `python`, this should launch your Python (version 3.11 in our example) interactive terminal. 
+To verify this, in crossover click `Run Commnad` and in the `Command` field type `python`, this should launch your Python (version 3.11 in our example) interactive terminal.
+NOTE: Python 3.12 seems top cause issues with WINE so stick to versions 3.11 and under
 
+Next install git using the same approach by hitting `Install an unlisted application` button in the `Install` tab.
+Selecting the git windows installer you downloaded and follow the prompts.
+If the installer hangs on "Running post install sciprts" feel free to terminate the process from your task monitor.
+Crossover will complain that the program did not install sucessfully but git will still work.
 
-Navigate to the root directory of the package and run:
+Install the state server into the bottle by ruinning:
 ```
-/opt/cxoffice/bin/wine --bottle Assetto_Corsa --cx-app cmd.exe
+/opt/cxoffice/bin/wine --bottle Assetto_Corsa --cx-app pip install git+https://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@github.com/Adelaide-Autonomous-Racing-Challenge/ac-state.git
 ```
-To access the command line inside the bottle.
-Then install ac interface it into the bottle by running:
-```
-pip install loguru numpy
-pip install -e .
-```
-	
+
 In linux, do this to make sure the python uinput module has access to the kernel uinput module. 
 ```bash
 sudo modprobe uinput
 sudo chmod a+r+w /dev/uinput
 ```
-
-Additionally, if the game resolution is set to be the same as your windowed resolution, i.e. you have a 1920x1080 screen, and in AC you disable fullscreen mode (enabling windowed mode) and set the resolution to be 1920x1080, AC will ignore your windowed mode request and thus our scripts won't be able to do game capture. So you will need to set the game resolution to something smaller than your display, i.e. 1920x1080 screen, so 1600x900 game resolution. 
-You will need to go into `src/aci/config/capture/game_capture.yaml` and change the resolution to the one chosen in game.
 
 ### Recording
 To write out image files faster we need to make sure an additional package is installed by running `sudo apt-get install libturbojpeg` prior to running `make build`.

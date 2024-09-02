@@ -1,7 +1,7 @@
 import ctypes
 from typing import List
 
-from aci.game_capture.state.shared_memory.ac.combined import COMBINED_DATA_TYPES
+from acs.shared_memory.ac.combined import COMBINED_DATA_TYPES
 
 NUMPY_TO_SQL_DTYPES = {
     ctypes.c_int: "int4",

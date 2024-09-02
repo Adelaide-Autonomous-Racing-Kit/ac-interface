@@ -5,9 +5,9 @@ import time
 from typing import List, Union
 
 from aci.config.constants import AC_STEAM_APPID_FILE_PATH, AC_STEAM_PATH, STEAM_APPID
-from aci.game_capture.state.client import StateClient
 from aci.utils.data import Point
 from aci.utils.os import get_application_window_coordinates, move_application_window
+from acs.client import StateClient
 from halo import Halo
 from loguru import logger
 import pyautogui
@@ -114,7 +114,7 @@ def launch_sate_server() -> subprocess.Popen:
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
     )
-    p_state_server.stdin.write("python -m aci.game_capture.state.server\n".encode())
+    p_state_server.stdin.write("python -m acs.server\n".encode())
     return p_state_server
 
 

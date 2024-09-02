@@ -2,10 +2,10 @@ capture:
   is_docker: False
 race.ini:
   RACE:
-    TRACK: abudhabi_euroracers_v2
-    CONFIG_TRACK: "gp"
+    TRACK: monza
+    CONFIG_TRACK: ""
 recording:
-  save_path: ../recordings/yas_marina/audi_r8_lms_2016/sillybois
+  save_path: ../recordings/monza/audi_r8_lms_2016/test
 video.ini:
   VIDEO:
     WIDTH: 1280

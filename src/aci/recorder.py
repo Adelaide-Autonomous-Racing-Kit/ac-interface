@@ -17,7 +17,7 @@ class AssettoCorsaRecorder(AssettoCorsaInterface):
         self._save_path = config["recording"]["save_path"]
 
     def _initialise_capture(self):
-        try_until_state_server_is_launched()
+        try_until_state_server_is_launched(self._config["capture"]["is_docker"])
         self._game_capture = GameCapture(self._config)
 
     def behaviour(self, observation: Dict):
