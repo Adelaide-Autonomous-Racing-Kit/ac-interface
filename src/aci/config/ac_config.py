@@ -7,7 +7,6 @@ from aci.config.constants import ACI_DEFAULT_CONFIG_PATH, CONFIG_FILES, CONFIG_P
 from aci.utils.load import load_yaml
 from loguru import logger
 
-
 OverridePaths = namedtuple("OverridePaths", "default user override")
 
 

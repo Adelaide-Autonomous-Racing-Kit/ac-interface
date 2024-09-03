@@ -1,8 +1,9 @@
 import subprocess
 
 from aci.utils.os import move_application_window
-from .base import AssettoCorsaLauncher
 from loguru import logger
+
+from .base import AssettoCorsaLauncher
 
 
 class ProtonLauncher(AssettoCorsaLauncher):
