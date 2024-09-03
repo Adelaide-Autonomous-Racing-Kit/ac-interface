@@ -23,5 +23,5 @@ setup(
         "psycopg",
         "PyWinCtl",
     ],
-    package_data={"aci": ["**/*.yaml"]},
+    package_data={"aci": ["**/*.yaml", "**/*.sh"]},
 )

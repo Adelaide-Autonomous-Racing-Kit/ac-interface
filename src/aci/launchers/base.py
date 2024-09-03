@@ -4,7 +4,11 @@ from typing import Dict
 
 from aci.config.ac_config import AssettoCorsaConfigurator
 from aci.utils.data import Point
-from aci.utils.os import get_application_window_coordinates, get_default_window_location
+from aci.utils.os import (
+    get_application_window_coordinates,
+    get_default_window_location,
+    move_application_window,
+)
 from acs.client import StateClient
 from halo import Halo
 from loguru import logger
@@ -61,12 +65,9 @@ class AssettoCorsaLauncher(abc.ABC):
             state_client.stop()
         return is_connected
 
-    @abc.abstractmethod
     def _move_assetto_corsa_window(self):
-        """
-        Implement logic to move Assetto Corsa's window
-        """
-        pass
+        location, resolution = self._window_location, self._window_resolution
+        move_application_window("AC", resolution, location)
 
     def shutdown_assetto_corsa(self):
         """

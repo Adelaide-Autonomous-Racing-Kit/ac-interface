@@ -5,8 +5,7 @@ import time
 from typing import Dict
 
 from aci.config.constants import CROSSOVER_AC_STEAM_PATH
-from aci.utils.launch import maybe_create_steam_appid_file
-from aci.utils.os import move_application_window
+from aci.config.utils import maybe_create_steam_appid_file
 
 from .base import AssettoCorsaLauncher
 
@@ -35,10 +34,6 @@ class CrossOverLauncher(AssettoCorsaLauncher):
             stderr=subprocess.PIPE,
         )
         os.chdir(original_dir)
-
-    def _move_assetto_corsa_window(self):
-        location, resolution = self._window_location, self._window_resolution
-        move_application_window("AC", resolution, location)
 
     def _shutdown_assetto_corsa(self):
         """
@@ -89,3 +84,33 @@ class CrossOverLauncher(AssettoCorsaLauncher):
 
     def _aditional_configuration(self):
         maybe_create_steam_appid_file()
+
+
+class DockerCrossOverLauncher(AssettoCorsaLauncher):
+    def _launch_assetto_corsa(self):
+        """
+        Launches AC
+        """
+        with open("/execution_pipes/aci_execution_pipe", "w") as f:
+            f.write("crossover_launch_ac\n")
+
+    def _shutdown_assetto_corsa(self):
+        """
+        Shutdown AC
+        """
+        with open("/execution_pipes/aci_execution_pipe", "w") as f:
+            f.write("crossover_shutdown_ac\n")
+
+    def _launch_sate_server(self):
+        """
+        Launch state server
+        """
+        with open("/execution_pipes/aci_execution_pipe", "w") as f:
+            f.write("crossover_launch_server\n")
+
+    def _shutdown_state_server(self):
+        """
+        Shutdown state server
+        """
+        with open("/execution_pipes/aci_execution_pipe", "w") as f:
+            f.write("crossover_shutdown_server\n")

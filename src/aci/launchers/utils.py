@@ -1,16 +1,16 @@
 from typing import Dict
 
 from .base import AssettoCorsaLauncher
-from .crossover import CrossOverLauncher
-from .proton import ProtonLauncher
+from .crossover import CrossOverLauncher, DockerCrossOverLauncher
+from .proton import ProtonLauncher, DockerProtonLauncher
 
 AC_LAUNCHERS = {
     "proton": {
-        "docker": None,
+        "docker": DockerProtonLauncher,
         "metal": ProtonLauncher,
     },
     "crossover": {
-        "docker": None,
+        "docker": DockerCrossOverLauncher,
         "metal": CrossOverLauncher,
     },
 }
