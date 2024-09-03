@@ -5,14 +5,11 @@ import tempfile
 import time
 from typing import Dict
 
-from aci.config.ac_config import configure_simulation
 from aci.game_capture.inference import GameCapture
 from aci.input.controller import VirtualGamepad
+from aci.launchers import get_ac_launcher
 from aci.metrics.database.monitor import Evaluator
 from aci.metrics.database.state_logger import DatabaseStateLogger
-from aci.utils.launch import maybe_create_steam_appid_file
-from aci.launchers import get_ac_launcher
-from acs.client import StateClient
 from loguru import logger
 import numpy as np
 
@@ -100,13 +97,8 @@ class AssettoCorsaInterface(abc.ABC):
         self._n_max_consecutive_failures = max_consecutive_failures
 
     def _initialise_AC(self):
-        maybe_create_steam_appid_file()
-        simulation_config = configure_simulation(self._config)
-        self._config.update(simulation_config)
-        self._setup_AC_launcher()
-
-    def _setup_AC_launcher(self):
         self._ac_launcher = get_ac_launcher(self._config)
+        self._config.update(self._ac_launcher.config)
 
     def _initialise_capture(self):
         self._ac_launcher.launch_sate_server()
@@ -160,6 +152,7 @@ class AssettoCorsaInterface(abc.ABC):
 
     def _shutdown_AC(self):
         self._ac_launcher.shutdown_assetto_corsa()
+        self._ac_launcher.shutdown_state_server()
 
     def run(self):
         self._launch_AC()

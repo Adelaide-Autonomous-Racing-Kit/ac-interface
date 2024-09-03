@@ -1,16 +1,10 @@
-import os
-from pathlib import Path
 import subprocess
-import time
 from typing import List, Union
 
-from aci.config.constants import AC_STEAM_APPID_FILE_PATH, AC_STEAM_PATH, STEAM_APPID
+from aci.config.constants import CROSSOVER_AC_STEAM_APPID_FILE_PATH, STEAM_APPID
 from aci.utils.data import Point
-from aci.utils.os import get_application_window_coordinates, move_application_window
-from acs.client import StateClient
-from halo import Halo
+from aci.utils.os import move_application_window
 from loguru import logger
-import pyautogui
 
 LEFT_MENU_WIDTH = 100
 BAR_TO_SETUP_NORMALISED_WIDTH = 0.078
@@ -28,70 +22,9 @@ def launch_assetto_corsa_docker(window_position: Point, window_resolution: List[
     move_application_window("AC", window_resolution, window_position)
 
 
-def launch_assetto_corsa(window_position: Point, window_resolution: List[int]):
-    """
-    Launches AC in a crossover bottle
-    """
-    logger.info("Starting Assetto Corsa...")
-    original_dir = Path.cwd()
-    os.chdir(AC_STEAM_PATH)
-    subprocess.Popen(
-        [
-            "/opt/cxoffice/bin/wine",
-            "--bottle",
-            "Assetto_Corsa",
-            "--cx-app",
-            "acs.exe",
-        ],
-        stdin=subprocess.PIPE,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.PIPE,
-    )
-    os.chdir(original_dir)
-    move_application_window("AC", window_resolution, window_position)
-
-
 def shutdown_assetto_corsa_docker():
     with open("/execution_pipes/aci_execution_pipe", "w") as f:
         f.write("shutdown_assetto_corsa\n")
-
-
-def shutdown_assetto_corsa():
-    subprocess.run(["pkill", "acs.exe"])
-
-
-def try_until_state_server_is_launched(
-    is_docker: bool,
-) -> Union[subprocess.Popen, None]:
-    """
-    Continues to start state server subprocesses until a client is able to
-        bind to one
-    """
-    is_running, p_state_server = False, None
-    try:
-        # Is a state server already active
-        state_client = StateClient()
-        is_running = True
-    except ConnectionRefusedError:
-        pass
-    while not is_running:
-        with Halo(text="Starting State Server...", spinner="line"):
-            try:
-                if is_docker:
-                    launch_sate_server_docker()
-                else:
-                    p_state_server = launch_sate_server()
-                time.sleep(2)
-                state_client = StateClient()
-                is_running = True
-            except ConnectionRefusedError:
-                if is_docker:
-                    shutdown_state_server_docker()
-                else:
-                    shutdown_state_server(p_state_server)
-    state_client.stop()
-    logger.info("State Server Started")
-    return p_state_server
 
 
 def launch_sate_server_docker() -> Union[subprocess.Popen, None]:
@@ -102,29 +35,9 @@ def launch_sate_server_docker() -> Union[subprocess.Popen, None]:
         f.write("launch_state_server\n")
 
 
-def launch_sate_server() -> subprocess.Popen:
-    p_state_server = subprocess.Popen(
-        [
-            "/opt/cxoffice/bin/wine",
-            "--bottle",
-            "Assetto_Corsa",
-            "--cx-app",
-            "cmd.exe",
-        ],
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-    )
-    p_state_server.stdin.write("python -m acs.server\n".encode())
-    return p_state_server
-
-
 def shutdown_state_server_docker():
     with open("/execution_pipes/aci_execution_pipe", "w") as f:
         f.write("shutdown_state_server\n")
-
-
-def shutdown_state_server(p_state_server: subprocess.Popen):
-    p_state_server.terminate()
 
 
 def maybe_create_steam_appid_file():
@@ -132,8 +45,8 @@ def maybe_create_steam_appid_file():
     Ensures that the steam_appid.txt file is present and has the correct contents
         This file enables the game to launch without going via the launcher
     """
-    if AC_STEAM_APPID_FILE_PATH.is_file():
-        with AC_STEAM_APPID_FILE_PATH.open("r") as file:
+    if CROSSOVER_AC_STEAM_APPID_FILE_PATH.is_file():
+        with CROSSOVER_AC_STEAM_APPID_FILE_PATH.open("r") as file:
             contents = file.read()
         if contents == STEAM_APPID:
             logger.info("Steam AppID file already present")
@@ -146,44 +59,5 @@ def create_steam_appid_file():
     Creates a file named steam_appid.txt containing the app ID 244210
     """
     logger.info("Creating Steam AppID file...")
-    with AC_STEAM_APPID_FILE_PATH.open("w") as file:
+    with CROSSOVER_AC_STEAM_APPID_FILE_PATH.open("w") as file:
         file.write(STEAM_APPID)
-
-
-def start_session(window_resolution: List[int]):
-    """
-    Loads a vehicle setup and begins the simulation session
-    """
-    load_vehicle_setup(window_resolution)
-    click_drive(window_resolution)
-
-
-def click_drive(window_resolution: List[int]):
-    """
-    Clicks in the AC window on the drive button to start the session
-    """
-    cursor_location = pyautogui.position()
-    top_left_corner = get_application_window_coordinates("AC", window_resolution)
-    pyautogui.click(top_left_corner.x + 20, top_left_corner.y + 150)
-    pyautogui.moveTo(cursor_location)
-
-
-def load_vehicle_setup(window_resolution: List[int]):
-    """
-    Clicks in the AC window to load the vehicle setup in the top position of the UI
-    """
-    top_left_corner = get_application_window_coordinates("AC", window_resolution)
-    cursor_location = pyautogui.position()
-    bar_to_setup_width = BAR_TO_SETUP_NORMALISED_WIDTH * window_resolution[0]
-    base_x_offset = LEFT_MENU_WIDTH + bar_to_setup_width
-    # Click setup menu
-    pyautogui.click(top_left_corner.x + 20, top_left_corner.y + 275)
-    # Click setup in top position (alphabetical)
-    x_offset = base_x_offset + SETUP_TO_FILE_WIDTH
-    pyautogui.click(top_left_corner.x + x_offset, top_left_corner.y + 180)
-    # Click load setup
-    x_offset = base_x_offset + SETUP_TO_LOAD_WIDTH
-    pyautogui.click(top_left_corner.x + x_offset, top_left_corner.y + 500)
-    pyautogui.moveTo(cursor_location)
-    # Wait for setup to validate
-    time.sleep(2)

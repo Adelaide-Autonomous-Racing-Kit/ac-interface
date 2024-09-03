@@ -2,6 +2,7 @@ import subprocess
 
 from aci.utils.os import move_application_window
 from .base import AssettoCorsaLauncher
+from loguru import logger
 
 
 class ProtonLauncher(AssettoCorsaLauncher):
@@ -37,4 +38,4 @@ class ProtonLauncher(AssettoCorsaLauncher):
         """
         Shutdown state server
         """
-        subprocess.run(["pkill", "ac-sate.exe"])
+        subprocess.run(["pkill", "ac-state.exe"])

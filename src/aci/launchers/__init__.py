@@ -1,25 +1,3 @@
-from typing import Dict
+from .utils import get_ac_launcher
 
-from .base import AssettoCorsaLauncher
-from .proton import ProtonLauncher
-from .crossover import CrossOverLauncher
-
-
-AC_LAUNCHERS = {
-    "proton": {
-        "docker": None,
-        "metal": ProtonLauncher,
-    },
-    "crossover": {
-        "docker": None,
-        "metal": CrossOverLauncher,
-    },
-}
-
-
-def get_ac_launcher(config: Dict) -> AssettoCorsaLauncher:
-    is_proton = config["capture"]["is_proton"]
-    comptability_tool = "proton" if is_proton else "crossover"
-    is_docker = config["capture"]["is_docker"]
-    executor = "docker" if is_docker else "metal"
-    return AC_LAUNCHERS[comptability_tool][executor](config)
+__all__ = ["get_ac_launcher"]

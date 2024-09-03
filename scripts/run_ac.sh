@@ -5,10 +5,12 @@ export STEAM_COMPAT_CLIENT_INSTALL_PATH=$HOME/.steam/steam/
 
 cd $HOME/.local/share/Steam/steamapps/common/assettocorsa
 # Swap client and launcher name
-mv ./AssettoCorsa.exe ./AssettoCorsa_1.exe
-mv ./acs.exe ./AssettoCorsa.exe
+if ! test -f AssettoCorsa_1.exe; then
+    mv AssettoCorsa.exe AssettoCorsa_1.exe
+    mv acs.exe AssettoCorsa.exe
+fi
 
-$HOME/.local/share/Steam/compatibilitytools.d/GE-Proton9-2/proton run AssettoCorsa.exe
+$HOME/.local/share/Steam/compatibilitytools.d/GE-Proton9-2/proton run AssettoCorsa.exe &
 
 sleep 20s
 

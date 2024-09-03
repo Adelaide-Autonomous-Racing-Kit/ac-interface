@@ -4,10 +4,10 @@ import subprocess
 import time
 from typing import Dict
 
-
-from aci.config.constants import AC_STEAM_PATH
-from acs.client import StateClient
+from aci.config.constants import CROSSOVER_AC_STEAM_PATH
+from aci.utils.launch import maybe_create_steam_appid_file
 from aci.utils.os import move_application_window
+
 from .base import AssettoCorsaLauncher
 
 
@@ -21,7 +21,7 @@ class CrossOverLauncher(AssettoCorsaLauncher):
         Launch AC
         """
         original_dir = Path.cwd()
-        os.chdir(AC_STEAM_PATH)
+        os.chdir(CROSSOVER_AC_STEAM_PATH)
         subprocess.Popen(
             [
                 "/opt/cxoffice/bin/wine",
@@ -86,3 +86,6 @@ class CrossOverLauncher(AssettoCorsaLauncher):
         """
         if self._p_state_server is not None:
             self._p_state_server.terminate()
+
+    def _aditional_configuration(self):
+        maybe_create_steam_appid_file()

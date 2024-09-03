@@ -2,6 +2,7 @@ import abc
 import time
 from typing import Dict
 
+from aci.config.ac_config import AssettoCorsaConfigurator
 from aci.utils.data import Point
 from aci.utils.os import get_application_window_coordinates, get_default_window_location
 from acs.client import StateClient
@@ -19,6 +20,10 @@ class AssettoCorsaLauncher(abc.ABC):
     def __init__(self, config: Dict):
         self.__setup(config)
 
+    @property
+    def config(self) -> Dict:
+        return self._config
+
     def launch_assetto_corsa(self):
         """
         Launches AC
@@ -29,10 +34,12 @@ class AssettoCorsaLauncher(abc.ABC):
                 self._launch_assetto_corsa()
                 while not is_connected:
                     is_connected = self._test_connection_to_server()
+                    time.sleep(1)
                 state_client = StateClient()
                 is_started = state_client.wait_until_AC_is_ready()
                 if not is_started:
                     self._shutdown_assetto_corsa()
+                    self._shutdown_state_server()
                     is_connected = False
         self._move_assetto_corsa_window()
 
@@ -108,9 +115,9 @@ class AssettoCorsaLauncher(abc.ABC):
         Loads a vehicle setup and begins the simulation session
         """
         self._load_vehicle_setup()
-        self._click_drive()
+        self.click_drive()
 
-    def _click_drive(self):
+    def click_drive(self):
         """
         Clicks in the AC window on the drive button to start the session
         """
@@ -145,8 +152,20 @@ class AssettoCorsaLauncher(abc.ABC):
 
     def __setup(self, config: Dict):
         self._config = config
+        self._configure_simulation()
         self._setup_window_resolution()
         self._setup_window_location()
+
+    def _configure_simulation(self):
+        self._config_manager = AssettoCorsaConfigurator(self._config)
+        self._config.update(self._config_manager.configure())
+        self._aditional_configuration()
+
+    def _aditional_configuration(self):
+        """
+        Implement logic for any additional configuration of Assetto Corsa
+        """
+        pass
 
     def _setup_window_resolution(self):
         display_config = self._config["video.ini"]["VIDEO"]

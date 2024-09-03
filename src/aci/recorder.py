@@ -2,7 +2,6 @@ from typing import Dict
 
 from aci.game_capture.inference import GameCapture
 from aci.interface import AssettoCorsaInterface
-from aci.utils.launch import click_drive, try_until_state_server_is_launched
 from aci.utils.save import maybe_create_folders, save_bgr0_as_jpeg, save_bytes
 from loguru import logger
 
@@ -17,7 +16,7 @@ class AssettoCorsaRecorder(AssettoCorsaInterface):
         self._save_path = config["recording"]["save_path"]
 
     def _initialise_capture(self):
-        try_until_state_server_is_launched(self._config["capture"]["is_docker"])
+        self._ac_launcher.launch_sate_server()
         self._game_capture = GameCapture(self._config)
 
     def behaviour(self, observation: Dict):
@@ -38,7 +37,7 @@ class AssettoCorsaRecorder(AssettoCorsaInterface):
         self.__setup_recording()
         self._launch_AC()
         self._start_capture()
-        click_drive(self._window_resolution)
+        self._ac_launcher.click_drive()
         logger.info("Starting to record game session")
         while self.is_running:
             try:
