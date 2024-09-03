@@ -2,7 +2,7 @@ from typing import Dict
 
 from .base import AssettoCorsaLauncher
 from .crossover import CrossOverLauncher, DockerCrossOverLauncher
-from .proton import ProtonLauncher, DockerProtonLauncher
+from .proton import DockerProtonLauncher, ProtonLauncher
 
 AC_LAUNCHERS = {
     "proton": {
