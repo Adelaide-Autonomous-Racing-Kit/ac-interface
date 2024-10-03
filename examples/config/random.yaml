@@ -1,0 +1,12 @@
+capture:
+  state:
+    use_dicts: True
+    simulate_ins: True
+  images:
+    wait_for_new_frames: True
+  is_docker: False
+  is_proton: False
+race.ini:
+  RACE:
+    TRACK: monza
+    CONFIG_TRACK: ""

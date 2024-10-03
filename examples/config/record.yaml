@@ -1,0 +1,16 @@
+capture:
+  is_docker: False
+  is_proton: False
+race.ini:
+  RACE:
+    TRACK: monza
+    CONFIG_TRACK: ""
+recording:
+  save_path: ../recordings/monza/audi_r8_lms_2016/test
+video.ini:
+  VIDEO:
+    WIDTH: 1280
+    HEIGHT: 736
+assists.ini:
+  ASSISTS:
+    AUTO_SHIFTER: 0
