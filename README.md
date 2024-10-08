@@ -1,4 +1,4 @@
-# Assetto Corsa, a new racing benchmark
+# Assetto Corsa Interface, a new racing benchmark
 ![](https://imgs.xkcd.com/comics/standards_2x.png)
 
 **Assetto Corsa** is a racing simulation game that allows players to drive a variety of cars on different tracks.
