@@ -87,6 +87,7 @@ class DatabaseStateInterface(PostgresConnector):
         self._update_timestamps(state)
         self._add_cumulative_time(state)
         python_types_state = convert_numpy_types(state)
+        logger.info(python_types_state)
         self._insert_dict(python_types_state)
 
     def _format_dictionary(self, state: Dict):
