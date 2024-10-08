@@ -138,3 +138,16 @@ To check if this is working go into a practice race and set the time to 22:00. I
 
 </details>
 
+## Citation
+If you use ACI in your research please cite us in your work:
+```
+@misc{bockman2024aarkopentoolkitautonomous,
+      title={AARK: An Open Toolkit for Autonomous Racing Research}, 
+      author={James Bockman and Matthew Howe and Adrian Orenstein and Feras Dayoub},
+      year={2024},
+      eprint={2410.00358},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2410.00358}, 
+}
+```
