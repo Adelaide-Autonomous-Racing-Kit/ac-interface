@@ -39,8 +39,10 @@ class GameCapture(mp.Process):
 
         image, state = self._get_capture()
         self.is_stale = True
+        is_image_stale = self._is_cached_image_stale
         state = self._state_transform(state, self._simulated_INS)
-        return {"state": state, "image": image}
+        self._is_cached_image_stale = True
+        return {"state": state, "image": image, "is_image_stale": is_image_stale}
 
     def _get_capture(self):
         image_mp_array, _ = self._shared_image_buffer
@@ -55,6 +57,7 @@ class GameCapture(mp.Process):
         if not self.is_image_stale:
             self._copy_image(image_np_array)
             self.is_image_stale = True
+            self._is_cached_image_stale = False
 
     def _copy_image(self, image: np.array):
         self._image = image.copy()
@@ -217,6 +220,7 @@ class GameCapture(mp.Process):
         width, height = self._image_stream_config["resolution"]
         n_channels = 4 if self._image_stream_config["image_format"] == "BGR0" else 3
         self._image_shape = (height, width, n_channels)
+        self._is_cached_image_stale = True
 
     def __setup_state_postprocessing(self):
         self._simulated_INS = SimulatedINS()
