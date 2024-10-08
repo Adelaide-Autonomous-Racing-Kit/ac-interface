@@ -140,7 +140,7 @@ To check if this is working go into a practice race and set the time to 22:00. I
 
 ## Citation
 If you use ACI in your research please cite us in your work:
-```
+```BibTeX
 @misc{bockman2024aarkopentoolkitautonomous,
       title={AARK: An Open Toolkit for Autonomous Racing Research}, 
       author={James Bockman and Matthew Howe and Adrian Orenstein and Feras Dayoub},
