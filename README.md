@@ -80,7 +80,7 @@ Crossover will complain that the program did not install sucessfully but git wil
 
 Install the state server into the bottle by ruinning:
 ```
-/opt/cxoffice/bin/wine --bottle Assetto_Corsa --cx-app pip install git+https://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@github.com/Adelaide-Autonomous-Racing-Challenge/ac-state.git
+/opt/cxoffice/bin/wine --bottle Assetto_Corsa --cx-app pip install git+https://github.com/Adelaide-Autonomous-Racing-Challenge/ac-state.git
 ```
 
 In linux, do this to make sure the python uinput module has access to the kernel uinput module. 
