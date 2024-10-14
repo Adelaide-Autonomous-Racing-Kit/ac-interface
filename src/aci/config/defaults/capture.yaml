@@ -6,7 +6,7 @@ images:
   image_format: "BGR0"
   wait_for_new_frames: True
 ffmpeg:
-  framerate: "30"
+  framerate: "300"
   c:v: "copy"
   preset: "ultrafast"
   tune: "zerolatency"

@@ -2,6 +2,7 @@ import ctypes
 import multiprocessing as mp
 from multiprocessing.shared_memory import SharedMemory
 import signal
+import time
 from typing import Dict, Union
 
 from aci.config.constants import CAPTURE_CONFIG_FILE
@@ -9,6 +10,7 @@ from aci.game_capture.video.pyav_capture import ImageStream
 from aci.utils.ins import SimulatedINS
 from aci.utils.load import load_yaml
 from aci.utils.state import identity, process_state, simulate_ins_readings
+from aci.utils.system_monitor import System_Monitor, track_runtime
 from acs.client import StateClient
 from acs.shared_memory.ac.combined import COMBINED_DATA_TYPES
 import numpy as np
@@ -185,9 +187,19 @@ class GameCapture(mp.Process):
         """
         self.__setup_capture_process()
         while self.is_running:
-            image = self._maybe_get_updated_frame()
-            state = self.state_capture.latest_state
-            self.capture = {"state": state, "image": image}
+            self._observation_capture_work()
+            self._log_processing_speed()
+            time.sleep(1 / 1000.0)
+    
+    def _log_processing_speed(self):
+        System_Monitor.maybe_log_function_itterations_per_second()
+    
+    
+    @track_runtime
+    def _observation_capture_work(self):
+        image = self._maybe_get_updated_frame()
+        state = self.state_capture.latest_state
+        self.capture = {"state": state, "image": image}
 
     def _maybe_get_updated_frame(self) -> Union[np.array, None]:
         if not self.image_stream.is_stale:

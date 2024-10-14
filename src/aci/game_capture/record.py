@@ -4,7 +4,7 @@ import time
 from aci.config.constants import RECORD_CONFIG_FILE
 from aci.game_capture.video.pyav_capture import ImageStream
 from aci.utils.load import load_yaml
-from aci.utils.save import save_bgr0_as_jpeg, save_bytes, save_state
+from aci.utils.save import save_bgr0_as_jpeg, save_bytes
 from aci.utils.system_monitor import System_Monitor, track_runtime
 from acs.client import StateClient
 from loguru import logger
@@ -37,10 +37,14 @@ class GameRecorder:
 
     def _run(self):
         while self.is_running:
-            image = self.image_stream.latest_bgr0_image
-            state = self.state_capture.latest_state
-            self._write_capture_to_file(image, state)
-            self.frame_counter += 1
+            self._recording_work()
+    
+    @track_runtime
+    def _recording_work(self):
+        image = self.image_stream.latest_bgr0_image
+        state = self.state_capture.latest_state
+        self._write_capture_to_file(image, state)
+        self.frame_counter += 1
 
     @track_runtime
     def _write_capture_to_file(self, image: np.array, state: np.array):
