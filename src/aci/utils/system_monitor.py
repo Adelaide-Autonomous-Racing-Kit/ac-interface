@@ -81,7 +81,6 @@ class SystemMonitor:
 
 
 System_Monitor = SystemMonitor(LOG_EVERY_N)
-from typing import Callable
 
 
 def track_runtime(system_monitor: SystemMonitor):
