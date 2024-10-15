@@ -188,14 +188,13 @@ class GameCapture(mp.Process):
         self.__setup_capture_process()
         while self.is_running:
             self._observation_capture_work()
-            self._log_processing_speed()
-            time.sleep(1 / 1000.0)
-    
+            # self._log_processing_speed()
+            time.sleep(1e-3)
+
     def _log_processing_speed(self):
         System_Monitor.maybe_log_function_itterations_per_second()
-    
-    
-    @track_runtime
+
+    @track_runtime(System_Monitor)
     def _observation_capture_work(self):
         image = self._maybe_get_updated_frame()
         state = self.state_capture.latest_state

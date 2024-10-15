@@ -98,23 +98,22 @@ class ImageStream:
     def _run(self):
         while self._is_running:
             self._frame_capture_work()
-    
-    @track_runtime
+
+    @track_runtime(System_Monitor)
     def _frame_capture_work(self):
-        # frame = next(self._frame_generator)
         frame = self._get_next_frame()
         if not self._is_duplicate_frame(frame):
             bgr0_image = self._get_BGR0_image_from_frame(frame)
             self._latest_image = bgr0_image
             self._latest_dts = frame.dts
             self._is_new_frame = True
-    
+
     def _get_next_frame(self):
         return next(self._frame_generator)
 
     def _is_duplicate_frame(self, frame) -> bool:
         return frame.dts == self._latest_dts
-    
+
     def _get_BGR0_image_from_frame(self, frame: av.video.frame.VideoFrame) -> np.array:
         """
         Extract a BGR0 image from a stream frame as a numpy array
