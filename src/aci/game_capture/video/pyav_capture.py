@@ -4,7 +4,7 @@ from typing import Dict
 
 from aci.utils import display
 from aci.utils.os import get_display_input, get_file_format, get_sanitised_os_name
-from aci.utils.system_monitor import System_Monitor
+from aci.utils.system_monitor import System_Monitor, track_runtime
 import av
 from loguru import logger
 import numpy as np
@@ -97,12 +97,19 @@ class ImageStream:
 
     def _run(self):
         while self._is_running:
-            frame = next(self._frame_generator)
-            if not self._is_duplicate_frame(frame):
-                bgr0_image = self._get_BGR0_image_from_frame(frame)
-                self._latest_image = bgr0_image
-                self._latest_dts = frame.dts
-                self._is_new_frame = True
+            self._frame_capture_work()
+
+    @track_runtime(System_Monitor)
+    def _frame_capture_work(self):
+        frame = self._get_next_frame()
+        if not self._is_duplicate_frame(frame):
+            bgr0_image = self._get_BGR0_image_from_frame(frame)
+            self._latest_image = bgr0_image
+            self._latest_dts = frame.dts
+            self._is_new_frame = True
+
+    def _get_next_frame(self):
+        return next(self._frame_generator)
 
     def _is_duplicate_frame(self, frame) -> bool:
         return frame.dts == self._latest_dts
