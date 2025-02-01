@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import abc
 from typing import Dict
 
@@ -6,10 +7,10 @@ from loguru import logger
 
 
 class AgentMonitor(abc.ABC):
-    def __init__(self, config: Dict, interface: AssettoCorsaInterface):
+    def __init__(self, config: Dict, interface):
         self._setup(config, interface)
 
-    def _setup(self, config: Dict, interface: AssettoCorsaInterface):
+    def _setup(self, config: Dict, interface):
         self._interface = interface
         self._n_steps_between_checks = config.get("check_every_n", -1)
         self._n_max_consecutive_failures = config.get("max_consecutive_failures", 0)
