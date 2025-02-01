@@ -129,6 +129,33 @@ class AssettoCorsaLauncher(abc.ABC):
         pyautogui.click(top_left_corner.x + 20, top_left_corner.y + 150)
         pyautogui.moveTo(cursor_location)
 
+    def restart_session(self):
+        """
+        Restart a running session without closing the window
+        """
+        self._click_restart_session()
+        self.start_session()
+
+    def _click_restart_session(self):
+        """
+        Opens the menue and clicks the restart session option
+        """
+        cursor_location = pyautogui.position()
+        top_left_corner = get_application_window_coordinates(
+            "AC", self._window_resolution
+        )
+        width, height = self._window_resolution
+        restart_session_x = top_left_corner.x + width // 2
+        restart_session_y = top_left_corner.y + height // 2 + 15
+        # Click on the centre of the window so keypress is detected
+        pyautogui.click(restart_session_x, restart_session_y)
+        # Open menu and click "Restart Session"
+        pyautogui.press("escape")
+        pyautogui.click(restart_session_x, restart_session_y)
+        pyautogui.moveTo(cursor_location)
+        # Wait for window to load
+        time.sleep(1)
+
     def _load_vehicle_setup(self):
         """
         Clicks in the AC window to load the vehicle setup in the top position of the UI

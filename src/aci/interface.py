@@ -10,6 +10,7 @@ from aci.input.controller import VirtualGamepad
 from aci.launchers import get_ac_launcher
 from aci.metrics.database.monitor import Evaluator
 from aci.metrics.database.state_logger import DatabaseStateLogger
+from aci.monitor import RestartMonitor, TerminationMonitor
 from loguru import logger
 import numpy as np
 
@@ -86,15 +87,13 @@ class AssettoCorsaInterface(abc.ABC):
         self._initialise_AC()
         self._initialise_capture()
         self._initialise_evaluation()
-        self._setup_termination_check()
+        self._setup_monitors()
 
-    def _setup_termination_check(self):
-        self._n_steps_since_last_check = 0
+    def _setup_monitors(self):
+        restart_config = self._config.get("restart", {})
+        self._restart_monitor = RestartMonitor(restart_config, self)
         termination_config = self._config.get("termination", {})
-        self._n_steps_between_checks = termination_config.get("check_every_n", -1)
-        self._n_consecutive_failures = 0
-        max_consecutive_failures = termination_config.get("max_consecutive_failures", 0)
-        self._n_max_consecutive_failures = max_consecutive_failures
+        self._termination_monitor = TerminationMonitor(termination_config, self)
 
     def _initialise_AC(self):
         self._ac_launcher = get_ac_launcher(self._config)
@@ -158,15 +157,14 @@ class AssettoCorsaInterface(abc.ABC):
         self._launch_AC()
         self._start_capture()
         self._start_evaluation()
-        self._ac_launcher.start_session()
-        time.sleep(2)
+        self._start_session()
         while self.is_running:
             try:
                 observation = self.get_observation()
-                if self._is_termination_condition_met(observation):
-                    self.is_running = False
+                self._maybe_terminate_session(observation)
                 action = self.behaviour(observation)
                 self.act(action)
+                self._maybe_restart_session(observation)
             except KeyboardInterrupt:
                 self.is_running = False
             except Exception as e:
@@ -175,23 +173,23 @@ class AssettoCorsaInterface(abc.ABC):
         self.teardown()
         self._shutdown()
 
-    def _is_termination_condition_met(self, observation: Dict) -> bool:
-        if self._n_steps_between_checks < 0:
-            return False
-        if self._n_steps_between_checks > self._n_steps_since_last_check:
-            self._n_steps_since_last_check += 1
-            return False
-        self._n_steps_since_last_check = 0
-        if self.termination_condition(observation):
-            self._n_consecutive_failures += 1
-        else:
-            self._n_consecutive_failures = 0
-        if self._n_consecutive_failures >= self._n_max_consecutive_failures:
-            message = "Agent has met the termination condition "
-            message += f"{self._n_consecutive_failures} times. Terminating execution"
-            logger.error(message)
-            return True
-        return False
+    def _start_session(self):
+        self._ac_launcher.start_session()
+        time.sleep(2)
+
+    def _maybe_terminate_session(self, observation: Dict):
+        if self._termination_monitor.is_triggered(observation):
+            self.is_running = False
+
+    def _maybe_restart_session(self, observation: Dict):
+        if self._restart_monitor.is_triggered(observation):
+            self._restart_session()
+
+    def _restart_session(self):
+        self._ac_launcher.restart_session()
+        self._termination_monitor.reset()
+        self._restart_monitor.reset()
+        time.sleep(2)
 
     def _log_exception(self, exception: Exception):
         message = "Agent has thrown an exception and will now terminate. "
@@ -248,11 +246,23 @@ class AssettoCorsaInterface(abc.ABC):
     @abc.abstractmethod
     def termination_condition(self, observation: Dict) -> bool:
         """
-        Implement a condition based on simulation observation that is met will cause
+        Implement a condition based on simulation observation that when met will cause
             the current experiment to terminate
 
         :observation: {Dictionary image: BGR image as np.array, state: Dict{str: float}}
         :type: Dict[str: np.array]
         :return: True to terminate agent execution, False to continue
+        :rtype: bool
+        """
+
+    @abc.abstractmethod
+    def restart_condition(self, observation: Dict) -> bool:
+        """
+        Implement a condition based on simulation observation that when met will cause
+            the current session to be restarted
+
+        :observation: {Dictionary image: BGR image as np.array, state: Dict{str: float}}
+        :type: Dict[str: np.array]
+        :return: True to restart the session, False to continue
         :rtype: bool
         """
