@@ -154,7 +154,7 @@ class AssettoCorsaLauncher(abc.ABC):
         pyautogui.click(restart_session_x, restart_session_y)
         pyautogui.moveTo(cursor_location)
         # Wait for window to load
-        time.sleep(2)
+        time.sleep(1)
 
     def _load_vehicle_setup(self):
         """
