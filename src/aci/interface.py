@@ -277,4 +277,3 @@ class AssettoCorsaInterface(abc.ABC):
         Implement any reset procedures you would like to execute before the behaviour
             loop is resumed
         """
-
