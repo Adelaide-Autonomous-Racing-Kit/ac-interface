@@ -3,6 +3,7 @@ import copy
 import subprocess
 import tempfile
 import time
+import traceback
 from typing import Dict
 
 from aci.game_capture.inference import GameCapture
@@ -184,15 +185,18 @@ class AssettoCorsaInterface(abc.ABC):
     def _maybe_restart_session(self, observation: Dict):
         if self._restart_monitor.is_triggered(observation):
             self._restart_session()
+            self.on_restart()
 
     def _restart_session(self):
+        self.act(np.array([0.0, 0.0, 0.0]))
         self._ac_launcher.restart_session()
         self._termination_monitor.reset()
         self._restart_monitor.reset()
         time.sleep(2)
 
     def _log_exception(self, exception: Exception):
-        message = "Agent has thrown an exception and will now terminate. "
+        message = traceback.format_exc()
+        message += "Agent has thrown an exception and will now terminate. "
         message += f"Exception: {exception}"
         logger.error(message)
 
@@ -221,7 +225,7 @@ class AssettoCorsaInterface(abc.ABC):
         :action: An array in the format [steering angle, throttle, brake]
         :type: np.array
         """
-        self._input_interface.submit_action(action)
+        self._input_interface.submit_action(action.copy())
 
     @abc.abstractmethod
     def behaviour(self, observation: Dict) -> np.array:
@@ -266,3 +270,11 @@ class AssettoCorsaInterface(abc.ABC):
         :return: True to restart the session, False to continue
         :rtype: bool
         """
+
+    @abc.abstractmethod
+    def on_restart(self):
+        """
+        Implement any reset procedures you would like to execute before the behaviour
+            loop is resumed
+        """
+
