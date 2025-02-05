@@ -222,7 +222,7 @@ class AssettoCorsaInterface(abc.ABC):
             {0.0, 1.0}. Steering angles are normalised float values between {-1.0, 1.0}.
             Where -1.0 represents full lock to the left and 1.0 full lock to the right.
 
-        :action: An array in the format [steering angle, throttle, brake]
+        :action: An array in the format [steering angle, brake, throttle]
         :type: np.array
         """
         self._input_interface.submit_action(action.copy())
@@ -236,7 +236,7 @@ class AssettoCorsaInterface(abc.ABC):
 
         :observation: {Dictionary image: BGR image as np.array, state: Dict{str: float}}
         :type: Dict[str: np.array]
-        :return: An array in the format [steering angle, throttle, brake]
+        :return: An array in the format [steering angle, brake, throttle]
         :rtype: np.array
         """
 
