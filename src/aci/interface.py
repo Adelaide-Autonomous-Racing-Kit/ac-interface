@@ -163,9 +163,11 @@ class AssettoCorsaInterface(abc.ABC):
             try:
                 observation = self.get_observation()
                 self._maybe_terminate_session(observation)
+                is_restarting = self._restart_monitor.is_triggered(observation)
                 action = self.behaviour(observation)
-                self.act(action)
-                self._maybe_restart_session(observation)
+                if action is not None:
+                    self.act(action)
+                self._maybe_restart_session(is_restarting)
             except KeyboardInterrupt:
                 self.is_running = False
             except Exception as e:
@@ -182,10 +184,10 @@ class AssettoCorsaInterface(abc.ABC):
         if self._termination_monitor.is_triggered(observation):
             self.is_running = False
 
-    def _maybe_restart_session(self, observation: Dict):
-        if self._restart_monitor.is_triggered(observation):
-            self._restart_session()
+    def _maybe_restart_session(self, is_restarting: bool):
+        if is_restarting:
             self.on_restart()
+            self._restart_session()
 
     def _restart_session(self):
         self.act(np.array([0.0, 0.0, 0.0]))
