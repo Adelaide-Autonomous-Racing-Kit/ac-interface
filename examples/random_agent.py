@@ -34,6 +34,12 @@ class RandomAgent(AssettoCorsaInterface):
     def teardown(self):
         pass
 
+    def restart_condition(self, observation: Dict) -> bool:
+        return False
+
+    def on_restart(self):
+        pass
+
 
 def main():
     config = load_config()
