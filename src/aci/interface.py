@@ -3,6 +3,7 @@ import copy
 import subprocess
 import tempfile
 import time
+import traceback
 from typing import Dict
 
 from aci.game_capture.inference import GameCapture
@@ -162,9 +163,11 @@ class AssettoCorsaInterface(abc.ABC):
             try:
                 observation = self.get_observation()
                 self._maybe_terminate_session(observation)
+                is_restarting = self._restart_monitor.is_triggered(observation)
                 action = self.behaviour(observation)
-                self.act(action)
-                self._maybe_restart_session(observation)
+                if action is not None:
+                    self.act(action)
+                self._maybe_restart_session(is_restarting)
             except KeyboardInterrupt:
                 self.is_running = False
             except Exception as e:
@@ -181,18 +184,21 @@ class AssettoCorsaInterface(abc.ABC):
         if self._termination_monitor.is_triggered(observation):
             self.is_running = False
 
-    def _maybe_restart_session(self, observation: Dict):
-        if self._restart_monitor.is_triggered(observation):
+    def _maybe_restart_session(self, is_restarting: bool):
+        if is_restarting:
+            self.on_restart()
             self._restart_session()
 
     def _restart_session(self):
+        self.act(np.array([0.0, 0.0, 0.0]))
         self._ac_launcher.restart_session()
         self._termination_monitor.reset()
         self._restart_monitor.reset()
         time.sleep(2)
 
     def _log_exception(self, exception: Exception):
-        message = "Agent has thrown an exception and will now terminate. "
+        message = traceback.format_exc()
+        message += "Agent has thrown an exception and will now terminate. "
         message += f"Exception: {exception}"
         logger.error(message)
 
@@ -218,10 +224,10 @@ class AssettoCorsaInterface(abc.ABC):
             {0.0, 1.0}. Steering angles are normalised float values between {-1.0, 1.0}.
             Where -1.0 represents full lock to the left and 1.0 full lock to the right.
 
-        :action: An array in the format [steering angle, throttle, brake]
+        :action: An array in the format [steering angle, brake, throttle]
         :type: np.array
         """
-        self._input_interface.submit_action(action)
+        self._input_interface.submit_action(action.copy())
 
     @abc.abstractmethod
     def behaviour(self, observation: Dict) -> np.array:
@@ -232,7 +238,7 @@ class AssettoCorsaInterface(abc.ABC):
 
         :observation: {Dictionary image: BGR image as np.array, state: Dict{str: float}}
         :type: Dict[str: np.array]
-        :return: An array in the format [steering angle, throttle, brake]
+        :return: An array in the format [steering angle, brake, throttle]
         :rtype: np.array
         """
 
@@ -265,4 +271,11 @@ class AssettoCorsaInterface(abc.ABC):
         :type: Dict[str: np.array]
         :return: True to restart the session, False to continue
         :rtype: bool
+        """
+
+    @abc.abstractmethod
+    def on_restart(self):
+        """
+        Implement any reset procedures you would like to execute before the behaviour
+            loop is resumed
         """

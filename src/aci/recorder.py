@@ -28,6 +28,12 @@ class AssettoCorsaRecorder(AssettoCorsaInterface):
     def termination_condition(self, observation: Dict) -> bool:
         return False
 
+    def restart_condition(self, observation: Dict) -> bool:
+        return False
+
+    def on_restart(self):
+        pass
+
     def run(self):
         """
         Saves frames and state to disk as .jpeg, .npy file pairs
