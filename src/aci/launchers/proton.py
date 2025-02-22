@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import subprocess
 
+from aci.config.constants import PROTON_AC_APPID_FILE_PATH
 from .base import AssettoCorsaLauncher
 
 PROJECT_PATH = Path(os.path.dirname(__file__)).parents[0]
@@ -24,7 +25,7 @@ class ProtonLauncher(AssettoCorsaLauncher):
         """
         Shutdown AC
         """
-        subprocess.run(["pkill", "AssettoCorsa.ex"])
+        subprocess.run(["pkill", "-f", "acs.exe"])
 
     def _launch_sate_server(self):
         """
@@ -38,6 +39,12 @@ class ProtonLauncher(AssettoCorsaLauncher):
         Shutdown state server
         """
         subprocess.run(["pkill", "ac-state.exe"])
+
+    def _setup_steam_appid_path(self):
+        """
+        Add path to steam app id file for Assetto Corsa
+        """
+        self._steam_appid_file_path = PROTON_AC_APPID_FILE_PATH
 
 
 class DockerProtonLauncher(AssettoCorsaLauncher):

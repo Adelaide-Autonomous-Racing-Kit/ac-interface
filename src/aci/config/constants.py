@@ -4,7 +4,7 @@ from pathlib import Path
 GAME_NAME_TO_WINDOW_NAME = {
     "linux": {
         "ACC": {"ac2-win64-shipping.exe"},
-        "AC": {"acs.exe", "steam_app_244210"},
+        "AC": {"acs.exe", "steam_app_244210", "steam_proton"},
     },
     "windows": {},
     "darwin": {},
@@ -61,9 +61,11 @@ CONFIG_PATHS = {
     "crossover": {
         "steam": Path(CROSSOVER_AC_STEAM_PATH, "cfg"),
         "user": Path(CROSSOVER_AC_USER_PATH, "cfg"),
+        "appid": Path(CROSSOVER_AC_STEAM_APPID_FILE_PATH),
     },
     "proton": {
         "steam": Path(PROTON_AC_STEAM_PATH, "cfg"),
         "user": Path(PROTON_AC_USER_PATH, "cfg"),
+        "appid": Path(PROTON_AC_APPID_FILE_PATH),
     },
 }
