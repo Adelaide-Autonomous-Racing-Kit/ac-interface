@@ -1,6 +1,6 @@
 import abc
-from pathlib import Path
 from multiprocessing.connection import Client
+from pathlib import Path
 import time
 from typing import Dict
 
