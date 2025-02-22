@@ -1,6 +1,6 @@
 import abc
-import time
 from pathlib import Path
+import time
 from typing import Dict
 
 from aci.config.ac_config import AssettoCorsaConfigurator

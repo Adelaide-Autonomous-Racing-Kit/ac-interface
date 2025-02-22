@@ -3,6 +3,7 @@ from pathlib import Path
 import subprocess
 
 from aci.config.constants import PROTON_AC_APPID_FILE_PATH
+
 from .base import AssettoCorsaLauncher
 
 PROJECT_PATH = Path(os.path.dirname(__file__)).parents[0]
