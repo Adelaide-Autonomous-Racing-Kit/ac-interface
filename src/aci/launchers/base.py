@@ -1,5 +1,6 @@
 import abc
 from pathlib import Path
+from multiprocessing.connection import Client
 import time
 from typing import Dict
 
@@ -16,6 +17,7 @@ from halo import Halo
 from loguru import logger
 import pyautogui
 
+AARK_PLUGIN_ADDRESS = ("localhost", 6337)
 LEFT_MENU_WIDTH = 100
 BAR_TO_SETUP_NORMALISED_WIDTH = 0.078
 SETUP_TO_FILE_WIDTH = 315
@@ -152,6 +154,13 @@ class AssettoCorsaLauncher(abc.ABC):
         )
         pyautogui.click(top_left_corner.x + 20, top_left_corner.y + 150)
         pyautogui.moveTo(cursor_location)
+
+    def reset_car(self):
+        """
+        Moves the car back to the race line
+        """
+        with Client(AARK_PLUGIN_ADDRESS) as client:
+            client.send_bytes(b"reset_car")
 
     def restart_session(self):
         """
