@@ -146,7 +146,7 @@ You will also need to install three additional fonts into the proton prefixes c 
 
 - [verdanai.ttf](https://github.com/dolbydu/font/blob/master/Sans/Verdana/verdanai.ttf)
 
-This should be downloaded and palced into `$HOME/.local/share/Steam/steamapps/compatdata/244210/pfx/drive_c/windows/Fonts`.
+These fonts should be downloaded and placed into `$HOME/.local/share/Steam/steamapps/compatdata/244210/pfx/drive_c/windows/Fonts`.
 
 </details>
 
