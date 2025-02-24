@@ -5,7 +5,6 @@ import time
 from typing import Dict
 
 from aci.config.constants import CROSSOVER_AC_STEAM_PATH
-from aci.config.utils import maybe_create_steam_appid_file
 
 from .base import AssettoCorsaLauncher
 
@@ -82,8 +81,11 @@ class CrossOverLauncher(AssettoCorsaLauncher):
         if self._p_state_server is not None:
             self._p_state_server.terminate()
 
-    def _aditional_configuration(self):
-        maybe_create_steam_appid_file()
+    def _setup_steam_appid_path(self):
+        """
+        Add path to steam app id file for Assetto Corsa
+        """
+        self._steam_appid_file_path = CROSSOVER_AC_STEAM_PATH
 
 
 class DockerCrossOverLauncher(AssettoCorsaLauncher):

@@ -133,8 +133,20 @@ To check if this is working go into a practice race and set the time to 22:00. I
 ### Additional Setup
  - Download the Assetto Corsa State server executable, `ac-state.exe`, from the latest [github release](https://github.com/Adelaide-Autonomous-Racing-Kit/ac-state/releases)
  - Place `ac-state.exe` into `$HOME/.local/share/Steam/steamapps/common/assettocorsa`
- - Open Steam and right-click Assetto Corsa, select Properties
- - Under general set the Launch Options to `PROTON_REMOTE_DEBUG_CMD=PROTON_REMOTE_DEBUG_CMD="$HOME/.local/share/Steam/steamapps/common/assettocorsa/ac-state.exe" %command%` This will run the state server everytime Assetto Corsa is launched
+ This will make the state server available to when Assetto Corsa is launched
+
+### Optional Setup
+#### Content Manager
+Installation of Content Manager with proton can be done using the procedure outlined in this [gist](https://gist.github.com/tim-gromeyer/2fbce4609f7d6d330e81504bcea70546).
+It will be nessicary to substitute paths containing `GE-Proton7-55` with the version used by ACI `GE-Proton9-2`.
+You will also need to install three additional fonts into the proton prefixes c drives: 
+- [Verdana.ttf](https://github.com/matomo-org/travis-scripts/blob/master/fonts/Verdana.ttf)
+
+- [segoeuiz.ttf](https://github.com/xamarin/evolve-presentation-template/blob/master/Fonts/Segoe%20UI/segoeuiz.ttf)
+
+- [verdanai.ttf](https://github.com/dolbydu/font/blob/master/Sans/Verdana/verdanai.ttf)
+
+These fonts should be downloaded and placed into `$HOME/.local/share/Steam/steamapps/compatdata/244210/pfx/drive_c/windows/Fonts`.
 
 </details>
 

@@ -191,7 +191,8 @@ class AssettoCorsaInterface(abc.ABC):
 
     def _restart_session(self):
         self.act(np.array([0.0, 0.0, 0.0]))
-        self._ac_launcher.restart_session()
+        # self._ac_launcher.restart_session()
+        self._ac_launcher.reset_car()
         self._termination_monitor.reset()
         self._restart_monitor.reset()
         time.sleep(2)

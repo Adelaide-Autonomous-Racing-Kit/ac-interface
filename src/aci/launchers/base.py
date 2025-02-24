@@ -1,8 +1,11 @@
 import abc
+from multiprocessing.connection import Client
+from pathlib import Path
 import time
 from typing import Dict
 
 from aci.config.ac_config import AssettoCorsaConfigurator
+from aci.config.constants import STEAM_APPID
 from aci.utils.data import Point
 from aci.utils.os import (
     get_application_window_coordinates,
@@ -14,6 +17,7 @@ from halo import Halo
 from loguru import logger
 import pyautogui
 
+AARK_PLUGIN_ADDRESS = ("localhost", 6337)
 LEFT_MENU_WIDTH = 100
 BAR_TO_SETUP_NORMALISED_WIDTH = 0.078
 SETUP_TO_FILE_WIDTH = 315
@@ -32,6 +36,7 @@ class AssettoCorsaLauncher(abc.ABC):
         """
         Launches AC
         """
+        self._maybe_create_steam_app_id_file()
         with Halo(text="Starting Assetto Corsa...", spinner="line"):
             is_connected, is_started = False, False
             while not is_started:
@@ -46,6 +51,27 @@ class AssettoCorsaLauncher(abc.ABC):
                     self._shutdown_state_server()
                     is_connected = False
         self._move_assetto_corsa_window()
+
+    def _maybe_create_steam_app_id_file(self):
+        """
+        Ensures that the steam_appid.txt file is present and has the correct contents
+            This file enables the game to launch without going via the launcher
+        """
+        if self._steam_appid_file_path.is_file():
+            with self._steam_appid_file_path.open("r") as file:
+                contents = file.read()
+            if contents == STEAM_APPID:
+                logger.info("Steam AppID file already present")
+                return
+        self._create_steam_appid_file()
+
+    def _create_steam_appid_file(self):
+        """
+        Creates a file named steam_appid.txt containing the app ID 244210
+        """
+        logger.info("Creating Steam AppID file...")
+        with self._steam_appid_file_path.open("w") as file:
+            file.write(STEAM_APPID)
 
     @abc.abstractmethod
     def _launch_assetto_corsa(self):
@@ -129,6 +155,13 @@ class AssettoCorsaLauncher(abc.ABC):
         pyautogui.click(top_left_corner.x + 20, top_left_corner.y + 150)
         pyautogui.moveTo(cursor_location)
 
+    def reset_car(self):
+        """
+        Moves the car back to the race line
+        """
+        with Client(AARK_PLUGIN_ADDRESS) as client:
+            client.send_bytes(b"reset_car")
+
     def restart_session(self):
         """
         Restart a running session without closing the window
@@ -183,13 +216,14 @@ class AssettoCorsaLauncher(abc.ABC):
         self._configure_simulation()
         self._setup_window_resolution()
         self._setup_window_location()
+        self._setup_steam_appid_path()
 
     def _configure_simulation(self):
         self._config_manager = AssettoCorsaConfigurator(self._config)
         self._config.update(self._config_manager.configure())
-        self._aditional_configuration()
+        self._additional_configuration()
 
-    def _aditional_configuration(self):
+    def _additional_configuration(self):
         """
         Implement logic for any additional configuration of Assetto Corsa
         """
@@ -215,3 +249,10 @@ class AssettoCorsaLauncher(abc.ABC):
         except KeyError:
             return False
         return True
+
+    @abc.abstractmethod
+    def _setup_steam_appid_path(self):
+        """
+        Add path to steam app id file for Assetto Corsa
+        """
+        self._steam_appid_file_path = Path("")
