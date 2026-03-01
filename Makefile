@@ -14,20 +14,14 @@ ifneq ($(wildcard $(CONDA_ENV_PATH)),)
 		conda env remove -p $(CONDA_ENV_PATH); \
 	fi
 endif
-	# Ensure docker compose is installed
-	docker compose version || { echo "Please install docker compose first: https://docs.docker.com/desktop/install/ubuntu/"; exit 1; }
-
 	# Create conda environment and install packages
-	conda create -y -p $(CONDA_ENV_PATH) -c conda-forge python=3.9 
+	conda create -y -p $(CONDA_ENV_PATH) -c conda-forge python=3.11
 	$(CONDA_ACTIVATE) $(CONDA_ENV_PATH)
 
 	# Install packages using pip
 	pip3 install -r requirements.txt
 	pip3 install -r requirements-dev.txt
-	pip3 install -e .
-	
-	# Start the database
-	docker compose up -d
+	pip3 install -e .\
 
 setup-pre-push:
 	@echo "Setting up pre-push hook..."

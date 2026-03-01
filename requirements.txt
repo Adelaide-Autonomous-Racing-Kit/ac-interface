@@ -1,6 +1,6 @@
 opencv-python
 numpy
-av
+av==14.1.0
 pyyaml
 ruamel.yaml
 pillow

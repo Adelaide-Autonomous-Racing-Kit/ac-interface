@@ -1,6 +1,6 @@
 capture:
   is_docker: False
-  is_proton: False
+  is_proton: True
 race.ini:
   RACE:
     TRACK: monza
