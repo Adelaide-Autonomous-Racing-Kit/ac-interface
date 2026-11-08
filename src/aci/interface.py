@@ -155,26 +155,30 @@ class AssettoCorsaInterface(abc.ABC):
         self._ac_launcher.shutdown_state_server()
 
     def run(self):
-        self._launch_AC()
-        self._start_capture()
-        self._start_evaluation()
-        self._start_session()
-        while self.is_running:
+        try:
+            self._launch_AC()
+            self._start_capture()
+            self._start_evaluation()
+            self._start_session()
+            while self.is_running:
+                try:
+                    observation = self.get_observation()
+                    self._maybe_terminate_session(observation)
+                    is_restarting = self._restart_monitor.is_triggered(observation)
+                    action = self.behaviour(observation)
+                    if action is not None:
+                        self.act(action)
+                    self._maybe_restart_session(is_restarting)
+                except KeyboardInterrupt:
+                    self.is_running = False
+                except Exception as e:
+                    self._log_exception(e)
+                    self.is_running = False
+        finally:
             try:
-                observation = self.get_observation()
-                self._maybe_terminate_session(observation)
-                is_restarting = self._restart_monitor.is_triggered(observation)
-                action = self.behaviour(observation)
-                if action is not None:
-                    self.act(action)
-                self._maybe_restart_session(is_restarting)
-            except KeyboardInterrupt:
-                self.is_running = False
-            except Exception as e:
-                self._log_exception(e)
-                self.is_running = False
-        self.teardown()
-        self._shutdown()
+                self.teardown()
+            finally:
+                self._shutdown()
 
     def _start_session(self):
         self._ac_launcher.start_session()

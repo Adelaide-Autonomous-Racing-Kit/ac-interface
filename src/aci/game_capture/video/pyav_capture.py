@@ -51,6 +51,9 @@ class ImageStream:
         self._is_new_frame = False
         return IMAGE_FORMAT_CONVERSION[self._image_format](self._latest_image)
 
+    def stop(self):
+        self._is_running = False
+
     @property
     def is_stale(self) -> bool:
         return not self._is_new_frame
@@ -164,7 +167,7 @@ def bench_fps(image_stream):
         _ = image_stream.latest_image
     elapsed_time = time.time() - start_time
     logger.info(
-        f"Received {n_frames} frames in {elapsed_time}s {n_frames/elapsed_time}fps"
+        f"Received {n_frames} frames in {elapsed_time}s {n_frames / elapsed_time}fps"
     )
 
 

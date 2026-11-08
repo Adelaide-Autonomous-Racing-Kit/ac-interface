@@ -1,0 +1,11 @@
+{
+  "file_format_version": "1.2.0",
+  "layer": {
+    "name": "VK_LAYER_ACI_game_frame",
+    "type": "GLOBAL",
+    "library_path": "./libaci_game_frame.so",
+    "api_version": "1.3.0",
+    "implementation_version": "1",
+    "description": "ACI direct game frame readback"
+  }
+}

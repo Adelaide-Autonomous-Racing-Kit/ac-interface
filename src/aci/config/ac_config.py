@@ -3,7 +3,12 @@ from configparser import ConfigParser
 from pathlib import Path
 from typing import Dict
 
-from aci.config.constants import ACI_DEFAULT_CONFIG_PATH, CONFIG_FILES, CONFIG_PATHS
+from aci.config.constants import (
+    ACI_DEFAULT_CONFIG_PATH,
+    CONFIG_FILES,
+    CONFIG_PATHS,
+    crossover_paths,
+)
 from aci.utils.load import load_yaml
 from loguru import logger
 
@@ -84,7 +89,8 @@ class AssettoCorsaConfigurator:
         if self._is_proton:
             override_path_roots = CONFIG_PATHS["proton"]
         else:
-            override_path_roots = CONFIG_PATHS["crossover"]
+            steam, user = crossover_paths(self._config)
+            override_path_roots = {"steam": steam / "cfg", "user": user / "cfg"}
         return override_path_roots
 
     def _get_override_path(self, path_roots: Dict, filename: str) -> OverridePaths:

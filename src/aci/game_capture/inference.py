@@ -1,16 +1,19 @@
+from contextlib import contextmanager
 import ctypes
 import multiprocessing as mp
 from multiprocessing.shared_memory import SharedMemory
+import select
 import signal
+import socket
 import time
-from typing import Dict, Union
+from typing import Dict
 
 from aci.config.constants import CAPTURE_CONFIG_FILE
-from aci.game_capture.video.pyav_capture import ImageStream
+from aci.game_capture.video.game_frame import FrameCaptureError
+from aci.game_capture.video.source import open_image_source
 from aci.utils.ins import SimulatedINS
 from aci.utils.load import load_yaml
 from aci.utils.state import identity, process_state, simulate_ins_readings
-from aci.utils.system_monitor import System_Monitor, track_runtime
 from acs.client import StateClient
 from acs.shared_memory.ac.combined import COMBINED_DATA_TYPES
 import numpy as np
@@ -37,62 +40,99 @@ class GameCapture(mp.Process):
         :return: {Dictionary image: BGR image as np.array, state: bytes}
         :rtype: Dict[str : np.array, Union[bytes, Dict]]
         """
-        self._wait_for_fresh_capture()
-
-        image, state = self._get_capture()
-        self.is_stale = True
-        is_image_stale = self._is_cached_image_stale
-        state = self._state_transform(state, self._simulated_INS)
-        self._is_cached_image_stale = True
-        return {"state": state, "image": image, "is_image_stale": is_image_stale}
-
-    def _get_capture(self):
-        image_mp_array, _ = self._shared_image_buffer
-        mp_buffer = self._shared_state_buffer
-        with image_mp_array.get_lock():
-            self._maybe_update_image()
-            state = self._copy_state(mp_buffer)
-        return self._image, state
-
-    def _maybe_update_image(self):
-        _, image_np_array = self._shared_image_buffer
-        if not self.is_image_stale:
-            self._copy_image(image_np_array)
-            self.is_image_stale = True
-            self._is_cached_image_stale = False
-
-    def _copy_image(self, image: np.array):
-        self._image = image.copy()
-
-    def _copy_state(self, mp_buffer):
-        return mp_buffer.buf[:].tobytes()
+        while True:
+            self._wait_for_fresh_capture()
+            with self._capture_lock():
+                if self.is_stale:
+                    continue
+                self.is_stale = True
+                is_image_stale = self.is_image_stale
+                if not is_image_stale:
+                    self._image = self._shared_image_buffer[1].copy()
+                    self.is_image_stale = True
+                    if self._direct:
+                        self._metadata = dict(
+                            zip(self._metadata_fields, self._frame_meta)
+                        )
+                        self._metadata["capture_drops"] = (
+                            self._metadata["frame_id"]
+                            - self._last_read_frame
+                            - 1
+                            - (self._metadata["source_drops"] - self._last_source_drops)
+                        ) + self._capture_drops
+                        self._capture_drops = self._metadata["capture_drops"]
+                        self._last_read_frame = self._metadata["frame_id"]
+                        self._last_source_drops = self._metadata["source_drops"]
+                state = self._shared_state_buffer.buf[:].tobytes()
+                break
+        result = {
+            "state": self._state_transform(state, self._simulated_INS),
+            "image": self._image,
+            "is_image_stale": is_image_stale,
+        }
+        if self._direct:
+            result["image_metadata"] = self._metadata.copy()
+        return result
 
     def _wait_for_fresh_capture(self):
-        while self.is_stale:
-            continue
+        while True:
+            if not self.is_running:
+                raise FrameCaptureError("Game capture stopped")
+            if self._error_receive.poll():
+                try:
+                    message = self._error_receive.recv()
+                except EOFError:
+                    message = "Game capture stopped"
+                raise FrameCaptureError(message)
+            if self.pid is not None and not self.is_alive():
+                raise FrameCaptureError(
+                    f"Game capture stopped (exit code {self.exitcode})"
+                )
+            if not self.is_stale:
+                return
+            ready, _, _ = select.select([self._notify_read], [], [], 0.1)
+            if ready:
+                try:
+                    self._notify_read.recv(1)
+                except BlockingIOError:
+                    pass
 
     @capture.setter
     def capture(self, capture: Dict):
-        """
-        Accepts a capture dictionary and copies them to the shared memory buffer
-
-        :capture: A Dictionary containing {"image": image, "state": state}
-        :type capture: Dict[str : np.array, bytes]
-        """
-        image_mp_array, _ = self._shared_image_buffer
-        with image_mp_array.get_lock():
-            self._maybe_update_frame(capture["image"])
+        """Publish a complete image (if any) and the latest independent state."""
+        notify = False
+        with self._capture_lock():
+            image = capture["image"]
+            if image is not None:
+                self._shared_image_buffer[1][:] = image
+                if self._direct:
+                    metadata = capture["image_metadata"]
+                    self._frame_meta[:] = [
+                        metadata[key] for key in self._metadata_fields
+                    ]
+                self.is_image_stale = False
+                self._has_frame.value = True
             self._update_state(capture["state"])
-        self.is_stale = False
+            if self._has_frame.value and (
+                image is not None or not self._wait_for_frames
+            ):
+                notify = self.is_stale
+                self.is_stale = False
+        if notify:
+            try:
+                self._notify_write.send(b"F")
+            except BlockingIOError:
+                pass  # A notification is already queued.
 
-    def _maybe_update_frame(self, image: Union[np.array, None]):
-        _, image_np_array = self._shared_image_buffer
-        if self._is_new_frame(image):
-            image_np_array[:] = image
-            self.is_image_stale = False
-
-    def _is_new_frame(self, image: Union[np.array, None]) -> bool:
-        return image is not None
+    @contextmanager
+    def _capture_lock(self):
+        lock = self._shared_image_buffer[0].get_lock()
+        if not lock.acquire(timeout=0.5):
+            raise FrameCaptureError("Game capture shared buffer stopped responding")
+        try:
+            yield
+        finally:
+            lock.release()
 
     def _update_state(self, state: Dict):
         mp_buffer = self._shared_state_buffer
@@ -106,118 +146,99 @@ class GameCapture(mp.Process):
         :return: state: raw game state bytes that can be decoded
         :rtype: bytes
         """
-        image_mp_array, _ = self._shared_image_buffer
         mp_buffer = self._shared_state_buffer
-        with image_mp_array.get_lock():
+        with self._capture_lock():
             state = mp_buffer.buf[:].tobytes()
         return state
 
     @property
-    def is_stale(self) -> bool:
-        """
-        Checks if the current capture has been read by any consumer
-
-        :return: True if the capture has been read, false if it has not
-        :rtype: bool
-        """
-        with self._is_stale.get_lock():
-            is_stale = self._is_stale.value
-        return is_stale
+    def is_stale(self):
+        return self._is_stale.value
 
     @is_stale.setter
-    def is_stale(self, is_stale: bool):
-        """
-        Sets the flag indicating if the capture has been read previously
-
-        :is_stale: True if the capture has been read, false if it has not
-        :type is_stale: bool
-        """
-        with self._is_stale.get_lock():
-            self._is_stale.value = is_stale
+    def is_stale(self, value):
+        self._is_stale.value = value
 
     @property
-    def is_image_stale(self) -> bool:
-        """
-        Checks if the current image has been read by any consumer
-
-        :return: True if the image has been read, false if it has not
-        :rtype: bool
-        """
-        with self._is_image_stale.get_lock():
-            is_image_stale = self._is_image_stale.value
-        return is_image_stale
+    def is_image_stale(self):
+        return self._is_image_stale.value
 
     @is_image_stale.setter
-    def is_image_stale(self, is_image_stale: bool):
-        """
-        Sets the flag indicating if the image has been read previously
-
-        :is_stale: True if the image has been read, false if it has not
-        :type is_stale: bool
-        """
-        with self._is_image_stale.get_lock():
-            self._is_image_stale.value = is_image_stale
+    def is_image_stale(self, value):
+        self._is_image_stale.value = value
 
     @property
-    def is_running(self) -> bool:
-        """
-        Checks if the capture process is running
-
-        :return: True if the capture process is running, false if it is not
-        :rtype: bool
-        """
-        with self._is_running.get_lock():
-            is_running = self._is_running.value
-        return is_running
+    def is_running(self):
+        return self._is_running.value
 
     @is_running.setter
-    def is_running(self, is_running: bool):
-        """
-        Sets if the capture process is running
-
-        :is_running: True if the capture process is running, false if it is not
-        :type is_running: bool
-        """
-        with self._is_running.get_lock():
-            self._is_running.value = is_running
+    def is_running(self, value):
+        self._is_running.value = value
 
     def run(self):
-        """
-        Called on GameCapture.start()
-        """
-        self.__setup_capture_process()
-        while self.is_running:
-            self._observation_capture_work()
-            # self._log_processing_speed()
-            time.sleep(1e-3)
-
-    def _log_processing_speed(self):
-        System_Monitor.maybe_log_function_itterations_per_second()
-
-    @track_runtime(System_Monitor)
-    def _observation_capture_work(self):
-        image = self._maybe_get_updated_frame()
-        state = self.state_capture.latest_state
-        self.capture = {"state": state, "image": image}
-
-    def _maybe_get_updated_frame(self) -> Union[np.array, None]:
-        if not self.image_stream.is_stale:
-            image = self.image_stream.image
-        else:
-            image = None
-        return image
-
-    def __setup_capture_process(self):
         signal.signal(signal.SIGINT, signal.SIG_IGN)
-        self.image_stream = ImageStream(self._capture_config)
-        self.state_capture = StateClient()
+        self._error_receive.close()
+        self._notify_read.close()
+        image_stream = state_capture = None
+        try:
+            image_stream = open_image_source(self._capture_config)
+            state_capture = StateClient()
+            while self.is_running:
+                frame = image_stream.read_latest()
+                # StateClient.latest_state spins while waiting for the first packet.
+                # Direct capture must still service its socket during that interval.
+                if self._direct:
+                    state = state_capture._latest_state
+                    if not state_capture.update_thread.is_alive():
+                        raise FrameCaptureError("Game state stream disconnected")
+                else:
+                    state = state_capture.latest_state
+                if state is not None:
+                    image, metadata = frame if frame is not None else (None, None)
+                    self.capture = {
+                        "state": state,
+                        "image": image,
+                        "image_metadata": metadata,
+                    }
+                time.sleep(0.001)
+        except FrameCaptureError as error:
+            self._error_send.send(str(error)[:2048])
+            raise SystemExit(1) from None
+        except Exception as error:
+            self._error_send.send(str(error)[:2048])
+            raise
+        finally:
+            if state_capture is not None:
+                state_capture.stop()
+            if image_stream is not None:
+                image_stream.close()
+            self._shared_state_buffer.close()
+            self._error_send.close()
+            self._notify_write.close()
 
     def stop(self):
-        """
-        Stops the capture process
-        """
+        """Stop the capture process and release its shared state."""
+        if self._resources_closed:
+            return
+        self._resources_closed = True
         self.is_running = False
-        self._shared_state_buffer.unlink()
+        if self.pid is not None:
+            self.join(timeout=2)
+            if self.is_alive():
+                self.terminate()
+                self.join(timeout=2)
+                if self.is_alive():
+                    self.kill()
+                    self.join(timeout=2)
+        self._error_receive.close()
+        self._error_send.close()
+        self._notify_read.close()
+        self._notify_write.close()
+        try:
+            self._shared_state_buffer.unlink()
+        except FileNotFoundError:
+            pass
+        self._shared_state_buffer.close()
 
     def __setup(self, config: Dict):
         self.__setup_configuration(config)
@@ -231,7 +252,20 @@ class GameCapture(mp.Process):
         width, height = self._image_stream_config["resolution"]
         n_channels = 4 if self._image_stream_config["image_format"] == "BGR0" else 3
         self._image_shape = (height, width, n_channels)
-        self._is_cached_image_stale = True
+        self._image = None
+        self._metadata = {}
+        self._resources_closed = False
+        self._metadata_fields = (
+            "frame_id",
+            "present_hook_ns",
+            "received_ns",
+            "source_drops",
+        )
+        self._capture_drops = self._last_read_frame = self._last_source_drops = 0
+        self._direct = self._image_stream_config["backend"] == "game_frame"
+        self._wait_for_frames = (
+            self._direct and self._image_stream_config["wait_for_new_frames"]
+        )
 
     def __setup_state_postprocessing(self):
         self._simulated_INS = SimulatedINS()
@@ -293,6 +327,14 @@ class GameCapture(mp.Process):
         return np.dtype(COMBINED_DATA_TYPES).itemsize
 
     def __setup_shared_flags(self):
-        self._is_stale = mp.Value("i", True)
-        self._is_image_stale = mp.Value("i", False)
-        self._is_running = mp.Value("i", True)
+        self._is_stale = mp.RawValue("b", True)
+        self._is_image_stale = mp.RawValue("b", True)
+        self._has_frame = mp.RawValue("b", False)
+        self._frame_meta = mp.RawArray("Q", len(self._metadata_fields))
+        self._notify_read, self._notify_write = socket.socketpair(
+            type=socket.SOCK_DGRAM
+        )
+        self._notify_read.setblocking(False)
+        self._notify_write.setblocking(False)
+        self._error_receive, self._error_send = mp.Pipe(duplex=False)
+        self._is_running = mp.RawValue("b", True)
