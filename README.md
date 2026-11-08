@@ -163,3 +163,5 @@ If you use ACI in your research please cite us in your work:
       url={https://arxiv.org/abs/2410.00358}, 
 }
 ```
+
+An experimental private-display CrossOver runner and direct frame backend are documented in [Headless Assetto Corsa](tools/headless/README.md).

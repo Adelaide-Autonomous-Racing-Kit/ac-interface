@@ -69,3 +69,14 @@ CONFIG_PATHS = {
         "appid": Path(PROTON_AC_APPID_FILE_PATH),
     },
 }
+
+
+def crossover_paths(config):
+    """Resolve a configured CrossOver bottle without changing the desktop default."""
+    bottle = config["capture"].get("crossover_bottle", "Assetto_Corsa")
+    if not bottle or not bottle.replace("_", "").replace("-", "").isalnum():
+        raise ValueError("Invalid CrossOver bottle name")
+    drive = Path.home() / ".cxoffice" / bottle / "drive_c"
+    steam = drive / "Program Files (x86)/Steam/steamapps/common/assettocorsa"
+    user = drive / "users/crossover/Documents/Assetto Corsa"
+    return steam, user
